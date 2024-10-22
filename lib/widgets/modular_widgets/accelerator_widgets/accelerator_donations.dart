@@ -15,9 +15,9 @@ class AcceleratorDonations extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardScaffold(
-      title: 'Accelerator Donations',
+      title: context.l10n.acceleratorDonationsTitle,
       childBuilder: () => _getWidgetBody(context),
-      description: 'Thank you for supporting the Accelerator',
+      description: context.l10n.acceleratorThanks,
     );
   }
 
@@ -37,7 +37,7 @@ class AcceleratorDonations extends StatelessWidget {
             SizedBox(
               width: 200,
               child: Text(
-                'Fuel for the Mothership',
+                context.l10n.fuelMothership,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
             ),
@@ -55,7 +55,7 @@ class AcceleratorDonations extends StatelessWidget {
                   ),
                 );
               },
-              text: 'Donate',
+              text: context.l10n.donate,
               initialFillColor: AppColors.znnColor,
               icon: SyriusElevatedButton.getFilledButtonPlusIcon(),
             ),

@@ -86,7 +86,7 @@ class _AcceleratorDonationStepperState
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 StepperButton.icon(
-                  label: 'Make another donation',
+                  label: context.l10n.makeAnotherDonation,
                   onPressed: () {
                     setState(() {
                       _currentStep = AcceleratorDonationStep.values.first;
@@ -99,7 +99,7 @@ class _AcceleratorDonationStepperState
                   width: 75,
                 ),
                 StepperButton(
-                  text: 'Return to project list',
+                  text: context.l10n.returnToProjects,
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -140,8 +140,8 @@ class _AcceleratorDonationStepperState
         onStepTapped: (int index) {},
         steps: [
           StepperUtils.getMaterialStep(
-            stepTitle: 'Donation address',
-            stepContent: _getDonationAddressStepContent(accountInfo),
+            stepTitle: context.l10n.donationAddress,
+            stepContent: _getDonationAddressStepContent(context, accountInfo),
             stepSubtitle: _addressController.text,
             stepState: StepperUtils.getStepState(
               AcceleratorDonationStep.donationAddress.index,
@@ -150,8 +150,8 @@ class _AcceleratorDonationStepperState
             context: context,
           ),
           StepperUtils.getMaterialStep(
-            stepTitle: 'Donation details',
-            stepContent: _getDonationDetailsStepContent(accountInfo),
+            stepTitle: context.l10n.donationDetails,
+            stepContent: _getDonationDetailsStepContent(context, accountInfo),
             stepSubtitle: _getDonationDetailsStepSubtitle(),
             stepState: StepperUtils.getStepState(
               AcceleratorDonationStep.donationDetails.index,
@@ -160,9 +160,9 @@ class _AcceleratorDonationStepperState
             context: context,
           ),
           StepperUtils.getMaterialStep(
-            stepTitle: 'Submit donation',
-            stepContent: _getSubmitDonationStepContent(),
-            stepSubtitle: 'Donation submitted',
+            stepTitle: context.l10n.submitDonation,
+            stepContent: _getSubmitDonationStepContent(context),
+            stepSubtitle: context.l10n.donationSubmitted,
             stepState: StepperUtils.getStepState(
               AcceleratorDonationStep.submitDonation.index,
               _lastCompletedStep?.index,
@@ -186,7 +186,9 @@ class _AcceleratorDonationStepperState
     return znnPrefix + splitter + qsrSuffix;
   }
 
-  Widget _getDonationAddressStepContent(AccountInfo accountInfo) {
+  Widget _getDonationAddressStepContent(BuildContext context,
+      AccountInfo accountInfo,
+      ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -195,8 +197,8 @@ class _AcceleratorDonationStepperState
           StepperUtils.getBalanceWidget(kZnnCoin, accountInfo),
           StepperUtils.getBalanceWidget(kQsrCoin, accountInfo),
         ],),
-        const DottedBorderInfoWidget(
-          text: 'All donated funds go directly into the Accelerator address',
+        DottedBorderInfoWidget(
+          text: context.l10n.donatedFundsAddress,
         ),
         kVerticalSpacing,
         Row(
@@ -205,7 +207,7 @@ class _AcceleratorDonationStepperState
               onPressed: () {
                 Navigator.pop(context);
               },
-              text: 'Cancel',
+              text: context.l10n.cancel,
             ),
             const SizedBox(
               width: 15,
@@ -221,7 +223,7 @@ class _AcceleratorDonationStepperState
                       });
                     }
                   : null,
-              text: 'Continue',
+              text: context.l10n.continueKey,
             ),
           ],
         ),
@@ -229,15 +231,16 @@ class _AcceleratorDonationStepperState
     );
   }
 
-  Widget _getDonationDetailsStepContent(AccountInfo accountInfo) {
+  Widget _getDonationDetailsStepContent(BuildContext context,
+      AccountInfo accountInfo,) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Text('Total donation budget'),
+            Text(context.l10n.totalDonationBudget),
             StandardTooltipIcon(
-              'Your donation matters',
+              context.l10n.yourDonationMatters,
               Icons.help,
             ),
           ],
@@ -247,7 +250,7 @@ class _AcceleratorDonationStepperState
           key: _znnAmountKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: InputField(
-            hintText: 'ZNN Amount',
+            hintText: context.l10n.znnAmount,
             controller: _znnAmountController,
             suffixIcon: AmountSuffixWidgets(
               kZnnCoin,
@@ -286,7 +289,7 @@ class _AcceleratorDonationStepperState
           key: _qsrAmountKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: InputField(
-            hintText: 'QSR Amount',
+            hintText: context.l10n.qsrAmount,
             controller: _qsrAmountController,
             suffixIcon: AmountSuffixWidgets(
               kQsrCoin,
@@ -324,7 +327,7 @@ class _AcceleratorDonationStepperState
         Row(
           children: [
             StepperButton(
-              text: 'Cancel',
+              text: context.l10n.cancel,
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -333,7 +336,7 @@ class _AcceleratorDonationStepperState
               width: 15,
             ),
             StepperButton(
-              text: 'Continue',
+              text: context.l10n.continueKey,
               onPressed: _ifInputValid(accountInfo)
                   ? () {
                       setState(() {
@@ -394,12 +397,12 @@ class _AcceleratorDonationStepperState
             _qsrAmount <= accountInfo.qsr()!);
   }
 
-  Widget _getSubmitDonationStepContent() {
+  Widget _getSubmitDonationStepContent(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const DottedBorderInfoWidget(
-          text: 'Thank you for supporting the Accelerator',
+        DottedBorderInfoWidget(
+          text: context.l10n.acceleratorThanks,
         ),
         kVerticalSpacing,
         Row(
@@ -411,19 +414,20 @@ class _AcceleratorDonationStepperState
                   _lastCompletedStep = AcceleratorDonationStep.donationAddress;
                 });
               },
-              text: 'Go back',
+              text: context.l10n.goBack,
             ),
             const SizedBox(
               width: 15,
             ),
-            _getSubmitDonationViewModel(),
+            _getSubmitDonationViewModel(context),
           ],
         ),
       ],
     );
   }
 
-  Widget _getSubmitDonationButton(SubmitDonationBloc model) {
+  Widget _getSubmitDonationButton(BuildContext context,
+      SubmitDonationBloc model) {
     return LoadingButton.stepper(
       onPressed: () {
         _submitButtonKey.currentState?.animateForward();
@@ -432,12 +436,12 @@ class _AcceleratorDonationStepperState
           _qsrAmount,
         );
       },
-      text: 'Submit',
+      text: context.l10n.submit,
       key: _submitButtonKey,
     );
   }
 
-  Widget _getSubmitDonationViewModel() {
+  Widget _getSubmitDonationViewModel(BuildContext context) {
     return ViewModelBuilder<SubmitDonationBloc>.reactive(
       onViewModelReady: (model) {
         model.stream.listen(
@@ -453,12 +457,12 @@ class _AcceleratorDonationStepperState
             _submitButtonKey.currentState?.animateReverse();
             await NotificationUtils.sendNotificationError(
               error,
-              'Error while submitting donation',
+              context.l10n.donationError,
             );
           },
         );
       },
-      builder: (_, model, __) => _getSubmitDonationButton(model),
+      builder: (_, model, __) => _getSubmitDonationButton(context, model),
       viewModelBuilder: SubmitDonationBloc.new,
     );
   }

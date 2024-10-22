@@ -43,7 +43,7 @@ class _AcceleratorProjectListState extends State<AcceleratorProjectList> {
       margin: const EdgeInsets.all(15),
       child: Column(
         children: [
-          _getSearchInputField(),
+          _getSearchInputField(context),
           const SizedBox(
             height: 10,
           ),
@@ -88,10 +88,10 @@ class _AcceleratorProjectListState extends State<AcceleratorProjectList> {
     );
   }
 
-  Widget _getSearchInputField() {
+  Widget _getSearchInputField(BuildContext context) {
     return InputField(
       controller: _searchKeyWordController,
-      hintText: 'Search by id, owner, name, description, or URL',
+      hintText: context.l10n.searchHints,
       suffixIcon: const Icon(
         Icons.search,
         color: Colors.green,

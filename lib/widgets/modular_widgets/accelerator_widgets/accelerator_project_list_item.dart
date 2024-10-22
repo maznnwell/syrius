@@ -159,7 +159,7 @@ class _AcceleratorProjectListItemState
             AcceleratorProjectStatus.voting) {
       tags.add(
         TagWidget(
-          text: 'Phase needs voting',
+          text: context.l10n.phaseNeedsVoting,
           hexColorCode:
               AppColors.znnColor.withOpacity(0.7).value.toRadixString(16),
         ),
@@ -181,19 +181,19 @@ class _AcceleratorProjectListItemState
   TagWidget _getProjectStatusTag() {
     if (widget.acceleratorProject.status == AcceleratorProjectStatus.closed) {
       return TagWidget(
-        text: 'Rejected',
+        text: context.l10n.rejectedStatus,
         hexColorCode: AppColors.errorColor.value.toRadixString(16).substring(2),
       );
     }
     if (widget.acceleratorProject.status == AcceleratorProjectStatus.active) {
       return TagWidget(
-        text: 'Accepted',
+        text: context.l10n.acceptedStatus,
         hexColorCode: AppColors.znnColor.value.toRadixString(16),
       );
     }
     if (widget.acceleratorProject.status == AcceleratorProjectStatus.voting) {
       return TagWidget(
-        text: 'Voting open',
+        text: context.l10n.votingOpenStatus,
         iconData: MaterialCommunityIcons.vote,
         hexColorCode:
             AppColors.znnColor.withOpacity(0.7).value.toRadixString(16),
@@ -201,19 +201,19 @@ class _AcceleratorProjectListItemState
     }
     if (widget.acceleratorProject.status == AcceleratorProjectStatus.paid) {
       return TagWidget(
-        text: 'Paid',
+        text: context.l10n.paidStatus,
         hexColorCode: AppColors.alertNotification.value.toRadixString(16),
       );
     }
     if (widget.acceleratorProject.status ==
         AcceleratorProjectStatus.completed) {
       return TagWidget(
-        text: 'Completed',
+        text: context.l10n.completedStatus,
         hexColorCode: AppColors.qsrColor.value.toRadixString(16),
       );
     }
-    return const TagWidget(
-      text: 'Wrong status',
+    return TagWidget(
+      text: context.l10n.wrongStatus,
     );
   }
 
@@ -251,9 +251,9 @@ class _AcceleratorProjectListItemState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Text('Voting results'),
+            Text(context.l10n.votingResults),
           ],
         ),
         kVerticalSpacing,
@@ -266,12 +266,12 @@ class _AcceleratorProjectListItemState
                   AcceleratorProgressBarSpan(
                     value: yesVotes / (yesVotes + noVotes),
                     color: AppColors.znnColor,
-                    tooltipMessage: '$yesVotes Yes votes',
+                    tooltipMessage: context.l10n.yesVotesTooltip(yesVotes),
                   ),
                   AcceleratorProgressBarSpan(
                     value: noVotes / (yesVotes + noVotes),
                     color: AppColors.errorColor,
-                    tooltipMessage: '$noVotes No votes',
+                    tooltipMessage: context.l10n.noVotesTooltip(noVotes),
                   ),
                 ],
               ),
@@ -281,8 +281,8 @@ class _AcceleratorProjectListItemState
             ),
             Tooltip(
               message: yesVotes > noVotes
-                  ? 'More yes than no votes'
-                  : 'Not enough yes votes',
+                  ? context.l10n.moreYesThanNoVotesTooltip
+                  : context.l10n.notEnoughYesVotesTooltip,
               child: Icon(
                 Icons.check_circle,
                 color: yesVotes > noVotes
@@ -305,20 +305,20 @@ class _AcceleratorProjectListItemState
                     AcceleratorProgressBarSpan(
                       value: quorum / kNumOfPillars!,
                       color: AppColors.qsrColor,
-                      tooltipMessage: '${voteBreakdown.total} votes in total',
+                      tooltipMessage: context.l10n.quorumVotesTooltip(voteBreakdown.total),
                     ),
                     if (votesToAchieveQuorum > 0)
                       AcceleratorProgressBarSpan(
                         value: votesToAchieveQuorum / kNumOfPillars!,
                         color: AppColors.alertNotification,
                         tooltipMessage:
-                            '$votesToAchieveQuorum more votes needed to achieve quorum',
+                            context.l10n.votesNeededTooltip(votesToAchieveQuorum),
                       ),
                     AcceleratorProgressBarSpan(
                       value: pillarsThatCanStillVote / kNumOfPillars!,
                       color: Colors.transparent,
                       tooltipMessage:
-                          '$pillarsThatCanStillVote Pillars that can still cast a vote',
+                          context.l10n.pillarsCanStillVoteTooltip(pillarsThatCanStillVote),
                     ),
                   ],
                 ),),
@@ -327,8 +327,8 @@ class _AcceleratorProjectListItemState
             ),
             Tooltip(
               message: quorum >= quorumNeeded
-                  ? 'Quorum achieved'
-                  : 'Quorum not achieved',
+                  ? context.l10n.quorumAchievedTooltip
+                  : context.l10n.quorumNotAchievedTooltip,
               child: Icon(
                 Icons.check_circle,
                 color: quorum >= quorumNeeded
@@ -353,7 +353,7 @@ class _AcceleratorProjectListItemState
       shape: const CircleBorder(),
       onPressed: () => NavigationUtils.openUrl(widget.acceleratorProject.url),
       child: Tooltip(
-        message: 'Visit ${widget.acceleratorProject.url}',
+        message: context.l10n.visitUrlTooltip(widget.acceleratorProject.url),
         child: Container(
           height: 50,
           width: 50,
@@ -427,7 +427,7 @@ class _AcceleratorProjectListItemState
     return Row(
       children: [
         Tooltip(
-          message: 'No',
+          message: context.l10n.noTooltip,
           child: RawMaterialButton(
             constraints: const BoxConstraints(
               minWidth: 50,
@@ -461,7 +461,7 @@ class _AcceleratorProjectListItemState
           width: 10,
         ),
         Tooltip(
-          message: 'Yes',
+          message: context.l10n.yesTooltip,
           child: RawMaterialButton(
             constraints: const BoxConstraints(
               minWidth: 50,
@@ -495,7 +495,7 @@ class _AcceleratorProjectListItemState
           width: 10,
         ),
         Tooltip(
-          message: 'Abstain',
+          message: context.l10n.abstainTooltip,
           child: RawMaterialButton(
             constraints: const BoxConstraints(
               minWidth: 50,
@@ -535,7 +535,7 @@ class _AcceleratorProjectListItemState
 
   Widget _getUpdatePhaseIcon(BuildContext context) {
     return Tooltip(
-      message: 'Update phase',
+      message: context.l10n.updatePhaseTooltip,
       child: RawMaterialButton(
         constraints: const BoxConstraints(
           minWidth: 50,

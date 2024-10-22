@@ -25,12 +25,12 @@ class _AcceleratorStatsState extends State<AcceleratorStats> {
   @override
   Widget build(BuildContext context) {
     return CardScaffold(
-      title: 'Accelerator Stats',
+      title: context.l10n.acceleratorStatsTitle,
       childBuilder: () => _getWidgetBodyFutureBuilder(context),
       onRefreshPressed: () {
         sl.get<AcceleratorBalanceBloc>().getAcceleratorBalance();
       },
-      description: 'Accelerator available balance',
+      description: context.l10n.acceleratorAvailableBalance,
     );
   }
 
@@ -75,7 +75,7 @@ class _AcceleratorStatsState extends State<AcceleratorStats> {
       children: [
         ChartLegend(
           dotColor: AppColors.znnColor,
-          mainText: 'Available',
+          mainText: context.l10n.availableTooltip,
           detailsWidget: FormattedAmountWithTooltip(
             amount: accountInfo
                 .getBalance(
@@ -92,7 +92,7 @@ class _AcceleratorStatsState extends State<AcceleratorStats> {
         kVerticalSpacing,
         ChartLegend(
           dotColor: AppColors.qsrColor,
-          mainText: 'Available',
+          mainText: context.l10n.availableTooltip,
           detailsWidget: FormattedAmountWithTooltip(
             amount: accountInfo
                 .getBalance(

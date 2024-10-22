@@ -18,11 +18,9 @@ class CreatePhase extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardScaffold(
-      title: 'Create Phase',
+      title: context.l10n.createPhaseTitle,
       childBuilder: () => _getWidgetBody(context),
-      description: 'Create a phase for your project. '
-          'The project can be divided into several phases. '
-          'You will unlock the funds if you get enough votes from the Pillars.',
+      description: context.l10n.createPhaseDescription,
     );
   }
 
@@ -42,7 +40,7 @@ class CreatePhase extends StatelessWidget {
             SizedBox(
               width: 200,
               child: Text(
-                'Start the project by creating a phase to unlock funds',
+                context.l10n.createPhaseDescriptionTooltip,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
             ),
@@ -62,7 +60,7 @@ class CreatePhase extends StatelessWidget {
                       );
                     }
                   : null,
-              text: 'Create phase',
+              text: context.l10n.createPhaseTooltip,
               initialFillColor: AppColors.znnColor,
               icon: SyriusElevatedButton.getFilledButtonPlusIcon(),
             ),
