@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/navigation_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart';
 
@@ -9,8 +10,8 @@ class UpdateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardScaffold(
-      title: 'Update',
-      description: 'Check updates for the Syrius wallet',
+      title: context.l10n.update,
+      description: context.l10n.updateDescrition,
       childBuilder: () => _getWidgetBody(context),
     );
   }
@@ -20,7 +21,7 @@ class UpdateCard extends StatelessWidget {
       shrinkWrap: true,
       children: [
         CustomExpandablePanel(
-          'Check update',
+          context.l10n.updateCheck,
           _getCheckUpdateExpandableChild(context),
         ),
       ],
@@ -31,7 +32,7 @@ class UpdateCard extends StatelessWidget {
     return Center(
       child: SettingsButton(
         onPressed: () => NavigationUtils.openUrl(kGithubReleasesLink),
-        text: 'Update',
+        text: context.l10n.update,
       ),
     );
   }

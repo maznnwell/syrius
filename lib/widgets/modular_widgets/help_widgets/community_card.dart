@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart';
 
 class CommunityCard extends StatelessWidget {
@@ -10,9 +11,8 @@ class CommunityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardScaffold(
-      title: 'Community',
-      description:
-          'This card displays information about Zenon community resources',
+      title: context.l10n.communityTitle,
+      description: context.l10n.communityDescription,
       childBuilder: () => _getWidgetBody(context),
     );
   }
@@ -23,19 +23,19 @@ class CommunityCard extends StatelessWidget {
       shrinkWrap: true,
       children: [
         CustomExpandablePanel(
-          'Websites',
+          context.l10n.communityWebsites,
           _getWebsitesExpandableChild(context),
         ),
         CustomExpandablePanel(
-          'Explorers',
+          context.l10n.communityExplorers,
           _getExplorersExpandableChild(context),
         ),
         CustomExpandablePanel(
-          'Social Media',
+          context.l10n.communitySocialMedia,
           _getSocialMediaExpandableChild(context),
         ),
         CustomExpandablePanel(
-          'Documentation',
+          context.l10n.communityDocumentation,
           _getDocumentationExpandableChild(context),
         ),
       ],
@@ -49,31 +49,31 @@ class CommunityCard extends StatelessWidget {
       children: [
         _getListViewChild(
           iconData: MaterialCommunityIcons.home,
-          title: 'Zenon Network',
+          title: context.l10n.zenonNetwork,
           url: kWebsite,
           context: context,
         ),
         _getListViewChild(
           iconData: MaterialCommunityIcons.forum,
-          title: 'Zenon ORG Community Forum',
+          title: context.l10n.zenonOrgForum,
           url: kOrgCommunityForum,
           context: context,
         ),
         _getListViewChild(
           iconData: MaterialCommunityIcons.tools,
-          title: 'Zenon Tools',
+          title: context.l10n.zenonTools,
           url: kTools,
           context: context,
         ),
         _getListViewChild(
           iconData: MaterialCommunityIcons.web,
-          title: 'Zenon ORG Community',
+          title: context.l10n.zenonOrgCommunity,
           url: kOrgCommunityWebsite,
           context: context,
         ),
         _getListViewChild(
           iconData: MaterialCommunityIcons.lan,
-          title: 'Zenon Hub',
+          title: context.l10n.zenonHub,
           url: kHubCommunityWebsite,
           context: context,
         ),
@@ -88,13 +88,13 @@ class CommunityCard extends StatelessWidget {
       children: [
         _getListViewChild(
           iconData: Icons.explore,
-          title: 'Zenon Explorer',
+          title: context.l10n.zenonExplorer,
           url: kExplorer,
           context: context,
         ),
         _getListViewChild(
           iconData: Icons.explore_off_outlined,
-          title: 'Zenon Hub Explorer',
+          title: context.l10n.zenonHubExplorer,
           url: kHubCommunityExplorer,
           context: context,
         ),
@@ -109,49 +109,49 @@ class CommunityCard extends StatelessWidget {
       children: [
         _getListViewChild(
           iconData: MaterialCommunityIcons.twitter,
-          title: 'Zenon Twitter',
+          title: context.l10n.zenonTwitter,
           url: kTwitter,
           context: context,
         ),
         _getListViewChild(
           iconData: MaterialCommunityIcons.discord,
-          title: 'Zenon Discord',
+          title: context.l10n.zenonDiscord,
           url: kDiscord,
           context: context,
         ),
         _getListViewChild(
           iconData: Icons.telegram,
-          title: 'Zenon Telegram',
+          title: context.l10n.zenonTelegram,
           url: kTelegram,
           context: context,
         ),
         _getListViewChild(
           iconData: Icons.article,
-          title: 'Zenon Medium',
+          title: context.l10n.zenonMedium,
           url: kMedium,
           context: context,
         ),
         _getListViewChild(
           iconData: MaterialCommunityIcons.github,
-          title: 'Zenon Github',
+          title: context.l10n.zenonGithub,
           url: kGithub,
           context: context,
         ),
         _getListViewChild(
           iconData: MaterialCommunityIcons.bitcoin,
-          title: 'Zenon Bitcoin Talk',
+          title: context.l10n.zenonBitcoinTalk,
           url: kBitcoinTalk,
           context: context,
         ),
         _getListViewChild(
           iconData: MaterialCommunityIcons.reddit,
-          title: 'Zenon Reddit',
+          title: context.l10n.zenonReddit,
           url: kReddit,
           context: context,
         ),
         _getListViewChild(
           iconData: MaterialCommunityIcons.youtube,
-          title: 'Zenon Youtube',
+          title: context.l10n.zenonYoutube,
           url: kYoutube,
           context: context,
         ),
@@ -166,19 +166,19 @@ class CommunityCard extends StatelessWidget {
       children: [
         _getListViewChild(
           iconData: MaterialCommunityIcons.book_open_page_variant,
-          title: 'Zenon Wiki',
+          title: context.l10n.zenonWiki,
           url: kWiki,
           context: context,
         ),
         _getListViewChild(
           iconData: MaterialCommunityIcons.book_multiple,
-          title: 'ZenonORG Community Wiki',
+          title: context.l10n.zenonCommunityWiki,
           url: kOrgCommunityWiki,
           context: context,
         ),
         _getListViewChild(
           iconData: MaterialCommunityIcons.file_document,
-          title: 'Zenon Whitepaper',
+          title: context.l10n.zenonWhitepaper,
           url: kWhitepaper,
           context: context,
         ),

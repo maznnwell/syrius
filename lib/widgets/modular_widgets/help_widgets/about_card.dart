@@ -30,8 +30,8 @@ class AboutCardState extends State<AboutCard> {
   @override
   Widget build(BuildContext context) {
     return CardScaffold(
-      title: 'About',
-      description: 'Detailed information about wallet components',
+      title: context.l10n.aboutTitle,
+      description: context.l10n.aboutDescription,
       childBuilder: _getStreamBuilder,
     );
   }
@@ -41,108 +41,108 @@ class AboutCardState extends State<AboutCard> {
       shrinkWrap: true,
       children: [
         CustomExpandablePanel(
-          'Syrius wallet version',
+          context.l10n.syriusWalletVersion,
           _getGenericTextExpandedChild(kWalletVersion),
         ),
         CustomExpandablePanel(
-          'Zenon Node chain identifier',
+          context.l10n.zenonNodeChainIdentifier,
           _getGenericTextExpandedChild(
               generalStats.frontierMomentum.chainIdentifier.toString(),),
         ),
         CustomExpandablePanel(
-          'Client chain identifier',
+          context.l10n.clientChainIdentifier,
           _getGenericTextExpandedChild(getChainIdentifier().toString()),
         ),
         CustomExpandablePanel(
-          'Zenon SDK version',
+          context.l10n.zenonSdkVersion,
           _getGenericTextExpandedChild(znnSdkVersion),
         ),
         CustomExpandablePanel(
-          'Zenon Node build version',
+          context.l10n.zenonNodeBuildVersion,
           _getGenericTextExpandedChild(generalStats.processInfo.version),
         ),
         CustomExpandablePanel(
-          'Zenon Node git commit hash',
+          context.l10n.zenonNodeGitCommitHash,
           _getGenericTextExpandedChild(generalStats.processInfo.commit),
         ),
         CustomExpandablePanel(
-          'Syrius git origin url',
+          context.l10n.syriusGitOriginUrl,
           _getGenericLinkButtonExpandedChild(gitOriginUrl),
         ),
         CustomExpandablePanel(
-          'Syrius git branch name',
+          context.l10n.syriusGitBranchName,
           _getGenericTextExpandedChild(gitBranchName),
         ),
         CustomExpandablePanel(
-          'Syrius git commit hash',
+          context.l10n.syriusGitCommitHash,
           _getGenericTextExpandedChild(gitCommitHash),
         ),
         CustomExpandablePanel(
-          'Syrius git commit message',
+          context.l10n.syriusGitCommitMessage,
           _getGenericTextExpandedChild(gitCommitMessage),
         ),
         CustomExpandablePanel(
-          'Syrius git commit date',
+          context.l10n.syriusGitCommitDate,
           _getGenericTextExpandedChild(gitCommitDate),
         ),
         CustomExpandablePanel(
-          'Zenon Node kernel version',
+          context.l10n.zenonNodeKernelVersion,
           _getGenericTextExpandedChild(generalStats.osInfo.kernelVersion),
         ),
         CustomExpandablePanel(
-          'Zenon Node operating system',
+          context.l10n.zenonNodeOperatingSystem,
           _getGenericTextExpandedChild(generalStats.osInfo.os),
         ),
         CustomExpandablePanel(
-          'Zenon Node platform',
+          context.l10n.zenonNodePlatform,
           _getGenericTextExpandedChild(generalStats.osInfo.platform),
         ),
         CustomExpandablePanel(
-          'Zenon Node platform version',
+          context.l10n.zenonNodePlatformVersion,
           _getGenericTextExpandedChild(generalStats.osInfo.platformVersion),
         ),
         CustomExpandablePanel(
-          'Zenon Node number of processors',
+          context.l10n.zenonNodeNumberProcessors,
           _getGenericTextExpandedChild(generalStats.osInfo.numCPU.toString()),
         ),
         CustomExpandablePanel(
-          'Zenon main data path',
+          context.l10n.zenonMainDataPath,
           _getGenericOpenButtonExpandedChild(
               znnDefaultPaths.main.absolute.path,),
         ),
         CustomExpandablePanel(
-          'Syrius cache path',
+          context.l10n.syriusCachePath,
           _getGenericOpenButtonExpandedChild(
               znnDefaultPaths.cache.absolute.path,),
         ),
         CustomExpandablePanel(
-          'Syrius wallet path',
+          context.l10n.syriusWalletPath,
           _getGenericOpenButtonExpandedChild(
               znnDefaultPaths.wallet.absolute.path,),
         ),
         CustomExpandablePanel(
-          'Syrius wallet type',
+          context.l10n.syriusWalletType,
           _getGenericOpenButtonExpandedChild(
               kWalletFile!.walletType,),
         ),
         CustomExpandablePanel(
-          'Client hostname',
+          context.l10n.clientHostname,
           _getGenericTextExpandedChild(Platform.localHostname),
         ),
         CustomExpandablePanel(
-          'Client local IP address',
+          context.l10n.clientLocalIpAddress,
           _getGenericTextExpandedChild(kLocalIpAddress!),
         ),
         CustomExpandablePanel(
-          'Client operating system',
+          context.l10n.clientOperatingSystem,
           _getGenericTextExpandedChild(Platform.operatingSystem),
         ),
         CustomExpandablePanel(
-          'Client operating system version',
+          context.l10n.clientOperatingSystemVersion,
           _getGenericTextExpandedChild(Platform.operatingSystemVersion),
         ),
         CustomExpandablePanel(
-          'Client number of processors',
+          context.l10n.clientNumberProcessors,
           _getGenericTextExpandedChild(Platform.numberOfProcessors.toString()),
         ),
       ],

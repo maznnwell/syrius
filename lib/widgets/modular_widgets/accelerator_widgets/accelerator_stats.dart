@@ -75,7 +75,7 @@ class _AcceleratorStatsState extends State<AcceleratorStats> {
       children: [
         ChartLegend(
           dotColor: AppColors.znnColor,
-          mainText: context.l10n.availableTooltip,
+          mainText: context.l10n.available,
           detailsWidget: FormattedAmountWithTooltip(
             amount: accountInfo
                 .getBalance(
@@ -92,7 +92,7 @@ class _AcceleratorStatsState extends State<AcceleratorStats> {
         kVerticalSpacing,
         ChartLegend(
           dotColor: AppColors.qsrColor,
-          mainText: context.l10n.availableTooltip,
+          mainText: context.l10n.available,
           detailsWidget: FormattedAmountWithTooltip(
             amount: accountInfo
                 .getBalance(

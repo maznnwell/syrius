@@ -60,7 +60,7 @@ class CreatePhase extends StatelessWidget {
                       );
                     }
                   : null,
-              text: context.l10n.createPhaseTooltip,
+              text: context.l10n.createPhaseButton,
               initialFillColor: AppColors.znnColor,
               icon: SyriusElevatedButton.getFilledButtonPlusIcon(),
             ),

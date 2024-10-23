@@ -495,7 +495,7 @@ class _AcceleratorProjectListItemState
           width: 10,
         ),
         Tooltip(
-          message: context.l10n.abstainTooltip,
+          message: context.l10n.abstain,
           child: RawMaterialButton(
             constraints: const BoxConstraints(
               minWidth: 50,
