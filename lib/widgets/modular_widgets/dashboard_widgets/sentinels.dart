@@ -10,7 +10,7 @@ const String _kWidgetDescription = 'This card displays the number of active '
     'Sentinels in the network';
 
 class Sentinels extends StatefulWidget {
-  const Sentinels({Key? key}) : super(key: key);
+  const Sentinels({super.key});
 
   @override
   State<Sentinels> createState() => _SentinelsState();
@@ -20,13 +20,13 @@ class _SentinelsState extends State<Sentinels> {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder<SentinelsBloc>.reactive(
-      viewModelBuilder: () => SentinelsBloc(),
+      viewModelBuilder: SentinelsBloc.new,
       onViewModelReady: (model) {
         model.getDataPeriodically();
       },
       builder: (_, model, __) => CardScaffold<List<SentinelInfo>>(
         childStream: model.stream,
-        onCompletedStatusCallback: (data) => _getWidgetBody(data),
+        onCompletedStatusCallback: _getWidgetBody,
         title: _kWidgetTitle,
         description: _kWidgetDescription,
       ),
@@ -38,10 +38,10 @@ class _SentinelsState extends State<Sentinels> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(12),
           child: SvgPicture.asset(
             'assets/svg/ic_sentinels_dashboard.svg',
-            width: 42.0,
+            width: 42,
           ),
         ),
         Column(

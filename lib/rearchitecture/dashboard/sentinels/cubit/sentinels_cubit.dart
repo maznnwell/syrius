@@ -8,7 +8,7 @@ part 'sentinels_state.dart';
 ///
 /// This cubit extends `DashboardCubit<SentinelInfoList>`, using a `SentinelInfoList`
 /// object to represent the list of active sentinels fetched from the Zenon network.
-class SentinelsCubit extends DashboardCubit<SentinelInfoList> {
+class SentinelsCubit extends DashboardCubit<SentinelInfoList, SentinelsState> {
   /// Constructs a `SentinelsCubit`, passing the `zenon` client and the initial state
   /// to the parent class.
   ///
@@ -26,7 +26,7 @@ class SentinelsCubit extends DashboardCubit<SentinelInfoList> {
   Future<SentinelInfoList> fetch() async {
     try {
       // Fetches the list of all active sentinels from the Zenon network
-      final SentinelInfoList data = await zenon.embedded.sentinel.getAllActive();
+      final data = await zenon.embedded.sentinel.getAllActive();
       return data; // Returns the fetched sentinel information
     } catch (e) {
       rethrow;

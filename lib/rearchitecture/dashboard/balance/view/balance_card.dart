@@ -26,17 +26,17 @@ class BalanceCard extends StatelessWidget {
         // Creates a `BalanceCubit` instance, passing in the `zenon` client
         // and an initial `BalanceState`. The cubit immediately begins fetching
         // balance data by calling `fetch()`.
-        final BalanceCubit cubit = BalanceCubit(
+        final cubit = BalanceCubit(
           Address.parse(kSelectedAddress!),
           zenon!,
-          BalanceState(),
+          const BalanceState(),
         );
         cubit.fetchDataPeriodically();
         return cubit;
       },
       child: CardScaffoldWithoutListener(
-        type: CardType.balance,
-        child: BlocBuilder<BalanceCubit, DashboardState>(
+        data: CardType.balance.getData(context: context),
+        body: BlocBuilder<BalanceCubit, BalanceState>(
           builder: (context, state) {
             // Uses a `switch` statement to display different widgets based on
             // the current cubit state. The state is managed by the `BalanceCubit` and

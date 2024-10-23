@@ -1,6 +1,5 @@
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/dashboard/dashboard.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
-import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 part 'total_hourly_transactions_state.dart';
 
@@ -8,7 +7,8 @@ part 'total_hourly_transactions_state.dart';
 ///
 /// This cubit extends `DashboardCubit<Map<String, dynamic>>`, using a map to represent the total
 /// number of account blocks and the corresponding timestamp fetched from the Zenon network.
-class TotalHourlyTransactionsCubit extends DashboardCubit<Map<String, dynamic>> {
+class TotalHourlyTransactionsCubit
+    extends DashboardCubit<Map<String, dynamic>, TotalHourlyTransactionsState> {
   /// Constructs a `TotalHourlyTransactionsCubit`, passing the `zenon` client and the initial state
   /// to the parent class.
   ///
@@ -28,23 +28,22 @@ class TotalHourlyTransactionsCubit extends DashboardCubit<Map<String, dynamic>> 
   Future<Map<String, dynamic>> fetch() async {
     try {
       // Retrieve the current chain height
-      final int chainHeight = await _ledgerGetMomentumLedgerHeight();
+      final chainHeight = await _ledgerGetMomentumLedgerHeight();
       if (chainHeight - kMomentumsPerHour > 0) {
         // Fetch detailed momentums for the past hour
-        final List<DetailedMomentum> response =
+        final response =
             (await zenon.ledger.getDetailedMomentumsByHeight(
-              chainHeight - kMomentumsPerHour,
-              kMomentumsPerHour,
-            ))
-                .list ??
+                  chainHeight - kMomentumsPerHour,
+                  kMomentumsPerHour,
+                ))
+                    .list ??
                 [];
 
         // Prepare the transaction summary
-        final Map<String, dynamic> transactions = {
+        final transactions = <String, dynamic>{
           'numAccountBlocks': response.fold<int>(
             0,
-                (previousValue, element) =>
-            previousValue + element.blocks.length,
+            (previousValue, element) => previousValue + element.blocks.length,
           ),
           'timestamp': DateTime.now().millisecondsSinceEpoch,
         };

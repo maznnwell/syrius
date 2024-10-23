@@ -11,7 +11,7 @@ final String _kWidgetDescription = 'This card displays the number of staking '
     'entries and the total ${kZnnCoin.symbol} that you are currently staking';
 
 class Staking extends StatefulWidget {
-  const Staking({Key? key}) : super(key: key);
+  const Staking({super.key});
 
   @override
   State<Staking> createState() => _StakingState();
@@ -21,13 +21,13 @@ class _StakingState extends State<Staking> {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder<StakingBloc>.reactive(
-      viewModelBuilder: () => StakingBloc(),
+      viewModelBuilder: StakingBloc.new,
       onViewModelReady: (model) {
         model.getDataPeriodically();
       },
       builder: (_, model, __) => CardScaffold<StakingStatsModel>(
         childStream: model.stream,
-        onCompletedStatusCallback: (data) => _widgetBody(data),
+        onCompletedStatusCallback: _widgetBody,
         title: _kWidgetTitle,
         description: _kWidgetDescription,
       ),
@@ -39,9 +39,9 @@ class _StakingState extends State<Staking> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         Container(
-          padding: const EdgeInsets.all(8.0),
-          width: 36.0,
-          height: 36.0,
+          padding: const EdgeInsets.all(8),
+          width: 36,
+          height: 36,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
@@ -50,11 +50,11 @@ class _StakingState extends State<Staking> {
           ),
           child: Icon(
             SimpleLineIcons.energy,
-            size: 12.0,
+            size: 12,
             color: Theme.of(context).textTheme.bodyLarge!.color,
           ),
         ),
-        Container(width: 16.0),
+        Container(width: 16),
         Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,

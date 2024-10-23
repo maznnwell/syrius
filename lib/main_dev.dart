@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -17,11 +18,11 @@ import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/auto_unlock_htlc_worker.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/blocs.dart';
-import 'package:zenon_syrius_wallet_flutter/handlers/htlc_swaps_handler.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/wallet_connect/chains/i_chain.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/wallet_connect/chains/nom_service.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/wallet_connect/wallet_connect_pairings_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/wallet_connect/wallet_connect_sessions_bloc.dart';
+import 'package:zenon_syrius_wallet_flutter/handlers/htlc_swaps_handler.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/screens/screens.dart';
@@ -42,16 +43,16 @@ main() async {
   Provider.debugCheckInvalidValueType = null;
 
   ensureDirectoriesExist();
-  Hive.init(znnDefaultPaths.cache.path.toString());
+  Hive.init(znnDefaultPaths.cache.path);
 
   // Setup logger
-  Directory syriusLogDir =
+  final syriusLogDir =
   Directory(path.join(znnDefaultCacheDirectory.path, 'log'));
   if (!syriusLogDir.existsSync()) {
     syriusLogDir.createSync(recursive: true);
   }
   final logFile = File(
-      '${syriusLogDir.path}${path.separator}syrius-${DateTime.now().millisecondsSinceEpoch}.log');
+      '${syriusLogDir.path}${path.separator}syrius-${DateTime.now().millisecondsSinceEpoch}.log',);
   Logger.root.level = Level.ALL;
   Logger.root.onRecord.listen((LogRecord record) {
     if (kDebugMode) {
@@ -78,13 +79,11 @@ main() async {
 
   retry(() => web3WalletService!.init(),
       retryIf: (e) => e is SocketException || e is TimeoutException,
-      maxAttempts: 0x7FFFFFFFFFFFFFFF);
+      maxAttempts: 0x7FFFFFFFFFFFFFFF,);
 
   // Setup local_notifier
   await localNotifier.setup(
     appName: 's y r i u s',
-    // The parameter shortcutPolicy only works on Windows
-    shortcutPolicy: ShortcutPolicy.requireCreate,
   );
 
   // Setup tray manager
@@ -111,8 +110,8 @@ main() async {
     await windowManager.show();
 
     if (sharedPrefsService != null) {
-      double? windowSizeWidth = sharedPrefsService!.get(kWindowSizeWidthKey);
-      double? windowSizeHeight = sharedPrefsService!.get(kWindowSizeHeightKey);
+      final double? windowSizeWidth = sharedPrefsService!.get(kWindowSizeWidthKey);
+      final double? windowSizeHeight = sharedPrefsService!.get(kWindowSizeHeightKey);
       if (windowSizeWidth != null &&
           windowSizeWidth >= 1200 &&
           windowSizeHeight != null &&
@@ -131,7 +130,7 @@ main() async {
             .setPosition(Offset(windowPositionX, windowPositionY));
       }
 
-      bool? windowMaximized = sharedPrefsService!.get(kWindowMaximizedKey);
+      final bool? windowMaximized = sharedPrefsService!.get(kWindowMaximizedKey);
       if (windowMaximized == true) {
         await windowManager.maximize();
       }
@@ -152,7 +151,7 @@ Future<void> _setupTrayManager() async {
   if (Platform.isMacOS) {
     await trayManager.setToolTip('s y r i u s');
   }
-  List<MenuItem> items = [
+  final items = <MenuItem>[
     MenuItem(
       key: 'show_wallet',
       label: 'Show wallet',
@@ -172,7 +171,7 @@ Future<void> _setupTrayManager() async {
 
 Future<void> _loadDefaultCommunityNodes() async {
   try {
-    var nodes = await loadJsonFromAssets('assets/community-nodes.json')
+    final nodes = await loadJsonFromAssets('assets/community-nodes.json')
     as List<dynamic>;
     kDefaultCommunityNodes = nodes
         .map((node) => node.toString())
@@ -188,7 +187,7 @@ void setup() {
   sl.registerSingleton<Zenon>(Zenon());
   zenon = sl<Zenon>();
   sl.registerLazySingletonAsync<SharedPrefsService>(
-      (() => SharedPrefsService.getInstance().then((value) => value!)));
+      () => SharedPrefsService.getInstance().then((value) => value!),);
   sl.registerSingleton<HtlcSwapsService>(HtlcSwapsService.getInstance());
 
   // Initialize WalletConnect service
@@ -200,20 +199,20 @@ void setup() {
 
   sl.registerSingleton<AutoReceiveTxWorker>(AutoReceiveTxWorker.getInstance());
   sl.registerSingleton<AutoUnlockHtlcWorker>(
-      AutoUnlockHtlcWorker.getInstance());
+      AutoUnlockHtlcWorker.getInstance(),);
 
   sl.registerSingleton<HtlcSwapsHandler>(HtlcSwapsHandler.getInstance());
 
   sl.registerSingleton<ReceivePort>(ReceivePort(),
-      instanceName: 'embeddedStoppedPort');
+      instanceName: 'embeddedStoppedPort',);
   sl.registerSingleton<Stream>(
       sl<ReceivePort>(instanceName: 'embeddedStoppedPort').asBroadcastStream(),
-      instanceName: 'embeddedStoppedStream');
+      instanceName: 'embeddedStoppedStream',);
 
   sl.registerSingleton<PlasmaStatsBloc>(PlasmaStatsBloc());
   sl.registerSingleton<BalanceBloc>(BalanceBloc());
   sl.registerSingleton<TransferWidgetsBalanceBloc>(
-      TransferWidgetsBalanceBloc());
+      TransferWidgetsBalanceBloc(),);
   sl.registerSingleton<NotificationsBloc>(NotificationsBloc());
   sl.registerSingleton<AcceleratorBalanceBloc>(AcceleratorBalanceBloc());
   sl.registerSingleton<PowGeneratingStatusBloc>(PowGeneratingStatusBloc());
@@ -226,7 +225,7 @@ void setup() {
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   State<StatefulWidget> createState() {
@@ -280,7 +279,7 @@ class _MyAppState extends State<MyApp> with WindowListener, TrayListener {
           builder: (context, child) {
             return Consumer<AppThemeNotifier>(
               builder: (_, appThemeNotifier, __) {
-                LockBloc lockBloc =
+                final lockBloc =
                 Provider.of<LockBloc>(context, listen: false);
                 return OverlaySupport(
                   child: Listener(
@@ -301,9 +300,9 @@ class _MyAppState extends State<MyApp> with WindowListener, TrayListener {
                     child: MouseRegion(
                       onEnter: (_) => lockBloc.addEvent(LockEvent.resetTimer),
                       onExit: (_) => lockBloc.addEvent(LockEvent.resetTimer),
-                      child: RawKeyboardListener(
+                      child: KeyboardListener(
                         focusNode: FocusNode(),
-                        onKey: (RawKeyEvent event) {
+                        onKeyEvent: (KeyEvent event) {
                           lockBloc.addEvent(LockEvent.resetTimer);
                         },
                         child: Layout(
@@ -316,6 +315,8 @@ class _MyAppState extends State<MyApp> with WindowListener, TrayListener {
                             themeMode: appThemeNotifier.currentThemeMode,
                             initialRoute: DevelopmentInitializationScreen.route,
                             scrollBehavior: RemoveOverscrollEffect(),
+                            localizationsDelegates: AppLocalizations.localizationsDelegates,
+                            supportedLocales: AppLocalizations.supportedLocales,
                             routes: {
                               AccessWalletScreen.route: (context) =>
                               const AccessWalletScreen(),
@@ -328,7 +329,7 @@ class _MyAppState extends State<MyApp> with WindowListener, TrayListener {
                             },
                             onGenerateRoute: (settings) {
                               if (settings.name == SyriusErrorWidget.route) {
-                                final args = settings.arguments
+                                final args = settings.arguments!
                                 as CustomSyriusErrorWidgetArguments;
                                 return MaterialPageRoute(
                                   builder: (context) =>
@@ -352,15 +353,15 @@ class _MyAppState extends State<MyApp> with WindowListener, TrayListener {
   }
 
   @override
-  void onWindowClose() async {
-    bool windowMaximized = await windowManager.isMaximized();
+  Future<void> onWindowClose() async {
+    final windowMaximized = await windowManager.isMaximized();
     await sharedPrefsService!.put(
       kWindowMaximizedKey,
       windowMaximized,
     );
 
     if (windowMaximized != true) {
-      Size windowSize = await windowManager.getSize();
+      final windowSize = await windowManager.getSize();
       await sharedPrefsService!.put(
         kWindowSizeWidthKey,
         windowSize.width,
@@ -370,7 +371,7 @@ class _MyAppState extends State<MyApp> with WindowListener, TrayListener {
         windowSize.height,
       );
 
-      Offset windowPosition = await windowManager.getPosition();
+      final windowPosition = await windowManager.getPosition();
       await sharedPrefsService!.put(
         kWindowPositionXKey,
         windowPosition.dx,
@@ -403,19 +404,16 @@ class _MyAppState extends State<MyApp> with WindowListener, TrayListener {
   void onTrayIconRightMouseUp() {}
 
   @override
-  void onTrayMenuItemClick(MenuItem menuItem) async {
+  Future<void> onTrayMenuItemClick(MenuItem menuItem) async {
     switch (menuItem.key) {
       case 'show_wallet':
         windowManager.show();
-        break;
       case 'hide_wallet':
         if (!await windowManager.isMinimized()) {
           windowManager.minimize();
         }
-        break;
       case 'exit':
         windowManager.destroy();
-        break;
       default:
         break;
     }

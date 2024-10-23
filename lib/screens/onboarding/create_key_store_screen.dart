@@ -6,16 +6,16 @@ import 'package:zenon_syrius_wallet_flutter/utils/wallet_file.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart';
 
 class CreateKeyStoreScreen extends StatefulWidget {
-  final String seed;
-  final String password;
-  final int progressBarNumLevels;
 
   const CreateKeyStoreScreen(
     this.seed,
     this.password, {
     this.progressBarNumLevels = 5,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
+  final String seed;
+  final String password;
+  final int progressBarNumLevels;
 
   @override
   State<CreateKeyStoreScreen> createState() => _CreateKeyStoreScreenState();
@@ -39,7 +39,7 @@ class _CreateKeyStoreScreenState extends State<CreateKeyStoreScreen> {
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.symmetric(
-          vertical: 30.0,
+          vertical: 30,
         ),
         child: Center(
           child: StreamBuilder<KeyStoreWalletFile?>(

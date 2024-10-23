@@ -6,7 +6,7 @@ import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class ImportWalletSeedChoiceScreen extends StatefulWidget {
-  const ImportWalletSeedChoiceScreen({Key? key}) : super(key: key);
+  const ImportWalletSeedChoiceScreen({super.key});
 
   @override
   State<ImportWalletSeedChoiceScreen> createState() =>
@@ -32,7 +32,7 @@ class _ImportWalletSeedChoiceScreenState
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.symmetric(
-          vertical: 30.0,
+          vertical: 30,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -45,7 +45,7 @@ class _ImportWalletSeedChoiceScreenState
                   numLevels: _walletFilePath == null ? 4 : 5,
                 ),
                 const SizedBox(
-                  height: 30.0,
+                  height: 30,
                 ),
                 Text(
                   'Import your wallet',
@@ -58,7 +58,7 @@ class _ImportWalletSeedChoiceScreenState
                 ),
                 kVerticalSpacing,
                 SizedBox(
-                  height: 45.0,
+                  height: 45,
                   child: _getSeedChoice(),
                 ),
                 kVerticalSpacing,
@@ -71,7 +71,7 @@ class _ImportWalletSeedChoiceScreenState
               children: <Widget>[
                 _getGoBackButton(),
                 kSpacingBetweenActionButtons,
-                _getContinueButton()
+                _getContinueButton(),
               ],
             ),
           ],
@@ -93,7 +93,7 @@ class _ImportWalletSeedChoiceScreenState
               _walletFilePath = path;
               _seedGridKey.currentState!.continueButtonDisabled = false;
             });
-          }),
+          },),
     );
   }
 

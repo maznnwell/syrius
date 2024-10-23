@@ -9,7 +9,7 @@ import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class TokenMap extends StatefulWidget {
-  const TokenMap({Key? key}) : super(key: key);
+  const TokenMap({super.key});
 
   @override
   State createState() {
@@ -75,7 +75,7 @@ class _TokenMapState extends State<TokenMap> {
 
   Widget _getWidgetBody(TokenMapBloc bloc) {
     return Padding(
-      padding: const EdgeInsets.all(15.0),
+      padding: const EdgeInsets.all(15),
       child: Column(
         children: [
           InputField(

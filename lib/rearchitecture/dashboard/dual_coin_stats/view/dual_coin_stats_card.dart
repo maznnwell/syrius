@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/dashboard/dashboard.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/card/card.dart';
+import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/layout_scaffold/card_scaffold_without_listener.dart';
 
 
 class DualCoinStatsCard extends StatelessWidget {
@@ -11,15 +13,16 @@ class DualCoinStatsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) {
-        final DualCoinStatsCubit cubit = DualCoinStatsCubit(
+        final cubit = DualCoinStatsCubit(
           zenon!,
-          DualCoinStatsState(),
+          const DualCoinStatsState(),
         );
         cubit.fetchDataPeriodically();
         return cubit;
       },
-      child: Scaffold(
-        body: BlocBuilder<DualCoinStatsCubit, DashboardState>(
+      child: CardScaffoldWithoutListener(
+        data: CardType.dualCoinStats.getData(context: context),
+        body: BlocBuilder<DualCoinStatsCubit, DualCoinStatsState>(
           builder: (context, state) {
             return switch (state.status) {
               CubitStatus.initial => const DualCoinStatsEmpty(),
@@ -28,7 +31,7 @@ class DualCoinStatsCard extends StatelessWidget {
                   error: state.error!,
                 ),
               CubitStatus.success => DualCoinStatsPopulated(
-                  data: state.data!,
+                  tokens: state.data!,
                 ),
             };
           },

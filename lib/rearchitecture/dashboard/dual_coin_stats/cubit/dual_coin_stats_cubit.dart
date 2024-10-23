@@ -6,9 +6,9 @@ part 'dual_coin_stats_state.dart';
 /// `DualCoinStatsCubit` manages the fetching and state of dual coin statistics
 /// for ZNN and QSR tokens.
 ///
-/// This cubit extends `DashboardCubit<List<Token?>>`, using a list of `Token` objects to
+/// This cubit extends [DashboardCubit], using a list of `Token` objects to
 /// represent the statistics for the ZNN and QSR tokens fetched from the Zenon network.
-class DualCoinStatsCubit extends DashboardCubit<List<Token?>> {
+class DualCoinStatsCubit extends DashboardCubit<List<Token>, DualCoinStatsState> {
   /// Constructs a `DualCoinStatsCubit`, passing the `zenon` client and the initial state
   /// to the parent class.
   ///
@@ -24,9 +24,9 @@ class DualCoinStatsCubit extends DashboardCubit<List<Token?>> {
   /// Throws:
   /// - An error if any exception occurs during the fetching of token data.
   @override
-  Future<List<Token?>> fetch() async {
+  Future<List<Token>> fetch() async {
     try {
-      final List<Token?> data = await Future.wait(
+      final data = await Future.wait(
         [
           zenon.embedded.token.getByZts(
             znnZts, // Fetches the ZNN token statistics
@@ -36,7 +36,12 @@ class DualCoinStatsCubit extends DashboardCubit<List<Token?>> {
           ),
         ],
       );
-      return data; // Returns the list of fetched token data
+
+      // For ZNN and QSR, the network will return non-nullable data
+      final nonNullableData = data.map((token) => token!).toList();
+
+      // The list has only two elements
+      return nonNullableData;
     } catch (e) {
       rethrow;
     }

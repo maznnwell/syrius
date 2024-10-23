@@ -1,17 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AmountInfoColumn extends Column {
-  final String amount;
-  final String tokenSymbol;
-  final BuildContext context;
 
   AmountInfoColumn({
-    Key? key,
-    required this.context,
-    required this.amount,
-    required this.tokenSymbol,
+    required this.context, required this.amount, required this.tokenSymbol, super.key,
   }) : super(
-          key: key,
           children: [
             Text(
               tokenSymbol,
@@ -23,4 +16,7 @@ class AmountInfoColumn extends Column {
             ),
           ],
         );
+  final String amount;
+  final String tokenSymbol;
+  final BuildContext context;
 }

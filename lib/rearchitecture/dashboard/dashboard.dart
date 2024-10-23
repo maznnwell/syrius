@@ -1,4 +1,3 @@
-library dashboard;
 
 export '../dashboard/balance/balance.dart';
 export '../dashboard/balance_dashboard/balance_dashboard.dart';

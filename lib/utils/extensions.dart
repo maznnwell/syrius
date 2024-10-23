@@ -1,6 +1,8 @@
 import 'dart:math' show pow;
 import 'package:big_decimal/big_decimal.dart';
+import 'package:flutter/material.dart';
 import 'package:znn_ledger_dart/znn_ledger_dart.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 extension StringExtensions on String {
   String capitalize() {
@@ -16,12 +18,12 @@ extension StringExtensions on String {
       }
       return BigInt.parse(this + ''.padRight(decimals, '0'));
     }
-    List<String> parts = split('.');
+    final parts = split('.');
 
     return BigInt.parse(parts[0] +
         (parts[1].length > decimals
             ? parts[1].substring(0, decimals)
-            : parts[1].padRight(decimals, '0')));
+            : parts[1].padRight(decimals, '0')),);
   }
 
   String abs() => this;
@@ -49,7 +51,7 @@ extension ZipTwoLists on List {
     return fold(
       <T>[],
       (previousValue, element) {
-        int elementIndex = indexOf(element);
+        final elementIndex = indexOf(element);
         previousValue.add(element);
         if (elementIndex < smallerList.length) {
           previousValue.add(
@@ -74,7 +76,7 @@ extension LedgerErrorExtensions on LedgerError {
   String toFriendlyString() {
     return when(
         connectionError: (origMessage) => origMessage,
-        responseError: (statusWord) => _mapStatusWord(statusWord));
+        responseError: _mapStatusWord,);
   }
 
   String _mapStatusWord(StatusWord statusWord) {
@@ -119,4 +121,8 @@ extension LedgerErrorExtensions on LedgerError {
         return 'Unknown error, please make sure the device is unlocked';
     }
   }
+}
+
+extension BuildContextL10n on BuildContext {
+  AppLocalizations get l10n => AppLocalizations.of(this)!;
 }
