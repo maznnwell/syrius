@@ -78,13 +78,13 @@ class _AccProjectListState extends State<AccProjectList> {
   @override
   Widget build(BuildContext context) {
     return CardScaffold(
-      title: 'Project List',
+      title: context.l10n.projectListTitle,
       childBuilder: _getInfiniteScrollList,
       onRefreshPressed: () {
         _searchKeyWordController.clear();
         _bloc.refreshResults();
       },
-      description: 'This card displays a list that contains all the projects',
+      description: context.l10n.projectListDescription,
     );
   }
 
@@ -138,9 +138,9 @@ class _AccProjectListState extends State<AccProjectList> {
                   newPageProgressIndicatorBuilder: (_) =>
                       const SyriusLoadingWidget(),
                   noMoreItemsIndicatorBuilder: (_) =>
-                      const SyriusErrorWidget('No more items'),
+                      SyriusErrorWidget(context.l10n.noMoreItems),
                   noItemsFoundIndicatorBuilder: (_) =>
-                      const SyriusErrorWidget('No items found'),
+                      SyriusErrorWidget(context.l10n.noItemsFound),
                 ),
               ),
             ),
@@ -153,7 +153,7 @@ class _AccProjectListState extends State<AccProjectList> {
   Widget _getSearchInputField() {
     return InputField(
       controller: _searchKeyWordController,
-      hintText: 'Search by id, owner, name, description, or URL',
+      hintText: context.l10n.searchHints,
       suffixIcon: const Icon(
         Icons.search,
         color: Colors.green,

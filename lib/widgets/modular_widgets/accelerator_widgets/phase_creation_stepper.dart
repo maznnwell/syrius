@@ -89,7 +89,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 StepperButton.icon(
-                  label: 'Create another phase',
+                  label: context.l10n.createAnotherPhase,
                   onPressed: () {
                     _clearInput();
                     setState(() {
@@ -103,7 +103,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
                   width: 75,
                 ),
                 StepperButton(
-                  text: 'View phases',
+                  text: context.l10n.viewPhases,
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -144,7 +144,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
         onStepTapped: (int index) {},
         steps: [
           StepperUtils.getMaterialStep(
-            stepTitle: 'Phase details',
+            stepTitle: context.l10n.phaseDetails,
             stepContent: _getPhaseDetailsStepContent(accountInfo),
             stepSubtitle: '${_phaseNameController.text} ● '
                 '${_phaseZnnAmountController.text} ${kZnnCoin.symbol} ● '
@@ -156,7 +156,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
             context: context,
           ),
           StepperUtils.getMaterialStep(
-            stepTitle: 'Submit phase',
+            stepTitle: context.l10n.phaseSubmit,
             stepContent: _getSubmitPhaseStepContent(),
             stepSubtitle: 'ID ${widget.project.id.toShortString()}',
             stepState: StepperUtils.getStepState(
@@ -174,7 +174,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('This phase belongs to Project ID '
+        Text('${context.l10n.phaseBelongsToProjectID}'
             '${widget.project.id.toShortString()}'),
         kVerticalSpacing,
         Row(
@@ -185,7 +185,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: InputField(
                   controller: _phaseNameController,
-                  hintText: 'Phase name',
+                  hintText: context.l10n.phaseName,
                   onChanged: (value) {
                     setState(() {});
                   },
@@ -208,7 +208,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: InputField(
                   controller: _phaseDescriptionController,
-                  hintText: 'Phase description',
+                  hintText: context.l10n.phaseDescription,
                   onChanged: (value) {
                     setState(() {});
                   },
@@ -231,7 +231,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: InputField(
                   controller: _phaseUrlController,
-                  hintText: 'Phase URL',
+                  hintText: context.l10n.phaseURL,
                   onChanged: (value) {
                     setState(() {});
                   },
@@ -239,8 +239,8 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
                 ),
               ),
             ),
-            const StandardTooltipIcon(
-              'Showcase the progress of your project (e.g. Git PR/commit)',
+            StandardTooltipIcon(
+              context.l10n.projectProgressTooltip,
               Icons.help,
             ),
           ],
@@ -249,11 +249,11 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
         Row(
           children: [
             Text(
-              'Total phase budget',
+              context.l10n.totalPhaseBudget,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
-            const StandardTooltipIcon(
-              'Necessary budget to successfully complete this phase',
+            StandardTooltipIcon(
+              context.l10n.necessaryBudgetTooltip,
               Icons.help,
             ),
           ],
@@ -267,7 +267,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: InputField(
                   controller: _phaseZnnAmountController,
-                  hintText: 'ZNN Amount',
+                  hintText: context.l10n.znnAmount,
                   suffixIcon: AmountSuffixWidgets(
                     kZnnCoin,
                     onMaxPressed: () {
@@ -309,7 +309,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: InputField(
                   controller: _phaseQsrAmountController,
-                  hintText: 'QSR Amount',
+                  hintText: context.l10n.qsrAmount,
                   suffixIcon: AmountSuffixWidgets(
                     kQsrCoin,
                     onMaxPressed: () {
@@ -346,7 +346,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
         Row(
           children: [
             StepperButton(
-              text: 'Cancel',
+              text: context.l10n.cancelKey,
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -355,7 +355,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
               width: 15,
             ),
             StepperButton(
-              text: 'Continue',
+              text: context.l10n.continueKey,
               onPressed: _areInputDetailsValid()
                   ? () {
                       setState(() {
@@ -386,8 +386,8 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DottedBorderInfoWidget(
-          text: 'Remaining budget for the next phases is '
-              '${remainingZnnBudget.addDecimals(coinDecimals)} ${kZnnCoin.symbol} and '
+          text: '${context.l10n.remainingBudgetInfo}'
+              '${remainingZnnBudget.addDecimals(coinDecimals)} ${kZnnCoin.symbol} ${context.l10n.and} '
               '${remainingQsrBudget.addDecimals(coinDecimals)} ${kQsrCoin.symbol}',
         ),
         kVerticalSpacing,
@@ -400,7 +400,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
                   _lastCompletedStep = null;
                 });
               },
-              text: 'Go back',
+              text: context.l10n.goBackKey,
             ),
             const SizedBox(
               width: 15,
@@ -429,7 +429,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
           ),
         );
       },
-      text: 'Submit',
+      text: context.l10n.submitKey,
       key: _submitButtonKey,
     );
   }
@@ -450,7 +450,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
             _submitButtonKey.currentState?.animateReverse();
             await NotificationUtils.sendNotificationError(
               error,
-              'Error while creating phase',
+              context.l10n.createPhaseError,
             );
           },
         );

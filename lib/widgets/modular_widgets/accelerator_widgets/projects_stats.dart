@@ -12,9 +12,9 @@ class ProjectsStats extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardScaffold(
-      title: 'Project Stats',
+      title: context.l10n.projectStatsTitle,
       childBuilder: () => _getWidgetBody(context),
-      description: 'Detailed information about your project',
+      description: context.l10n.projectStatsDescription,
     );
   }
 
@@ -172,7 +172,7 @@ class ProjectsStats extends StatelessWidget {
         children: [
           ChartLegend(
             dotColor: AppColors.znnColor,
-            mainText: 'Received',
+            mainText: context.l10n.received,
             detailsWidget: FormattedAmountWithTooltip(
               amount: project.getPaidZnnFunds().addDecimals(coinDecimals),
               tokenSymbol: kZnnCoin.symbol,
@@ -184,7 +184,7 @@ class ProjectsStats extends StatelessWidget {
           ),
           ChartLegend(
             dotColor: AppColors.znnColor.withOpacity(0.2),
-            mainText: 'Remaining',
+            mainText: context.l10n.remaining,
             detailsWidget: FormattedAmountWithTooltip(
               amount: project.getRemainingZnnFunds().addDecimals(coinDecimals),
               tokenSymbol: kZnnCoin.symbol,
@@ -196,7 +196,7 @@ class ProjectsStats extends StatelessWidget {
           ),
           ChartLegend(
             dotColor: AppColors.znnColor.withOpacity(0.4),
-            mainText: 'Total',
+            mainText: context.l10n.total,
             detailsWidget: FormattedAmountWithTooltip(
               amount: project.getTotalZnnFunds().addDecimals(coinDecimals),
               tokenSymbol: kZnnCoin.symbol,
@@ -220,7 +220,7 @@ class ProjectsStats extends StatelessWidget {
         children: [
           ChartLegend(
             dotColor: AppColors.qsrColor,
-            mainText: 'Received',
+            mainText: context.l10n.received,
             detailsWidget: FormattedAmountWithTooltip(
               amount: project.getPaidQsrFunds().addDecimals(coinDecimals),
               tokenSymbol: kQsrCoin.symbol,
@@ -232,7 +232,7 @@ class ProjectsStats extends StatelessWidget {
           ),
           ChartLegend(
             dotColor: AppColors.qsrColor.withOpacity(0.2),
-            mainText: 'Remaining',
+            mainText: context.l10n.remaining,
             detailsWidget: FormattedAmountWithTooltip(
               amount: project.getRemainingQsrFunds().addDecimals(coinDecimals),
               tokenSymbol: kQsrCoin.symbol,
@@ -244,7 +244,7 @@ class ProjectsStats extends StatelessWidget {
           ),
           ChartLegend(
             dotColor: AppColors.qsrColor.withOpacity(0.4),
-            mainText: 'Total',
+            mainText: context.l10n.total,
             detailsWidget: FormattedAmountWithTooltip(
               amount: project.getTotalQsrFunds().addDecimals(coinDecimals),
               tokenSymbol: kQsrCoin.symbol,

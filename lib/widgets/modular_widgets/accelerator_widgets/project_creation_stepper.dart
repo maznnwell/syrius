@@ -88,7 +88,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 StepperButton.icon(
-                  label: 'Create another project',
+                  label: context.l10n.createAnotherProject,
                   onPressed: () {
                     _clearInput();
                     setState(() {
@@ -102,7 +102,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
                   width: 75,
                 ),
                 StepperButton(
-                  text: 'View projects',
+                  text: context.l10n.viewProjects,
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -156,7 +156,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
         onStepTapped: (int index) {},
         steps: [
           StepperUtils.getMaterialStep(
-            stepTitle: 'Project creation',
+            stepTitle: context.l10n.projectCreation,
             stepContent: _getProjectCreationStepContent(accountInfo),
             stepSubtitle: _addressController.text,
             stepState: StepperUtils.getStepState(
@@ -166,7 +166,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
             context: context,
           ),
           StepperUtils.getMaterialStep(
-            stepTitle: 'Project details',
+            stepTitle: context.l10n.projectDetails,
             stepContent: _getProjectDetailsStepContent(accountInfo),
             stepSubtitle: '${_projectNameController.text} ● '
                 '${_projectZnnAmountController.text} ${kZnnCoin.symbol} ● '
@@ -178,9 +178,9 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
             context: context,
           ),
           StepperUtils.getMaterialStep(
-            stepTitle: 'Submit project',
+            stepTitle: context.l10n.submitProject,
             stepContent: _getSubmitProjectStepContent(),
-            stepSubtitle: 'Project submitted',
+            stepSubtitle: context.l10n.projectSubmitted,
             stepState: StepperUtils.getStepState(
               ProjectCreationStep.submitProject.index,
               _lastCompletedStep?.index,
@@ -196,13 +196,15 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('This will be your project owner address'),
+        Text(context.l10n.projectOwnerAddress),
         kVerticalSpacing,
         DisabledAddressField(_addressController),
         StepperUtils.getBalanceWidget(kZnnCoin, accountInfo),
         DottedBorderInfoWidget(
-          text:
-              'Creating a project consumes ${projectCreationFeeInZnn.addDecimals(coinDecimals)} ${kZnnCoin.symbol} that goes to the Accelerator',
+          text: context.l10n.projectCost(
+            projectCreationFeeInZnn.addDecimals(coinDecimals),
+            kZnnCoin.symbol,
+          ),
         ),
         kVerticalSpacing,
         Row(
@@ -211,7 +213,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              text: 'Cancel',
+              text: context.l10n.cancelKey,
             ),
             const SizedBox(
               width: 15,
@@ -229,7 +231,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
                       });
                     }
                   : null,
-              text: 'Continue',
+              text: context.l10n.continueKey,
             ),
           ],
         ),
@@ -249,7 +251,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: InputField(
                   controller: _projectNameController,
-                  hintText: 'Project name',
+                  hintText: context.l10n.projectName,
                   onChanged: (value) {
                     setState(() {});
                   },
@@ -272,7 +274,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: InputField(
                   controller: _projectDescriptionController,
-                  hintText: 'Project description',
+                  hintText: context.l10n.projectDescription,
                   onChanged: (value) {
                     setState(() {});
                   },
@@ -295,7 +297,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: InputField(
                   controller: _projectUrlController,
-                  hintText: 'Project URL',
+                  hintText: context.l10n.projectURL ,
                   onChanged: (value) {
                     setState(() {});
                   },
@@ -303,8 +305,8 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
                 ),
               ),
             ),
-            const StandardTooltipIcon(
-              'Link to project article',
+            StandardTooltipIcon(
+              context.l10n.linkProjectArticle,
               Icons.help,
             ),
           ],
@@ -313,11 +315,11 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
         Row(
           children: [
             Text(
-              'Total project budget',
+              context.l10n.totalProjectBudget,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
-            const StandardTooltipIcon(
-              'Set a budget for the project',
+            StandardTooltipIcon(
+              context.l10n.setProjectBudget,
               Icons.help,
             ),
           ],
@@ -334,7 +336,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
                     _projectZnnAmountController.text,
                   ),
                   controller: _projectZnnAmountController,
-                  hintText: 'ZNN Amount',
+                  hintText: context.l10n.znnAmount,
                   suffixIcon: AmountSuffixWidgets(
                     kZnnCoin,
                     onMaxPressed: () {
@@ -381,7 +383,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
                     _projectQsrAmountController.text,
                   ),
                   controller: _projectQsrAmountController,
-                  hintText: 'QSR Amount',
+                  hintText: context.l10n.qsrAmount,
                   suffixIcon: AmountSuffixWidgets(
                     kQsrCoin,
                     onMaxPressed: () {
@@ -419,7 +421,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
         Row(
           children: [
             StepperButton(
-              text: 'Cancel',
+              text: context.l10n.cancelKey,
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -428,7 +430,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
               width: 15,
             ),
             StepperButton(
-              text: 'Continue',
+              text: context.l10n.continueKey,
               onPressed: _areInputDetailsValid()
                   ? () {
                       setState(() {
@@ -449,8 +451,10 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         DottedBorderInfoWidget(
-          text:
-              'Consume ${projectCreationFeeInZnn.addDecimals(coinDecimals)} ${kZnnCoin.symbol} to submit the project',
+          text: context.l10n.projectCostSubmit(
+              projectCreationFeeInZnn.addDecimals(coinDecimals),
+              kZnnCoin.symbol,
+          )
         ),
         kVerticalSpacing,
         Row(
@@ -462,7 +466,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
                   _lastCompletedStep = ProjectCreationStep.projectCreation;
                 });
               },
-              text: 'Go back',
+              text: context.l10n.goBackKey,
             ),
             const SizedBox(
               width: 15,
@@ -490,7 +494,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
             _submitButtonKey.currentState?.animateReverse();
             await NotificationUtils.sendNotificationError(
               error,
-              'Error while submitting project',
+              context.l10n.createProjectError,
             );
           },
         );
@@ -516,7 +520,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
           ),
         );
       },
-      text: 'Submit',
+      text: context.l10n.submitKey,
       key: _submitButtonKey,
     );
   }

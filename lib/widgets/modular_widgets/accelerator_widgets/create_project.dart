@@ -15,9 +15,9 @@ class CreateProject extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardScaffold(
-      title: 'Create Project',
+      title: context.l10n.createProjectTitle,
       childBuilder: () => _getWidgetBody(context),
-      description: 'Innovate. Inspire. Build.',
+      description: context.l10n.createProjectDescription,
     );
   }
 
@@ -37,7 +37,7 @@ class CreateProject extends StatelessWidget {
             SizedBox(
               width: 200,
               child: Text(
-                'Join the Aliens building the future on Network of Momentum',
+                context.l10n.createProjectDescriptionTooltip,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
             ),
@@ -55,7 +55,7 @@ class CreateProject extends StatelessWidget {
                   ),
                 );
               },
-              text: 'Create project',
+              text: context.l10n.createProjectButton,
               initialFillColor: AppColors.znnColor,
               icon: SyriusElevatedButton.getFilledButtonPlusIcon(),
             ),

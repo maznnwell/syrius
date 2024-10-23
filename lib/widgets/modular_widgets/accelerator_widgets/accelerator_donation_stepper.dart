@@ -207,7 +207,7 @@ class _AcceleratorDonationStepperState
               onPressed: () {
                 Navigator.pop(context);
               },
-              text: context.l10n.cancel,
+              text: context.l10n.cancelKey,
             ),
             const SizedBox(
               width: 15,
@@ -327,7 +327,7 @@ class _AcceleratorDonationStepperState
         Row(
           children: [
             StepperButton(
-              text: context.l10n.cancel,
+              text: context.l10n.cancelKey,
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -414,7 +414,7 @@ class _AcceleratorDonationStepperState
                   _lastCompletedStep = AcceleratorDonationStep.donationAddress;
                 });
               },
-              text: context.l10n.goBack,
+              text: context.l10n.goBackKey,
             ),
             const SizedBox(
               width: 15,
@@ -436,7 +436,7 @@ class _AcceleratorDonationStepperState
           _qsrAmount,
         );
       },
-      text: context.l10n.submit,
+      text: context.l10n.submitKey,
       key: _submitButtonKey,
     );
   }

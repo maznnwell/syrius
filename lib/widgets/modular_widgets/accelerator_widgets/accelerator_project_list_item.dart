@@ -535,7 +535,7 @@ class _AcceleratorProjectListItemState
 
   Widget _getUpdatePhaseIcon(BuildContext context) {
     return Tooltip(
-      message: context.l10n.updatePhaseTooltip,
+      message: context.l10n.updatePhase,
       child: RawMaterialButton(
         constraints: const BoxConstraints(
           minWidth: 50,
@@ -593,7 +593,7 @@ class _AcceleratorProjectListItemState
         }, onError: (error) async {
           await NotificationUtils.sendNotificationError(
             error,
-            'Error while voting project',
+            context.l10n.errorVoting,
           );
         },);
       },
@@ -623,7 +623,7 @@ class _AcceleratorProjectListItemState
         model.stream.listen((event) {}, onError: (error) async {
           await NotificationUtils.sendNotificationError(
             error,
-            'Error while trying to get the vote breakdown',
+            context.l10n.errorVoteBreakdown,
           );
         },);
       },

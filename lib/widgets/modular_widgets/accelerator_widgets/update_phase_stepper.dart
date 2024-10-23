@@ -103,7 +103,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 StepperButton(
-                  text: 'View Phases',
+                  text: context.l10n.viewPhases,
                   onPressed: () {
                     Navigator.pop(context);
                   },
@@ -144,7 +144,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
         onStepTapped: (int index) {},
         steps: [
           StepperUtils.getMaterialStep(
-            stepTitle: 'Phase details',
+            stepTitle: context.l10n.phaseDetails,
             stepContent: _getPhaseDetailsStepContent(accountInfo),
             stepSubtitle: '${_phaseNameController.text} ● '
                 '${_phaseZnnAmountController.text} ${kZnnCoin.symbol} ● '
@@ -153,7 +153,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
             context: context,
           ),
           StepperUtils.getMaterialStep(
-            stepTitle: 'Update phase',
+            stepTitle: context.l10n.updatePhase,
             stepContent: _getUpdatePhaseStepContent(),
             stepSubtitle: 'ID ${widget.phase.id.toShortString()}',
             stepState: _getStepState(UpdatePhaseStep.updatePhase),
@@ -178,8 +178,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
         Row(
           children: [
             Expanded(
-              child: Text(
-                'This phase belongs to Project ID '
+              child: Text('${context.l10n.phaseBelongsToProjectID}'
                 '${widget.phase.id.toShortString()}',
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
@@ -192,7 +191,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: InputField(
             controller: _phaseNameController,
-            hintText: 'Phase name',
+            hintText: context.l10n.phaseName,
             onChanged: (value) {
               setState(() {});
             },
@@ -205,7 +204,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: InputField(
             controller: _phaseDescriptionController,
-            hintText: 'Phase description',
+            hintText: context.l10n.phaseDescription,
             onChanged: (value) {
               setState(() {});
             },
@@ -218,7 +217,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: InputField(
             controller: _phaseUrlController,
-            hintText: 'Phase URL',
+            hintText: context.l10n.phaseURL,
             onChanged: (value) {
               setState(() {});
             },
@@ -227,7 +226,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
         ),
         kVerticalSpacing,
         Text(
-          'Total phase budget',
+          context.l10n.totalPhaseBudget,
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         kVerticalSpacing,
@@ -236,7 +235,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: InputField(
             controller: _phaseZnnAmountController,
-            hintText: 'ZNN Amount',
+            hintText: context.l10n.znnAmount,
             suffixIcon: AmountSuffixWidgets(
               kZnnCoin,
               onMaxPressed: () {
@@ -268,7 +267,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: InputField(
             controller: _phaseQsrAmountController,
-            hintText: 'QSR Amount',
+            hintText: context.l10n.qsrAmount,
             suffixIcon: AmountSuffixWidgets(
               kQsrCoin,
               onMaxPressed: () {
@@ -298,7 +297,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
         Row(
           children: [
             StepperButton(
-              text: 'Cancel',
+              text: context.l10n.cancelKey,
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -307,7 +306,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
               width: 15,
             ),
             StepperButton(
-              text: 'Continue',
+              text: context.l10n.continueKey,
               onPressed: _areInputDetailsValid()
                   ? () {
                       setState(() {
@@ -327,8 +326,8 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const DottedBorderInfoWidget(
-          text: 'Updating this phase will reset all current votes',
+         DottedBorderInfoWidget(
+          text: context.l10n.updatePhaseVoteReset,
         ),
         kVerticalSpacing,
         Row(
@@ -340,7 +339,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
                   _lastCompletedStep = null;
                 });
               },
-              text: 'Go back',
+              text: context.l10n.goBackKey,
             ),
             const SizedBox(
               width: 15,
@@ -364,7 +363,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
           _phaseQsrAmountController.text.extractDecimals(coinDecimals),
         );
       },
-      text: 'Update',
+      text: context.l10n.updatePhase,
     );
   }
 
@@ -404,7 +403,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
           onError: (error) async {
             await NotificationUtils.sendNotificationError(
               error,
-              'Error while updating phase',
+              context.l10n.updatePhaseError,
             );
           },
         );
