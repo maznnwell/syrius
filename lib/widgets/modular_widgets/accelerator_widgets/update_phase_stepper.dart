@@ -297,7 +297,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
         Row(
           children: [
             StepperButton(
-              text: context.l10n.cancelKey,
+              text: context.l10n.cancel,
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -339,7 +339,7 @@ class _UpdatePhaseStepperState extends State<UpdatePhaseStepper> {
                   _lastCompletedStep = null;
                 });
               },
-              text: context.l10n.goBackKey,
+              text: context.l10n.goBack,
             ),
             const SizedBox(
               width: 15,

@@ -346,7 +346,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
         Row(
           children: [
             StepperButton(
-              text: context.l10n.cancelKey,
+              text: context.l10n.cancel,
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -400,7 +400,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
                   _lastCompletedStep = null;
                 });
               },
-              text: context.l10n.goBackKey,
+              text: context.l10n.goBack,
             ),
             const SizedBox(
               width: 15,
@@ -429,7 +429,7 @@ class _PhaseCreationStepperState extends State<PhaseCreationStepper> {
           ),
         );
       },
-      text: context.l10n.submitKey,
+      text: context.l10n.submit,
       key: _submitButtonKey,
     );
   }

@@ -213,7 +213,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
               onPressed: () {
                 Navigator.pop(context);
               },
-              text: context.l10n.cancelKey,
+              text: context.l10n.cancel,
             ),
             const SizedBox(
               width: 15,
@@ -421,7 +421,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
         Row(
           children: [
             StepperButton(
-              text: context.l10n.cancelKey,
+              text: context.l10n.cancel,
               onPressed: () {
                 Navigator.pop(context);
               },
@@ -466,7 +466,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
                   _lastCompletedStep = ProjectCreationStep.projectCreation;
                 });
               },
-              text: context.l10n.goBackKey,
+              text: context.l10n.goBack,
             ),
             const SizedBox(
               width: 15,
@@ -520,7 +520,7 @@ class _ProjectCreationStepperState extends State<ProjectCreationStepper> {
           ),
         );
       },
-      text: context.l10n.submitKey,
+      text: context.l10n.submit,
       key: _submitButtonKey,
     );
   }
