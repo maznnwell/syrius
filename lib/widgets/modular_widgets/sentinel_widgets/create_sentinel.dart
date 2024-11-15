@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:lottie/lottie.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/blocs.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/screens/screens.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart';
@@ -26,9 +27,8 @@ class _CreateSentinelState extends State<CreateSentinel> {
   @override
   Widget build(BuildContext context) {
     return CardScaffold(
-      title: 'Create Sentinel',
-      description: 'Start the process of deploying a Sentinel Node in the '
-          'network',
+      title: context.l10n.createSentinelTitle,
+      description: context.l10n.createSentinelDescription,
       childBuilder: () => _getStreamBuilder(context),
     );
   }
@@ -58,12 +58,11 @@ class _CreateSentinelState extends State<CreateSentinel> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text(
-            'Sentinel detected on this address',
+            context.l10n.sentinelDetectedOnAddress,
             style: Theme.of(context).textTheme.bodyLarge,
           ),
-          const StandardTooltipIcon(
-            'Cannot reuse address.\n'
-            'Please use another address to spawn a new Sentinel Node',
+          StandardTooltipIcon(
+            context.l10n.cannotReuseAddress,
             Icons.help,
           ),
         ],
@@ -89,7 +88,7 @@ class _CreateSentinelState extends State<CreateSentinel> {
               ),
             );
           },
-          text: 'Spawn',
+          text: context.l10n.spawn,
           initialFillColor: AppColors.znnColor,
           icon: _getFilledButtonIcon(),
         ),

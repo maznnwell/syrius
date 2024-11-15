@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:stacked/stacked.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/blocs.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/global.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/notification_utils.dart';
@@ -25,10 +26,8 @@ class _SentinelListWidgetState extends State<SentinelListWidget> {
   @override
   Widget build(BuildContext context) {
     return CardScaffold(
-      title: 'Sentinel List',
-      description:
-          'This card displays information about the Sentinels that are '
-          'currently active in the network',
+      title: context.l10n.sentinelListTitle,
+      description: context.l10n.sentinelListDescription,
       childBuilder: () {
         _bloc = SentinelsListBloc();
         return _getTable(_bloc);
@@ -42,7 +41,7 @@ class _SentinelListWidgetState extends State<SentinelListWidget> {
       bloc: _bloc,
       headerColumns: <InfiniteScrollTableHeaderColumn>[
         InfiniteScrollTableHeaderColumn(
-          columnName: 'Sentinel Address',
+          columnName: context.l10n.sentinelAddress,
           onSortArrowsPressed: _onSortArrowsPressed,
         ),
         const InfiniteScrollTableHeaderColumn(
@@ -104,8 +103,8 @@ class _SentinelListWidgetState extends State<SentinelListWidget> {
               ),
               StandardTooltipIcon(
                 sentinelInfo.isRevocable
-                    ? 'Revocation window is open'
-                    : 'Until revocation window opens',
+                    ? context.l10n.revocationWindowOpen
+                    : context.l10n.untilRevocationWindowOpens,
                 Icons.help,
                 iconColor: sentinelInfo.isRevocable
                     ? AppColors.znnColor
@@ -157,7 +156,7 @@ class _SentinelListWidgetState extends State<SentinelListWidget> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Text(
-            'DISASSEMBLE',
+            context.l10n.disassemble,
             style: isSelected
                 ? Theme.of(context).textTheme.titleSmall!.copyWith(
                       color: Theme.of(context).textTheme.bodyLarge!.color,
@@ -217,7 +216,7 @@ class _SentinelListWidgetState extends State<SentinelListWidget> {
           onError: (error) async {
             await NotificationUtils.sendNotificationError(
               error,
-              'Error while disassembling Sentinel',
+              context.l10n.errorDisassemblingSentinel,
             );
           },
         );

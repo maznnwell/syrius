@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/blocs.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/account_block_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
@@ -31,13 +32,8 @@ class _SentinelCollectState extends State<SentinelCollect> {
   @override
   Widget build(BuildContext context) {
     return CardScaffold(
-      title: 'Sentinel Collect',
-      description: 'This card displays your current Sentinel rewards that are '
-          'ready to be collected. If there are any rewards available, you will '
-          'be able to collect them. In order to receive rewards, the Sentinel '
-          'Node needs to be not only registered in the network, but also '
-          'deployed (use znn-controller for this operation) and it must have >90% '
-          'daily uptime',
+      title: context.l10n.sentinelCollectTitle,
+      description: context.l10n.sentinelCollectDescription,
       childBuilder: () => Padding(
         padding: const EdgeInsets.all(16),
         child: _getFutureBuilder(),
@@ -56,7 +52,7 @@ class _SentinelCollectState extends State<SentinelCollect> {
               snapshot.data!.qsrAmount > BigInt.zero) {
             return _getWidgetBody(snapshot.data!);
           }
-          return const SyriusErrorWidget('No rewards to collect');
+          return SyriusErrorWidget(context.l10n.noRewardsCollect);
         }
         return const SyriusLoadingWidget();
       },
@@ -90,7 +86,7 @@ class _SentinelCollectState extends State<SentinelCollect> {
               uncollectedReward.znnAmount > BigInt.zero,
           child: LoadingButton.stepper(
             key: _collectButtonKey,
-            text: 'Collect',
+            text: context.l10n.collect,
             onPressed: uncollectedReward.qsrAmount > BigInt.zero ||
                     uncollectedReward.znnAmount > BigInt.zero
                 ? _onCollectPressed
@@ -120,7 +116,7 @@ class _SentinelCollectState extends State<SentinelCollect> {
     } catch (e) {
       await NotificationUtils.sendNotificationError(
         e,
-        'Error while collecting Sentinel rewards',
+        context.l10n.errorCollectingSentinelRewards,
       );
     } finally {
       _collectButtonKey.currentState?.animateReverse();

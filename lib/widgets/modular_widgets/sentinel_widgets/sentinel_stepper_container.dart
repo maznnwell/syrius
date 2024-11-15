@@ -7,6 +7,7 @@ import 'package:stacked/stacked.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/blocs.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/model/model.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
@@ -169,7 +170,10 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
                           accountInfo,
                         ),
                         Text(
-                          '${qsrInfo.cost.addDecimals(coinDecimals)} ${kQsrCoin.symbol} required for a Sentinel Node',
+                          context.l10n.requiredForSentinelNode(
+                              qsrInfo.cost.addDecimals(coinDecimals),
+                              kQsrCoin.symbol,
+                          ),
                           style:
                               Theme.of(context).inputDecorationTheme.hintStyle,
                         ),
@@ -200,7 +204,7 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
                             suffixIcon: _getAmountSuffix(accountInfo),
                             suffixIconConstraints:
                                 const BoxConstraints(maxWidth: 50),
-                            hintText: 'Amount',
+                            hintText: context.l10n.amount,
                             onChanged: (String value) {
                               setState(() {});
                             },
@@ -213,8 +217,9 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
                     padding: const EdgeInsets.symmetric(vertical: 25),
                     child: DottedBorderInfoWidget(
                       text:
-                          'You will be able to unlock the ${kQsrCoin.symbol} if you '
-                          'choose to disassemble the Sentinel',
+                          context.l10n.disassembleSentinelToUnlockCoin(
+                              kQsrCoin.symbol,
+                          ),
                       borderColor: AppColors.qsrColor,
                     ),
                   ),
@@ -229,7 +234,7 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
                   Visibility(
                     visible: qsrInfo.deposit >= qsrInfo.cost,
                     child: StepperButton(
-                      text: 'Next',
+                      text: context.l10n.next,
                       onPressed: _onQsrNextPressed,
                     ),
                   ),
@@ -288,7 +293,10 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
                               ),
                             ),
                             Text(
-                              'Sentinel Slot value\n${qsrInfo.cost.addDecimals(coinDecimals)} ${kQsrCoin.symbol}',
+                              context.l10n.sentinelSlotValue(
+                                  qsrInfo.cost.addDecimals(coinDecimals),
+                                  kQsrCoin.symbol,
+                              ),
                               style: Theme.of(context).textTheme.bodyMedium,
                               textAlign: TextAlign.center,
                             ),
@@ -302,8 +310,10 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
                         SizedBox(
                           width: 130,
                           child: Text(
-                            'You have deposited ${qsrInfo.deposit.addDecimals(coinDecimals)} '
-                            '${kQsrCoin.symbol}',
+                            context.l10n.youHaveDeposited(
+                                qsrInfo.deposit.addDecimals(coinDecimals),
+                                kQsrCoin.symbol,
+                            ),
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
@@ -344,7 +354,7 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
             _depositQsrButtonKey.currentState?.animateReverse();
             await NotificationUtils.sendNotificationError(
               error,
-              'Error while depositing ${kQsrCoin.symbol}',
+              context.l10n.errorWhileDepositing(kQsrCoin.symbol),
             );
             setState(() {});
           },
@@ -363,7 +373,7 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
   ) {
     return LoadingButton.stepper(
       key: _depositQsrButtonKey,
-      text: 'Deposit',
+      text: context.l10n.deposit,
       onPressed: _hasQsrBalance(accountInfo) &&
               _qsrAmountValidator(_qsrAmountController.text, qsrInfo) == null
           ? () => _onDepositButtonPressed(model, qsrInfo)
@@ -391,7 +401,7 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
             _withdrawButtonKey.currentState?.animateReverse();
             await NotificationUtils.sendNotificationError(
               error,
-              'Error while withdrawing ${kQsrCoin.symbol}',
+              context.l10n.errorWhileWithdrawing(kQsrCoin.symbol),
             );
           },
         );
@@ -408,7 +418,7 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
     return Visibility(
       visible: qsrDeposit > BigInt.zero,
       child: LoadingButton.stepper(
-        text: 'Withdraw',
+        text: context.l10n.withdraw,
         onPressed: () => _onWithdrawButtonPressed(model, qsrDeposit),
         key: _withdrawButtonKey,
         outlineColor: AppColors.qsrColor,
@@ -428,9 +438,9 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
         onStepTapped: (int index) {},
         steps: <custom_material_stepper.Step>[
           StepperUtils.getMaterialStep(
-            stepTitle: 'Sentinel deployment: Plasma check',
+            stepTitle: context.l10n.sentinelDeployment,
             stepContent: _getPlasmaCheckFutureBuilder(),
-            stepSubtitle: 'Sufficient Plasma',
+            stepSubtitle: context.l10n.sufficientPlasma,
             stepState: StepperUtils.getStepState(
               SentinelStepperStep.checkPlasma.index,
               _lastCompletedStep?.index,
@@ -438,9 +448,9 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
             context: context,
           ),
           StepperUtils.getMaterialStep(
-            stepTitle: '${kQsrCoin.symbol} management',
+            stepTitle: context.l10n.management(kQsrCoin.symbol),
             stepContent: _getQsrManagementStep(context, accountInfo),
-            stepSubtitle: '${kQsrCoin.symbol} deposited',
+            stepSubtitle: context.l10n.deposited(kQsrCoin.symbol),
             stepState: StepperUtils.getStepState(
               SentinelStepperStep.qsrManagement.index,
               _lastCompletedStep?.index,
@@ -449,9 +459,9 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
             expanded: true,
           ),
           StepperUtils.getMaterialStep(
-            stepTitle: '${kZnnCoin.symbol} management',
+            stepTitle: context.l10n.management(kQsrCoin.symbol),
             stepContent: _getZnnManagementStepBody(context, accountInfo),
-            stepSubtitle: '${kZnnCoin.symbol} locked',
+            stepSubtitle: context.l10n.locked(kQsrCoin.symbol),
             stepState: StepperUtils.getStepState(
               SentinelStepperStep.znnManagement.index,
               _lastCompletedStep?.index,
@@ -459,9 +469,9 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
             context: context,
           ),
           StepperUtils.getMaterialStep(
-            stepTitle: 'Register Sentinel',
+            stepTitle: context.l10n.registerSentinel,
             stepContent: _getDeploySentinelStepBody(context),
-            stepSubtitle: 'Sentinel registered',
+            stepSubtitle: context.l10n.sentinelRegistered,
             stepState: StepperUtils.getStepState(
               SentinelStepperStep.deploySentinel.index,
               _lastCompletedStep?.index,
@@ -511,7 +521,7 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
             _registerButtonKey.currentState?.animateReverse();
             await NotificationUtils.sendNotificationError(
               error,
-              'Error while deploying the Sentinel Node',
+              context.l10n.errorDeployingSentinelNode,
             );
             setState(() {});
           },
@@ -524,7 +534,7 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
 
   Widget _getRegisterSentinelButton(SentinelsDeployBloc model) {
     return LoadingButton.stepper(
-      text: 'Register',
+      text: context.l10n.register,
       onPressed: () => _onDeployPressed(model),
       key: _registerButtonKey,
     );
@@ -561,12 +571,11 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 25),
           child: DottedBorderInfoWidget(
-            text: 'You will be able to unlock the ${kZnnCoin.symbol} if you '
-                'choose to disassemble the Sentinel',
+            text: context.l10n.disassembleSentinelToUnlockCoin(kQsrCoin.symbol),
           ),
         ),
         StepperButton(
-          text: 'Next',
+          text: context.l10n.next,
           onPressed: _hasEnoughZnn(accountInfo) ? _onNextPressed : null,
         ),
       ],
@@ -655,11 +664,11 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
                         style: Theme.of(context).textTheme.headlineSmall,
                         children: <InlineSpan>[
                           TextSpan(
-                            text: 'Sentinel ',
+                            text: context.l10n.sentinel,
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           TextSpan(
-                            text: 'successfully',
+                            text: context.l10n.successfully,
                             style: Theme.of(context)
                                 .textTheme
                                 .headlineSmall!
@@ -668,11 +677,11 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
                                 ),
                           ),
                           TextSpan(
-                            text: ' registered. Use ',
+                            text: context.l10n.registeredUse,
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           TextSpan(
-                            text: 'znn-controller ',
+                            text: context.l10n.znnController,
                             style: Theme.of(context)
                                 .textTheme
                                 .headlineSmall!
@@ -693,7 +702,7 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
                             ),
                           ),
                           TextSpan(
-                            text: ' to check the Sentinel status',
+                            text: context.l10n.toCheckSentinelStatus,
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                         ],
@@ -734,7 +743,7 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
 
   Widget _getViewSentinelsButton() {
     return StepperButton.icon(
-      label: 'View Sentinels',
+      label: context.l10n.viewSentinels,
       onPressed: () {
         Navigator.pop(context);
       },
@@ -798,7 +807,7 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          'More Plasma is required to perform complex transactions. Please fuse enough QSR before proceeding.',
+          context.l10n.morePlasmaRequired,
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         const SizedBox(
@@ -819,7 +828,7 @@ class _MainSentinelState extends State<SentinelStepperContainer> {
           height: 25,
         ),
         StepperButton(
-          text: 'Next',
+          text: context.l10n.next,
           onPressed: plasmaInfo.currentPlasma >= kSentinelPlasmaAmountNeeded
               ? _onPlasmaCheckNextPressed
               : null,

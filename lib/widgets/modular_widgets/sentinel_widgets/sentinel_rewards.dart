@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/blocs.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -21,9 +22,8 @@ class _SentinelRewardsState extends State<SentinelRewards> {
   @override
   Widget build(BuildContext context) {
     return CardScaffold(
-      title: 'Sentinel Rewards',
-      description: 'This card displays a chart with your Sentinel rewards from '
-          'your Sentinel Node',
+      title: context.l10n.sentinelRewardsTitle,
+      description: context.l10n.sentinelRewardsDescription,
       childBuilder: () => Padding(
         padding: const EdgeInsets.all(16),
         child: _getStreamBody(),
