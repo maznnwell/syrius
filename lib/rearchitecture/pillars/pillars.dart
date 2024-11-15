@@ -1,4 +1,4 @@
-export 'delegate_button/delegate_button.dart';
+export 'delegate_pillar/delegate_pillar.dart';
 export 'delegation_info/delegation_info.dart';
 export 'disassemble_pillar/disassemble_pillar.dart';
 export 'get_pillar_by_owner/get_pillar_by_owner.dart';
@@ -8,5 +8,5 @@ export 'pillars_deploy/pillars_deploy.dart';
 export 'pillars_deposit_qsr/pillars_deposit_qsr.dart';
 export 'pillars_qsr_info/pillars_qsr_info.dart';
 export 'pillars_withdraw_qsr/pillars_withdraw_qsr.dart';
-export 'undelegate_button/undelegate_button.dart';
+export 'undelegate_pillar/undelegate_pillar.dart';
 export 'update_pillar/update_pillar.dart';
