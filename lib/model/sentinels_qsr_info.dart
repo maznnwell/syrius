@@ -1,4 +1,6 @@
-class SentinelsQsrInfo {
+import 'package:equatable/equatable.dart';
+
+class SentinelsQsrInfo extends Equatable{
 
   SentinelsQsrInfo({
     required this.cost,
@@ -21,4 +23,7 @@ class SentinelsQsrInfo {
       'deposit': deposit.toString(),
     };
   }
+
+  @override
+  List<Object?> get props => <Object?>[cost, deposit];
 }
