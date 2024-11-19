@@ -52,16 +52,20 @@ class DisassembleSentinelCubit extends HydratedCubit<DisassembleSentinelState> {
       await zenonAddressUtilsHelper.refreshBalance();
 
       // Emit success state with the response data
-      emit(state.copyWith(
-        status: DisassembleSentinelStatus.success,
-        data: response,
-      ),);
+      emit(
+        state.copyWith(
+          status: DisassembleSentinelStatus.success,
+          data: response,
+        ),
+      );
     } catch (e) {
       // Emit failure state with the error information
-      emit(state.copyWith(
-        status: DisassembleSentinelStatus.failure,
-        error: e,
-      ),);
+      emit(
+        state.copyWith(
+          status: DisassembleSentinelStatus.failure,
+          error: e,
+        ),
+      );
     }
   }
 

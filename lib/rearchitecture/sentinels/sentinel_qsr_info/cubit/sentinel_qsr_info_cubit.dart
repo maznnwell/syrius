@@ -13,10 +13,15 @@ class SentinelsQsrInfoCubit extends HydratedCubit<SentinelsQsrInfoState> {
   /// Creates a new instance of [SentinelsQsrInfoCubit].
   SentinelsQsrInfoCubit({
     required this.zenon,
-  }) : super(const SentinelsQsrInfoState());
+    BigInt? registerCost,
+  }) :  registerCost = registerCost ?? sentinelRegisterQsrAmount,
+        super(const SentinelsQsrInfoState());
 
   /// The Zenon SDK instance used for network interactions.
   final Zenon zenon;
+
+  /// The required QSR amount for registering a Sentinel.
+  final BigInt registerCost;
 
   /// Fetches the QSR management information for the given [address].
   Future<void> getQsrManagementInfo(String address) async {
@@ -28,13 +33,10 @@ class SentinelsQsrInfoCubit extends HydratedCubit<SentinelsQsrInfoState> {
         Address.parse(address),
       );
 
-      // Get the required QSR amount for registering a Sentinel
-      final BigInt cost = sentinelRegisterQsrAmount;
-
       // Create the SentinelsQsrInfo data
       final SentinelsQsrInfo qsrInfo = SentinelsQsrInfo(
         deposit: deposit,
-        cost: cost,
+        cost: registerCost,
       );
 
       // Emit success state with the data

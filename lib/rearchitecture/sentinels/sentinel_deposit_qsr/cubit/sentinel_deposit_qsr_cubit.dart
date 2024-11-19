@@ -19,12 +19,11 @@ class SentinelsDepositQsrCubit extends HydratedCubit<SentinelsDepositQsrState> {
     this.duration = kDelayAfterAccountBlockCreationCall,
     AccountBlockUtilsHelper? accountBlockUtilsHelper,
     ZenonAddressUtilsHelper? zenonAddressUtilsHelper,
-  })  :accountBlockUtilsHelper =
+  })  : accountBlockUtilsHelper =
             accountBlockUtilsHelper ?? AccountBlockUtilsHelper(),
         zenonAddressUtilsHelper =
             zenonAddressUtilsHelper ?? ZenonAddressUtilsHelper(),
         super(const SentinelsDepositQsrState());
-
 
   /// The Zenon SDK instance used for network interactions.
   final Zenon zenon;
@@ -94,5 +93,6 @@ class SentinelsDepositQsrCubit extends HydratedCubit<SentinelsDepositQsrState> {
 
   /// Serializes the current state into a JSON map.
   @override
-  Map<String, dynamic>? toJson(SentinelsDepositQsrState state) => state.toJson();
+  Map<String, dynamic>? toJson(SentinelsDepositQsrState state) =>
+      state.toJson();
 }
