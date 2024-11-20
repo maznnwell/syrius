@@ -2,16 +2,24 @@ part of 'delegate_pillar_cubit.dart';
 
 /// Represents the possible statuses for the delegate pillar operation.
 enum DelegatePillarStatus {
+  /// {@template initial_status}
   /// The initial state before any action has been taken.
+  /// {@endtemplate}
   initial,
 
+  /// {@template loading_status}
   /// Indicates that the data is currently being loaded.
+  /// {@endtemplate}
   loading,
 
+  /// {@template failure_status}
   /// Indicates that an error occurred during the data fetching process.
+  /// {@endtemplate}
   failure,
 
+  /// {@template success_status}
   /// Indicates that data has been successfully fetched.
+  /// {@endtemplate}
   success,
 }
 
@@ -28,7 +36,7 @@ class DelegatePillarState extends Equatable {
     this.error,
   });
 
-  /// Creates a new instance from a JSON object.
+  /// {@macro instance_from_json}
   factory DelegatePillarState.fromJson(Map<String, dynamic> json) =>
       _$DelegatePillarStateFromJson(json);
 
@@ -36,8 +44,6 @@ class DelegatePillarState extends Equatable {
   final DelegatePillarStatus status;
 
   /// The response data from the delegate operation.
-  ///
-  /// Contains the [AccountBlockTemplate] resulting from the delegation.
   final AccountBlockTemplate? data;
 
   /// An object representing any error occurring during the delegate operation.

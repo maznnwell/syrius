@@ -2,16 +2,16 @@ part of 'undelegate_pillar_cubit.dart';
 
 /// Represents the possible statuses for the undelegate pillar operation.
 enum UndelegatePillarStatus {
-  /// The initial state before any action has been taken.
+  /// {@macro initial_status}
   initial,
 
-  /// Indicates that the data is currently being loaded.
+  /// {@macro loading_status}
   loading,
 
-  /// Indicates that an error occurred during the data fetching process.
+  /// {@macro failure_status}
   failure,
 
-  /// Indicates that data has been successfully fetched.
+  /// {@macro success_status}
   success,
 }
 
@@ -28,7 +28,7 @@ class UndelegatePillarState extends Equatable {
     this.error,
   });
 
-  /// Creates a new instance from a JSON map.
+  /// {@macro instance_from_json}
   factory UndelegatePillarState.fromJson(Map<String, dynamic> json) =>
       _$UndelegatePillarStateFromJson(json);
 
@@ -36,8 +36,6 @@ class UndelegatePillarState extends Equatable {
   final UndelegatePillarStatus status;
 
   /// The response data from the undelegation operation.
-  ///
-  /// Contains the [AccountBlockTemplate] resulting from the undelegation.
   final AccountBlockTemplate? data;
 
   /// An error message representing any error occurring during the operation.

@@ -2,16 +2,16 @@ part of 'pillars_qsr_info_cubit.dart';
 
 /// Represents the possible statuses for the QSR management operation.
 enum PillarsQsrInfoStatus {
-  /// The initial state before any action has been taken.
+  /// {@macro initial_status}
   initial,
 
-  /// Indicates that the data is currently being loaded.
+  /// {@macro loading_status}
   loading,
 
-  /// Indicates that an error occurred during the data fetching process.
+  /// {@macro failure_status}
   failure,
 
-  /// Indicates that data has been successfully fetched.
+  /// {@macro success_status}
   success,
 }
 
@@ -28,7 +28,7 @@ class PillarsQsrInfoState extends Equatable {
     this.error,
   });
 
-  /// Creates a new instance from a JSON map.
+  /// {@macro instance_from_json}
   factory PillarsQsrInfoState.fromJson(Map<String, dynamic> json) =>
       _$PillarsQsrInfoStateFromJson(json);
 
@@ -36,8 +36,6 @@ class PillarsQsrInfoState extends Equatable {
   final PillarsQsrInfoStatus status;
 
   /// The QSR management information data.
-  ///
-  /// Contains the [PillarsQsrInfo] object with deposit and cost information.
   final PillarsQsrInfo? data;
 
   /// An error message representing any error occurring during the operation.

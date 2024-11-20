@@ -2,16 +2,16 @@ part of 'disassemble_pillar_cubit.dart';
 
 /// Represents the possible statuses for the disassemble pillar operation.
 enum DisassemblePillarStatus {
-  /// The initial state before any action has been taken.
+  /// {@macro initial_status}
   initial,
 
-  /// Indicates that the data is currently being loaded.
+  /// {@macro loading_status}
   loading,
 
-  /// Indicates that an error occurred during the data fetching process.
+  /// {@macro failure_status}
   failure,
 
-  /// Indicates that data has been successfully fetched.
+  /// {@macro success_status}
   success,
 }
 
@@ -28,7 +28,7 @@ class DisassemblePillarState extends Equatable {
     this.error,
   });
 
-  /// Creates a new instance from a JSON map.
+  /// {@macro state_from_json}
   factory DisassemblePillarState.fromJson(Map<String, dynamic> json) =>
       _$DisassemblePillarStateFromJson(json);
 
@@ -36,14 +36,12 @@ class DisassemblePillarState extends Equatable {
   final DisassemblePillarStatus status;
 
   /// The response data from the disassemble operation.
-  ///
-  /// Contains the [AccountBlockTemplate] resulting from the disassembly.
   final AccountBlockTemplate? data;
 
   /// An error message representing any error occurring during the operation.
   final Object? error;
 
-  /// {@macro state_copy_with}
+  /// {@macro instance_from_json}
   DisassemblePillarState copyWith({
     DisassemblePillarStatus? status,
     AccountBlockTemplate? data,

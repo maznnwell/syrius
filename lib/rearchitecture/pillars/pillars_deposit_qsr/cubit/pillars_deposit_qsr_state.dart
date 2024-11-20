@@ -2,16 +2,16 @@ part of 'pillars_deposit_qsr_cubit.dart';
 
 /// Represents the possible statuses for the QSR deposit operation.
 enum PillarsDepositQsrStatus{
-  /// The initial state before any action has been taken.
+  /// {@macro initial_status}
   initial,
 
-  /// Indicates that the data is currently being loaded.
+  /// {@macro loading_status}
   loading,
 
-  /// Indicates that an error occurred during the data fetching process.
+  /// {@macro failure_status}
   failure,
 
-  /// Indicates that data has been successfully fetched.
+  /// {@macro success_status}
   success,
 }
 
@@ -28,7 +28,7 @@ class PillarsDepositQsrState extends Equatable {
     this.error,
   });
 
-  /// Creates a new instance from a JSON map.
+  /// {@macro instance_from_json}
   factory PillarsDepositQsrState.fromJson(Map<String, dynamic> json) =>
       _$PillarsDepositQsrStateFromJson(json);
 
@@ -36,14 +36,12 @@ class PillarsDepositQsrState extends Equatable {
   final PillarsDepositQsrStatus status;
 
   /// The response data from the QSR deposit operation.
-  ///
-  /// Contains the [AccountBlockTemplate] resulting from the deposit.
   final AccountBlockTemplate? data;
 
   /// An error message representing any error occurring during the operation.
   final Object? error;
 
-  ///
+  /// {@macro state_copy_with}
   PillarsDepositQsrState copyWith({
     PillarsDepositQsrStatus? status,
     AccountBlockTemplate? data,

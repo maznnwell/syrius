@@ -2,16 +2,16 @@ part of 'pillars_withdraw_qsr_cubit.dart';
 
 /// Represents the possible statuses for the QSR withdrawal operation.
 enum PillarsWithdrawQsrStatus{
-  /// The initial state before any action has been taken.
+  /// {@macro initial_status}
   initial,
 
-  /// Indicates that the data is currently being loaded.
+  /// {@macro loading_status}
   loading,
 
-  /// Indicates that an error occurred during the data fetching process.
+  /// {@macro failure_status}
   failure,
 
-  /// Indicates that data has been successfully fetched.
+  /// {@macro success_status}
   success,
 }
 
@@ -28,7 +28,7 @@ class PillarsWithdrawQsrState extends Equatable {
     this.error,
   });
 
-  /// Creates a new instance from a JSON map.
+  /// {@macro instance_from_json}
   factory PillarsWithdrawQsrState.fromJson(Map<String, dynamic> json) =>
       _$PillarsWithdrawQsrStateFromJson(json);
 
@@ -36,8 +36,6 @@ class PillarsWithdrawQsrState extends Equatable {
   final PillarsWithdrawQsrStatus status;
 
   /// The response data from the QSR withdrawal operation.
-  ///
-  /// Contains the [AccountBlockTemplate] resulting from the withdrawal.
   final AccountBlockTemplate? data;
 
   /// An error message representing any error occurring during the operation.
