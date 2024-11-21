@@ -7,7 +7,7 @@ part 'staking_uncollected_rewards_cubit.g.dart';
 part 'staking_uncollected_rewards_state.dart';
 
 /// A cubit responsible for fetching and managing the state of
-/// uncollected rewards for a specific address.
+/// uncollected rewards for a specific staking address.
 class StakingUncollectedRewardsCubit extends CubitForReloadingIndicator<
     UncollectedReward, StakingUncollectedRewardsState> {
   /// Constructs a [StakingUncollectedRewardsCubit].
