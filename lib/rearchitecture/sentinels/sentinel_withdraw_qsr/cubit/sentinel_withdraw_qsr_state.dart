@@ -2,16 +2,16 @@ part of 'sentinel_withdraw_qsr_cubit.dart';
 
 /// Enum representing the status of the QSR withdrawal operation.
 enum SentinelsWithdrawQsrStatus {
-  /// The initial state before any action has been taken.
+  /// {@macro initial_status}
   initial,
 
-  /// The state when the withdrawal process is in progress.
+  /// {@macro loading_status}
   loading,
 
-  /// The state when the withdrawal process has completed successfully.
+  /// {@macro success_status}
   success,
 
-  /// The state when the withdrawal process has failed.
+  /// {@macro failure_status}
   failure,
 }
 
@@ -25,7 +25,7 @@ class SentinelsWithdrawQsrState extends Equatable {
     this.error,
   });
 
-  /// Deserializes the JSON map into a [SentinelsWithdrawQsrState].
+  /// {@macro instance_from_json}
   factory SentinelsWithdrawQsrState.fromJson(Map<String, dynamic> json) =>
       _$SentinelsWithdrawQsrStateFromJson(json);
 
@@ -38,7 +38,7 @@ class SentinelsWithdrawQsrState extends Equatable {
   /// Any error encountered during the operation.
   final Object? error;
 
-  /// Creates a copy of this state with the given fields replaced by new values.
+  /// {@macro state_copy_with}
   SentinelsWithdrawQsrState copyWith({
     SentinelsWithdrawQsrStatus? status,
     AccountBlockTemplate? data,
@@ -51,7 +51,7 @@ class SentinelsWithdrawQsrState extends Equatable {
     );
   }
 
-  /// Serializes this state into a JSON map.
+  /// {@macro state_to_json}
   Map<String, dynamic> toJson() => _$SentinelsWithdrawQsrStateToJson(this);
 
   @override

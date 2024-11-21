@@ -2,16 +2,16 @@ part of 'disassemble_sentinel_cubit.dart';
 
 /// Enum representing the status of the disassemble Sentinel operation.
 enum DisassembleSentinelStatus {
-  /// The initial state before any action has been taken.
+  /// {@macro initial_status}
   initial,
 
-  /// The state when the disassembling process is in progress.
+  /// {@macro loading_status}
   loading,
 
-  /// The state when the disassembling process has completed successfully.
+  /// [@macro success_status}
   success,
 
-  /// The state when the disassembling process has failed.
+  /// {@macro failure_status}
   failure,
 }
 
@@ -26,7 +26,7 @@ class DisassembleSentinelState extends Equatable {
     this.error,
   });
 
-  /// Deserializes the JSON map into a [DisassembleSentinelState].
+  /// {@macro instance_from_json}
   factory DisassembleSentinelState.fromJson(Map<String, dynamic> json) =>
       _$DisassembleSentinelStateFromJson(json);
 

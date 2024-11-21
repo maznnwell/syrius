@@ -2,16 +2,16 @@ part of 'sentinel_deploy_cubit.dart';
 
 /// Enum representing the status of the Sentinel deployment operation.
 enum SentinelsDeployStatus {
-  /// The initial state before any action has been taken.
+  /// {@macro initial_status}
   initial,
 
-  /// The state when the deployment process is in progress.
+  /// {@macro loading_status}
   loading,
 
-  /// The state when the deployment process has completed successfully.
+  /// {@macro success_status}
   success,
 
-  /// The state when the deployment process has failed.
+  /// {@macro failure_status}
   failure,
 }
 
@@ -25,7 +25,7 @@ class SentinelsDeployState extends Equatable {
     this.error,
   });
 
-  /// Deserializes the JSON map into a [SentinelsDeployState].
+  /// {@macro instance_from_json}
   factory SentinelsDeployState.fromJson(Map<String, dynamic> json) =>
       _$SentinelsDeployStateFromJson(json);
 
@@ -38,7 +38,7 @@ class SentinelsDeployState extends Equatable {
   /// Any error encountered during the operation.
   final Object? error;
 
-  /// Creates a copy of this state with the given fields replaced by new values.
+  /// {@macro state_copy_with}
   SentinelsDeployState copyWith({
     SentinelsDeployStatus? status,
     AccountBlockTemplate? data,
@@ -51,7 +51,7 @@ class SentinelsDeployState extends Equatable {
     );
   }
 
-  /// Serializes this state into a JSON map.
+  /// {@macro state_to_json}
   Map<String, dynamic> toJson() => _$SentinelsDeployStateToJson(this);
 
   @override

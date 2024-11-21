@@ -2,16 +2,16 @@ part of 'sentinel_deposit_qsr_cubit.dart';
 
 /// Enum representing the status of the deposit QSR operation.
 enum SentinelsDepositQsrStatus {
-  /// The initial state before any action has been taken.
+  /// {@macro initial_status}
   initial,
 
-  /// The state when the deposit process is in progress.
+  /// {@macro loading_status}
   loading,
 
-  /// The state when the deposit process has completed successfully.
+  /// {@macro success_status}
   success,
 
-  /// The state when the deposit process has failed.
+  /// {@macro failure_status}
   failure,
 }
 
@@ -25,7 +25,7 @@ class SentinelsDepositQsrState extends Equatable {
     this.error,
   });
 
-  /// Deserializes the JSON map into a [SentinelsDepositQsrState].
+  /// {@macro instance_from_json}
   factory SentinelsDepositQsrState.fromJson(Map<String, dynamic> json) =>
       _$SentinelsDepositQsrStateFromJson(json);
 

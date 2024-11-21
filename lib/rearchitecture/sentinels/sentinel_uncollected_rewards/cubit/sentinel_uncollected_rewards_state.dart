@@ -13,7 +13,7 @@ class SentinelUncollectedRewardsState
     super.error,
   });
 
-  /// Creates a new instance from a JSON object.
+  /// {@macro instance_from_json}
   factory SentinelUncollectedRewardsState.fromJson(Map<String, dynamic> json) =>
       _$SentinelUncollectedRewardsStateFromJson(json);
 

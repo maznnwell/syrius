@@ -10,10 +10,11 @@ part 'sentinel_uncollected_rewards_state.dart';
 /// uncollected rewards for a specific sentinel address.
 class SentinelUncollectedRewardsCubit extends CubitForReloadingIndicator<
     UncollectedReward, SentinelUncollectedRewardsState> {
-
-  /// Constructs a [SentinelUncollectedRewardsCubit]
-  /// with a specified Zenon instance, the target [address] to retrieve
-  /// uncollected rewards, and an optional flag [callUpdateStream] to control
+  /// Constructs a [SentinelUncollectedRewardsCubit].
+  ///
+  /// The parameters are a [Zenon] instance,
+  /// the target [address] to retrieve uncollected rewards,
+  /// and an optional flag [callUpdateStream] to control
   /// whether data is fetched on initialization.
   SentinelUncollectedRewardsCubit({
     required super.zenon,
@@ -24,7 +25,7 @@ class SentinelUncollectedRewardsCubit extends CubitForReloadingIndicator<
     const SentinelUncollectedRewardsState(),
   );
 
-  /// The [Address] for which the cubit fetches and manages uncollected rewards.
+  /// The [address] for which the cubit fetches and manages uncollected rewards.
   final Address address;
 
   /// Fetches the uncollected rewards for the specified [address].

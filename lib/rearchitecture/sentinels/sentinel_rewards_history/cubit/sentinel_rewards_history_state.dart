@@ -12,7 +12,7 @@ class SentinelRewardsHistoryState extends IndicatorState<RewardHistoryList> {
     super.error,
   });
 
-  /// Creates a new instance from a JSON object.
+  /// {@macro instance_from_json}
   factory SentinelRewardsHistoryState.fromJson(Map<String, dynamic> json) =>
       _$SentinelRewardsHistoryStateFromJson(json);
 

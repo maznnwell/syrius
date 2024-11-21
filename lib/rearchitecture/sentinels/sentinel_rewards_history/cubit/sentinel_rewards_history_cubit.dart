@@ -13,9 +13,13 @@ part 'sentinel_rewards_history_state.dart';
 /// address.
 class SentinelRewardsHistoryCubit extends CubitForReloadingIndicator<
     RewardHistoryList, SentinelRewardsHistoryState> {
-  /// Constructs a [SentinelRewardsHistoryCubit] with the necessary Zenon
-  /// instance, the target [address] for which reward history data is fetched,
-  /// and an optional [pageSize] to control the number of entries retrieved.
+  /// Constructs a [SentinelRewardsHistoryCubit].
+  ///
+  /// The parameters are a [Zenon] instance,
+  /// the target [address] for which reward history data is fetched,
+  /// an optional [pageSize] to control the number of entries retrieved,
+  /// and an optional flag [callUpdateStream] to control
+  /// whether data is fetched on initialization.
   SentinelRewardsHistoryCubit({
     required super.zenon,
     required this.address,
@@ -26,7 +30,7 @@ class SentinelRewardsHistoryCubit extends CubitForReloadingIndicator<
           const SentinelRewardsHistoryState(),
         );
 
-  /// The [Address] for which the cubit fetches and manages reward history data.
+  /// The [address] for which the cubit fetches and manages reward history data.
   final Address address;
 
   /// The number of reward history entries to request per page.

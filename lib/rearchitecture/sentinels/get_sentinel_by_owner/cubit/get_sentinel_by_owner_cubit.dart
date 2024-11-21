@@ -11,8 +11,12 @@ part 'get_sentinel_by_owner_state.dart';
 /// of sentinels owned by a specific address.
 class GetSentinelByOwnerCubit
     extends CubitWithRefreshMixin<SentinelInfo?, GetSentinelByOwnerState> {
-  /// Constructs a [GetSentinelByOwnerCubit] with a [zenon] instance and the
-  /// [address] for which sentinel data is to be retrieved.
+  /// Constructs a [GetSentinelByOwnerCubit].
+  ///
+  /// The parameters are a [Zenon] instance and the
+  /// [address] for which sentinel data is to be retrieved,
+  /// and an optional flag [callUpdateStream] to control
+  /// whether data is fetched on initialization.
   GetSentinelByOwnerCubit({
     required super.zenon,
     required this.address,
@@ -22,7 +26,7 @@ class GetSentinelByOwnerCubit
           const GetSentinelByOwnerState(),
         );
 
-  /// The [Address] for which the cubit fetches and manages sentinel data.
+  /// The [address] for which the cubit fetches and manages sentinel data.
   final Address address;
 
   /// Overrides [getData] method to define how data is fetched for the cubit.
