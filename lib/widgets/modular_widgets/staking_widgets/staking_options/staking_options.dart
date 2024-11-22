@@ -3,6 +3,7 @@ import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:stacked/stacked.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/blocs.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
@@ -15,11 +16,11 @@ import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class StakingOptions extends StatefulWidget {
-
   const StakingOptions(
     this.stakingListViewModel, {
     super.key,
   });
+
   final StakingListBloc? stakingListViewModel;
 
   @override
@@ -32,10 +33,11 @@ class _StakingOptionsState extends State<StakingOptions> {
   Duration? _selectedStakeDuration;
 
   final List<Duration> _durations = List.generate(
-      stakeTimeMaxSec ~/ stakeTimeUnitSec,
-      (int index) => Duration(
-            seconds: (index + 1) * stakeTimeUnitSec,
-          ),);
+    stakeTimeMaxSec ~/ stakeTimeUnitSec,
+    (int index) => Duration(
+      seconds: (index + 1) * stakeTimeUnitSec,
+    ),
+  );
 
   BigInt _maxZnnAmount = BigInt.zero;
 
@@ -61,11 +63,11 @@ class _StakingOptionsState extends State<StakingOptions> {
       builder: (_, BoxConstraints constraints) {
         _maxWidth = constraints.maxWidth;
         return CardScaffold(
-          title: 'Staking Options',
-          description: 'This card displays information about staking per '
-              'wallet address. Choose the duration and the amount in '
-              '${kZnnCoin.symbol} for staking in order to receive '
-              '${kQsrCoin.symbol}',
+          title: context.l10n.stakingOptionsTitle,
+          description: context.l10n.stakingOptionsDescription(
+            kQsrCoin.symbol,
+            kZnnCoin.symbol,
+          ),
           childBuilder: () => StreamBuilder<Map<String, AccountInfo>?>(
             stream: sl.get<BalanceBloc>().stream,
             builder: (_, AsyncSnapshot<Map<String, AccountInfo>?> snapshot) {
@@ -133,7 +135,7 @@ class _StakingOptionsState extends State<StakingOptions> {
                 canBeEqualToMin: true,
               ),
               suffixIcon: _getZnnAmountSuffix(),
-              hintText: 'Amount',
+              hintText: context.l10n.amount,
               contentLeftPadding: 20,
             ),
           ),
@@ -168,12 +170,13 @@ class _StakingOptionsState extends State<StakingOptions> {
             _stakeButtonKey.currentState?.animateReverse();
             await NotificationUtils.sendNotificationError(
               error,
-              'Error while generating stake',
+              context.l10n.errorGeneratingStaking,
             );
           },
         );
       },
-      builder: (_, StakingOptionsBloc model, __) => _getStakeForQsrButton(model),
+      builder: (_, StakingOptionsBloc model, __) =>
+          _getStakeForQsrButton(model),
       viewModelBuilder: StakingOptionsBloc.new,
     );
   }
@@ -194,7 +197,7 @@ class _StakingOptionsState extends State<StakingOptions> {
 
     return LoadingButton.icon(
       onPressed: _isInputValid() ? () => _onStakePressed(model) : null,
-      label: 'Stake',
+      label: context.l10n.stake,
       icon: icon,
       key: _stakeButtonKey,
       minimumSize: Size(_maxWidth! - 2 * 20.0, 40),
@@ -205,7 +208,7 @@ class _StakingOptionsState extends State<StakingOptions> {
     return DropdownButtonHideUnderline(
       child: DropdownButton<Duration>(
         hint: Text(
-          'Staking duration',
+          context.l10n.stakingDuration,
           style: Theme.of(context).inputDecorationTheme.hintStyle,
         ),
         icon: Container(

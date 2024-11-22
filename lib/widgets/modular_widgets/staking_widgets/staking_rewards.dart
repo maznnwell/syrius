@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/blocs.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -21,9 +22,8 @@ class _StakingRewardsState extends State<StakingRewards> {
   @override
   Widget build(BuildContext context) {
     return CardScaffold(
-      title: 'Staking Rewards',
-      description: 'This card displays a chart with your staking rewards from '
-          'your staking entries',
+      title: context.l10n.stakingRewardsTitle,
+      description: context.l10n.stakingRewardsDescription,
       childBuilder: () => Padding(
         padding: const EdgeInsets.all(
           16,
