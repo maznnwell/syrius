@@ -16,7 +16,7 @@ enum CancelStakeStatus {
 }
 
 /// The state class for the [CancelStakeCubit].
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class CancelStakeState extends Equatable {
   /// Constructs a new instance of [CancelStakeState].
   const CancelStakeState({

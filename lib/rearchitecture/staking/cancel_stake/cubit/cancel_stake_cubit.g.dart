@@ -19,7 +19,7 @@ CancelStakeState _$CancelStakeStateFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$CancelStakeStateToJson(CancelStakeState instance) =>
     <String, dynamic>{
       'status': _$CancelStakeStatusEnumMap[instance.status]!,
-      'data': instance.data,
+      'data': instance.data?.toJson(),
       'error': instance.error,
     };
 

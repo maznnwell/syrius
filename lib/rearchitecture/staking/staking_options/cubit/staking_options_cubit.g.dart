@@ -21,7 +21,7 @@ Map<String, dynamic> _$StakingOptionsStateToJson(
         StakingOptionsState instance) =>
     <String, dynamic>{
       'status': _$StakingOptionsStatusEnumMap[instance.status]!,
-      'data': instance.data,
+      'data': instance.data?.toJson(),
       'error': instance.error,
     };
 

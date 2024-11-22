@@ -16,7 +16,7 @@ enum StakingOptionsStatus {
 }
 
 /// The state class for the [StakingOptionsCubit].
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class StakingOptionsState extends Equatable {
   /// Constructs a new instance of [StakingOptionsState].
   const StakingOptionsState({
