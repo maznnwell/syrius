@@ -43,7 +43,7 @@ void main() {
     late MockZenonAddressUtilsHelper mockZenonAddressUtilsHelper;
     late AccountBlockTemplate testAccBlockTemplate;
     late CancelStakeCubit cubit;
-    late CubitFailureException exception;
+    late FailureException exception;
     late String testHash;
 
     setUp(() {
@@ -53,7 +53,7 @@ void main() {
       mockAccountBlockUtilsHelper = MockAccountBlockUtilsHelper();
       mockZenonAddressUtilsHelper = MockZenonAddressUtilsHelper();
       testAccBlockTemplate = AccountBlockTemplate(blockType: 1);
-      exception = CubitFailureException();
+      exception = FailureException();
       testHash = emptyHash.toString();
 
       when(() => mockZenon.embedded).thenReturn(mockEmbedded);

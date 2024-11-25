@@ -31,7 +31,7 @@ void main() {
     late MockStake mockStake;
     late StakingUncollectedRewardsCubit stakingUncollectedRewardsCubit;
     late UncollectedReward uncollectedReward;
-    late CubitFailureException exception;
+    late FailureException exception;
     late Address testAddress;
 
     setUp(() {
@@ -40,7 +40,7 @@ void main() {
       mockStake = MockStake();
       mockWsClient = MockWsClient();
       testAddress = FakeAddress();
-      exception = CubitFailureException();
+      exception = FailureException();
 
       final Map<String, dynamic> uncollectedRewardJson = <String, dynamic>{
         'address': emptyAddress.toString(),
