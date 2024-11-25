@@ -28,7 +28,7 @@ void main() {
     late MockSentinel mockSentinel;
     late GetSentinelByOwnerCubit cubit;
     late Address testAddress;
-    late CubitFailureException exception;
+    late FailureException exception;
     late SentinelInfo sentinelInfo;
 
     setUp(() {
@@ -37,7 +37,7 @@ void main() {
       mockSentinel = MockSentinel();
       mockWsClient = MockWsClient();
       testAddress = emptyAddress;
-      exception = CubitFailureException();
+      exception = FailureException();
       
       final Map<String, dynamic> sentinelInfoJson = <String, dynamic> {
         'owner': emptyAddress.toString(),

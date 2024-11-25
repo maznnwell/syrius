@@ -31,7 +31,7 @@ void main() {
     late MockEmbedded mockEmbedded;
     late MockSentinel mockSentinel;
     late SentinelsQsrInfoCubit cubit;
-    late CubitFailureException exception;
+    late FailureException exception;
     late String testAddress;
     late SentinelsQsrInfo testQsrInfo;
     late BigInt deposit;
@@ -40,7 +40,7 @@ void main() {
       mockZenon = MockZenon();
       mockEmbedded = MockEmbedded();
       mockSentinel = MockSentinel();
-      exception = CubitFailureException();
+      exception = FailureException();
       testAddress = emptyAddress.toString();
       deposit = BigInt.from(1000);
 

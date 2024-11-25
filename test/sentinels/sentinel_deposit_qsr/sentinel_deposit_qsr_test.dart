@@ -43,7 +43,7 @@ void main() {
     late MockZenonAddressUtilsHelper mockZenonAddressUtilsHelper;
     late AccountBlockTemplate testAccBlockTemplate;
     late SentinelsDepositQsrCubit cubit;
-    late CubitFailureException exception;
+    late FailureException exception;
 
     setUp(() {
       mockZenon = MockZenon();
@@ -52,7 +52,7 @@ void main() {
       mockAccountBlockUtilsHelper = MockAccountBlockUtilsHelper();
       mockZenonAddressUtilsHelper = MockZenonAddressUtilsHelper();
       testAccBlockTemplate = AccountBlockTemplate(blockType: 1);
-      exception = CubitFailureException();
+      exception = FailureException();
 
       when(() => mockZenon.embedded).thenReturn(mockEmbedded);
       when(() => mockEmbedded.sentinel).thenReturn(mockSentinel);
