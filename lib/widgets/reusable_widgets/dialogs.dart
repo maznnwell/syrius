@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 
 Future<bool> showWarningDialog({
@@ -106,7 +107,15 @@ Future<Object?> showCustomDialog({required BuildContext context, required Widget
       pageBuilder: (BuildContext context, Animation<double> animation,
               Animation<double> secondaryAnimation,) =>
           Center(
-        child: ClipRRect(
-            borderRadius: BorderRadius.circular(15), child: content,),
-      ),
+            child: Theme(
+              data: context.newThemeData,
+              child: Card.filled(
+                clipBehavior: Clip.hardEdge,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: content,
+              ),
+            ),
+          ),
     );

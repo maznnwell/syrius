@@ -1,3 +1,4 @@
+export 'base_modal.dart';
 export 'buttons/buttons.dart';
 export 'card_scaffold_header.dart';
 export 'card_scaffold_password_field.dart';

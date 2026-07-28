@@ -17,7 +17,7 @@ import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/exchange_ra
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/important_text_container.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_info_text.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_widget.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/modals/base_modal.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/base_modal.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class NativeP2pSwapModal extends StatefulWidget {

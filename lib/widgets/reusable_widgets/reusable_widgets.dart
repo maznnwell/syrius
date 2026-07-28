@@ -19,7 +19,6 @@ export 'infinite_scroll_table.dart';
 export 'input_fields/input_fields.dart';
 export 'layout_scaffold/layout_scaffold.dart';
 export 'loading_widget.dart';
-export 'modals/base_modal.dart';
 export 'notification_widget.dart';
 export 'number_animation.dart';
 export 'plasma_icon.dart';

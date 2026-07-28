@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/modals/base_modal.dart';
 
 /// Warns the user about the experimental nature of P2P swaps.
 class P2pSwapWarningModal extends StatelessWidget {
