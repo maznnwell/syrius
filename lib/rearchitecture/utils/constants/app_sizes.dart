@@ -7,6 +7,7 @@ const SizedBox kVerticalGap8 = SizedBox(height: 8);
 const SizedBox kVerticalGap16 = SizedBox(height: 16);
 // TODO(maznnwell): to change to 24
 const SizedBox kVerticalGap25 = SizedBox(height: 25);
+const SizedBox kVerticalGap32 = SizedBox(height: 32);
 
 /// Constants horizontal gaps
 const SizedBox kHorizontalGap4 = SizedBox(width: 4);

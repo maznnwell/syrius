@@ -23,6 +23,7 @@ export 'latest_transactions/latest_transactions.dart';
 export 'mint_token/mint_token.dart';
 export 'multiple_balance/multiple_balance.dart';
 export 'node_sync_status/node_sync_status.dart';
+export 'p2p_swap_options/p2p_swap_options.dart';
 export 'pending_transactions/pending_transactions.dart';
 export 'pillar_collect/pillar_collect.dart';
 export 'pillar_deposit_qsr/pillar_deposit_qsr.dart';

@@ -820,6 +820,72 @@ abstract class AppLocalizations {
   /// **'You own this ZTS token'**
   String get ownZtsToken;
 
+  /// No description provided for @p2pSwapGeneratingPlasma.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait while Plasma is generated'**
+  String get p2pSwapGeneratingPlasma;
+
+  /// No description provided for @p2pSwapJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join swap'**
+  String get p2pSwapJoin;
+
+  /// No description provided for @p2pSwapJoinDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Join a native swap started by a counterparty.'**
+  String get p2pSwapJoinDescription;
+
+  /// No description provided for @p2pSwapOptionsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting and joining P2P swaps can be done from this card.'**
+  String get p2pSwapOptionsDescription;
+
+  /// No description provided for @p2pSwapOptionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'P2P Swap Options'**
+  String get p2pSwapOptionsTitle;
+
+  /// No description provided for @p2pSwapRecoverDeposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Recover deposit'**
+  String get p2pSwapRecoverDeposit;
+
+  /// No description provided for @p2pSwapStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start swap'**
+  String get p2pSwapStart;
+
+  /// No description provided for @p2pSwapStartDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a native swap with a counterparty.'**
+  String get p2pSwapStartDescription;
+
+  /// No description provided for @p2pSwapTutorial.
+  ///
+  /// In en, this message translates to:
+  /// **'View swap tutorial'**
+  String get p2pSwapTutorial;
+
+  /// No description provided for @p2pSwapWarningDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Please note that the P2P swap is an experimental feature and may result in funds being lost.\n\nUse the feature with caution and consider splitting large swaps into multiple smaller ones.'**
+  String get p2pSwapWarningDescription;
+
+  /// No description provided for @p2pSwapWarningTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before continuing'**
+  String get p2pSwapWarningTitle;
+
   /// No description provided for @password.
   ///
   /// In en, this message translates to:

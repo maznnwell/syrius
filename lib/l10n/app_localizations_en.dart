@@ -447,6 +447,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ownZtsToken => 'You own this ZTS token';
 
   @override
+  String get p2pSwapGeneratingPlasma => 'Please wait while Plasma is generated';
+
+  @override
+  String get p2pSwapJoin => 'Join swap';
+
+  @override
+  String get p2pSwapJoinDescription =>
+      'Join a native swap started by a counterparty.';
+
+  @override
+  String get p2pSwapOptionsDescription =>
+      'Starting and joining P2P swaps can be done from this card.';
+
+  @override
+  String get p2pSwapOptionsTitle => 'P2P Swap Options';
+
+  @override
+  String get p2pSwapRecoverDeposit => 'Recover deposit';
+
+  @override
+  String get p2pSwapStart => 'Start swap';
+
+  @override
+  String get p2pSwapStartDescription =>
+      'Start a native swap with a counterparty.';
+
+  @override
+  String get p2pSwapTutorial => 'View swap tutorial';
+
+  @override
+  String get p2pSwapWarningDescription =>
+      'Please note that the P2P swap is an experimental feature and may result in funds being lost.\n\nUse the feature with caution and consider splitting large swaps into multiple smaller ones.';
+
+  @override
+  String get p2pSwapWarningTitle => 'Before continuing';
+
+  @override
   String get password => 'Password';
 
   @override
