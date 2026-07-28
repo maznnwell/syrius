@@ -1,6 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 
+final ElevatedButtonThemeData _kElevatedButtonThemeData =
+    ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.znnColor,
+        disabledMouseCursor: SystemMouseCursors.forbidden,
+        enabledMouseCursor: SystemMouseCursors.click,
+        foregroundColor: Colors.white,
+      ),
+    );
+
+final FilledButtonThemeData _kFilledButtonThemeData = FilledButtonThemeData(
+  style: FilledButton.styleFrom(
+    disabledMouseCursor: SystemMouseCursors.forbidden,
+    enabledMouseCursor: SystemMouseCursors.click,
+  )
+);
+
+final OutlinedButtonThemeData _kOutlinedButtonThemeData =
+    OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        disabledMouseCursor: SystemMouseCursors.forbidden,
+        enabledMouseCursor: SystemMouseCursors.click,
+        side: const BorderSide(
+          color: AppColors.znnColor,
+        ),
+      ),
+    );
+
+final TextButtonThemeData _kTextButtonThemeData = TextButtonThemeData(
+  style: TextButton.styleFrom(
+    disabledMouseCursor: SystemMouseCursors.forbidden,
+    enabledMouseCursor: SystemMouseCursors.click,
+  ),
+);
+
 /// The new light theme closer to the default Material ThemeData
 final ThemeData newLightTheme = ThemeData(
   cardTheme: CardThemeData(
@@ -15,12 +50,8 @@ final ThemeData newLightTheme = ThemeData(
     seedColor: AppColors.znnColor,
   ),
   dividerTheme: kDefaultDividerThemeData,
-  elevatedButtonTheme: ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: AppColors.znnColor,
-      foregroundColor: Colors.white,
-    ),
-  ),
+  elevatedButtonTheme: _kElevatedButtonThemeData,
+  filledButtonTheme: _kFilledButtonThemeData,
   inputDecorationTheme: InputDecorationTheme(
     fillColor: AppColors.lightTextFormFieldFill,
     filled: true,
@@ -53,14 +84,9 @@ final ThemeData newLightTheme = ThemeData(
     prefixIconColor: AppColors.znnColor,
     suffixIconColor: AppColors.znnColor,
   ),
-  outlinedButtonTheme: OutlinedButtonThemeData(
-    style: OutlinedButton.styleFrom(
-      side: const BorderSide(
-        color: AppColors.znnColor,
-      ),
-    ),
-  ),
+  outlinedButtonTheme: _kOutlinedButtonThemeData,
   scaffoldBackgroundColor: AppColors.backgroundLight,
+  textButtonTheme: _kTextButtonThemeData,
 );
 
 /// The new dark theme closer to the default Material ThemeData
@@ -78,12 +104,8 @@ final ThemeData newDarkTheme = ThemeData(
     seedColor: AppColors.znnColor,
   ),
   dividerTheme: kDefaultDividerThemeData,
-  elevatedButtonTheme: ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: AppColors.znnColor,
-      foregroundColor: Colors.white,
-    ),
-  ),
+  elevatedButtonTheme: _kElevatedButtonThemeData,
+  filledButtonTheme: _kFilledButtonThemeData,
   inputDecorationTheme: InputDecorationTheme(
     fillColor: AppColors.darkTextFormFieldFill,
     filled: true,
@@ -118,12 +140,7 @@ final ThemeData newDarkTheme = ThemeData(
     prefixIconColor: AppColors.znnColor,
     suffixIconColor: AppColors.znnColor,
   ),
-  outlinedButtonTheme: OutlinedButtonThemeData(
-    style: OutlinedButton.styleFrom(
-      side: const BorderSide(
-        color: AppColors.znnColor,
-      ),
-    ),
-  ),
+  outlinedButtonTheme: _kOutlinedButtonThemeData,
   scaffoldBackgroundColor: AppColors.backgroundDark,
+  textButtonTheme: _kTextButtonThemeData,
 );
