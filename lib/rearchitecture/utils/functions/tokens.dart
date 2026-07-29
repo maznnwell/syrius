@@ -20,3 +20,21 @@ List<Token> sortAssets(List<Token> assets) {
   });
   return assets;
 }
+
+List<Token> getTokensWithBalance({
+  required AccountInfo accountInfo,
+}) {
+  final List<Token> tokens = <Token>[];
+  final List<BalanceInfoListItem> balanceInfoList =
+  accountInfo.balanceInfoList!;
+
+  for (final BalanceInfoListItem balanceInfo in balanceInfoList) {
+    final BigInt balance = balanceInfo.balance!;
+    final Token token = balanceInfo.token!;
+    if (balance > BigInt.zero) {
+      tokens.add(token);
+    }
+  }
+
+  return tokens;
+}

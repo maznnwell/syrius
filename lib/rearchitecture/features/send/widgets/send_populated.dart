@@ -83,8 +83,8 @@ class _SendPopulatedState extends State<SendPopulated> {
       _fillAvailableTokens(
         initialTokens: kDualCoin,
         list: _availableAssets,
-        tokensWithBalance: _getTokensWithBalance(
-          widget.balances[_selectedSenderAddress]!,
+        tokensWithBalance: getTokensWithBalance(
+          accountInfo: widget.balances[_selectedSenderAddress]!,
         ),
       );
     }
@@ -324,22 +324,6 @@ class _SendPopulatedState extends State<SendPopulated> {
         _selectedToken.tokenStandard,
       ) >
       BigInt.zero;
-
-  List<Token> _getTokensWithBalance(AccountInfo accountInfo) {
-    final List<Token> tokens = <Token>[];
-    final List<BalanceInfoListItem> balanceInfoList =
-        accountInfo.balanceInfoList!;
-
-    for (final BalanceInfoListItem balanceInfo in balanceInfoList) {
-      final BigInt balance = balanceInfo.balance!;
-      final Token token = balanceInfo.token!;
-      if (balance > BigInt.zero) {
-        tokens.add(token);
-      }
-    }
-
-    return tokens;
-  }
 
   @override
   void dispose() {
