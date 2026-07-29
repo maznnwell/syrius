@@ -51,7 +51,7 @@ export 'stake_collect/stake_collect.dart';
 export 'stakes/stakes.dart';
 export 'staking/staking.dart';
 export 'staking_rewards_history/staking_rewards_history.dart';
-export 'start_htlc_swap/start_htlc_swap.dart';
+export 'start_native_swap/start_native_swap.dart';
 export 'token_balance/token_balance.dart';
 export 'token_favorite/token_favorite.dart';
 export 'tokens/tokens.dart';

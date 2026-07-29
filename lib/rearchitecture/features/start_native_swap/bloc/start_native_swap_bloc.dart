@@ -13,20 +13,21 @@ import 'package:zenon_syrius_wallet_flutter/utils/date_time_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/format_utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-part 'start_htlc_swap_event.dart';
+part 'start_native_swap_event.dart';
 
-part 'start_htlc_swap_state.dart';
+part 'start_native_swap_state.dart';
 
 /// A bloc that creates and stores an outgoing HTLC swap.
-class StartHtlcSwapBloc extends Bloc<StartHtlcSwapEvent, StartHtlcSwapState> {
-  /// Creates a [StartHtlcSwapBloc].
-  StartHtlcSwapBloc({
+class StartNativeSwapBloc
+    extends Bloc<StartNativeSwapEvent, StartNativeSwapState> {
+  /// Creates a [StartNativeSwapBloc].
+  StartNativeSwapBloc({
     required this._accountBlockUtils,
     required this._htlcSwapsService,
     required this._zenon,
     required this._zenonAddressUtils,
-  }) : super(const StartHtlcSwapInitial()) {
-    on<StartHtlcSwapRequested>(_onStartHtlcSwapRequested);
+  }) : super(const StartNativeSwapInitial()) {
+    on<StartNativeSwapRequested>(_onStartNativeSwapRequested);
   }
 
   final AccountBlockUtils _accountBlockUtils;
@@ -34,12 +35,12 @@ class StartHtlcSwapBloc extends Bloc<StartHtlcSwapEvent, StartHtlcSwapState> {
   final Zenon _zenon;
   final ZenonAddressUtils _zenonAddressUtils;
 
-  FutureOr<void> _onStartHtlcSwapRequested(
-    StartHtlcSwapRequested event,
-    Emitter<StartHtlcSwapState> emit,
+  FutureOr<void> _onStartNativeSwapRequested(
+    StartNativeSwapRequested event,
+    Emitter<StartNativeSwapState> emit,
   ) async {
     try {
-      emit(const StartHtlcSwapLoading());
+      emit(const StartNativeSwapLoading());
 
       final List<int> preimage = _generatePreimage();
       final Hash hashLock = await _getHashLock(event.hashType, preimage);
@@ -89,13 +90,13 @@ class StartHtlcSwapBloc extends Bloc<StartHtlcSwapEvent, StartHtlcSwapState> {
 
       await _htlcSwapsService.storeSwap(swap);
       _zenonAddressUtils.refreshBalance();
-      emit(StartHtlcSwapDone(swap: swap));
+      emit(StartNativeSwapDone(swap: swap));
     } on SyriusException catch (error, stackTrace) {
       addError(error, stackTrace);
-      emit(StartHtlcSwapFailure(exception: error));
+      emit(StartNativeSwapFailure(exception: error));
     } on Exception catch (error, stackTrace) {
       addError(error, stackTrace);
-      emit(StartHtlcSwapFailure(exception: FailureException()));
+      emit(StartNativeSwapFailure(exception: FailureException()));
     }
   }
 

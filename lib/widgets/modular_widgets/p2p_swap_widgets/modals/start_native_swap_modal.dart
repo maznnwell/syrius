@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/dashboard/balance_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/model/p2p_swap/p2p_swap.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/start_htlc_swap/start_htlc_swap.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/start_native_swap/start_native_swap.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/base_modal.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/account_block_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
@@ -62,8 +62,8 @@ class _StartNativeSwapModalState extends State<StartNativeSwapModal> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<StartHtlcSwapBloc>(
-      create: (_) => StartHtlcSwapBloc(
+    return BlocProvider<StartNativeSwapBloc>(
+      create: (_) => StartNativeSwapBloc(
         accountBlockUtils: AccountBlockUtils(),
         htlcSwapsService: htlcSwapsService!,
         zenon: zenon!,
@@ -71,8 +71,8 @@ class _StartNativeSwapModalState extends State<StartNativeSwapModal> {
       ),
       child: Builder(
         builder: (BuildContext context) {
-          return BlocListener<StartHtlcSwapBloc, StartHtlcSwapState>(
-            listener: _onStartHtlcSwapStateChanged,
+          return BlocListener<StartNativeSwapBloc, StartNativeSwapState>(
+            listener: _onStartNativeSwapStateChanged,
             child: BaseModal(
               title: 'Start swap',
               child: _buildContent(context),
@@ -237,8 +237,8 @@ class _StartNativeSwapModalState extends State<StartNativeSwapModal> {
       _isLoading = true;
     });
 
-    blocContext.read<StartHtlcSwapBloc>().add(
-      StartHtlcSwapRequested(
+    blocContext.read<StartNativeSwapBloc>().add(
+      StartNativeSwapRequested(
         selfAddress: Address.parse(_selectedSelfAddress!),
         counterpartyAddress: Address.parse(_counterpartyAddressController.text),
         fromToken: _selectedToken,
@@ -254,22 +254,22 @@ class _StartNativeSwapModalState extends State<StartNativeSwapModal> {
     );
   }
 
-  void _onStartHtlcSwapStateChanged(
+  void _onStartNativeSwapStateChanged(
     BuildContext context,
-    StartHtlcSwapState state,
+    StartNativeSwapState state,
   ) {
     switch (state) {
-      case StartHtlcSwapInitial():
+      case StartNativeSwapInitial():
         break;
-      case StartHtlcSwapLoading():
+      case StartNativeSwapLoading():
         if (!_isLoading) {
           setState(() {
             _isLoading = true;
           });
         }
-      case StartHtlcSwapDone(:final swap):
+      case StartNativeSwapDone(:final swap):
         widget.onSwapStarted.call(swap.id);
-      case StartHtlcSwapFailure(:final exception):
+      case StartNativeSwapFailure(:final exception):
         setState(() {
           _isLoading = false;
         });
