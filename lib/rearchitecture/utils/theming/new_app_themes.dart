@@ -18,6 +18,13 @@ final FilledButtonThemeData _kFilledButtonThemeData = FilledButtonThemeData(
   )
 );
 
+final IconButtonThemeData _kIconButtonThemeData = IconButtonThemeData(
+    style: FilledButton.styleFrom(
+      disabledMouseCursor: SystemMouseCursors.forbidden,
+      enabledMouseCursor: SystemMouseCursors.click,
+    )
+);
+
 final OutlinedButtonThemeData _kOutlinedButtonThemeData =
     OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
@@ -52,6 +59,7 @@ final ThemeData newLightTheme = ThemeData(
   dividerTheme: kDefaultDividerThemeData,
   elevatedButtonTheme: _kElevatedButtonThemeData,
   filledButtonTheme: _kFilledButtonThemeData,
+  iconButtonTheme: _kIconButtonThemeData,
   inputDecorationTheme: InputDecorationTheme(
     fillColor: AppColors.lightTextFormFieldFill,
     filled: true,
@@ -106,6 +114,7 @@ final ThemeData newDarkTheme = ThemeData(
   dividerTheme: kDefaultDividerThemeData,
   elevatedButtonTheme: _kElevatedButtonThemeData,
   filledButtonTheme: _kFilledButtonThemeData,
+  iconButtonTheme: _kIconButtonThemeData,
   inputDecorationTheme: InputDecorationTheme(
     fillColor: AppColors.darkTextFormFieldFill,
     filled: true,
