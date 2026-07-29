@@ -38,3 +38,20 @@ List<Token> getTokensWithBalance({
 
   return tokens;
 }
+
+void fillAvailableTokens({
+  required List<Token> initialTokens,
+  required List<Token> list,
+  required List<Token> tokensWithBalance,
+}) {
+  final List<Token> emptyList = <Token>[...tokensWithBalance];
+
+  // The available tokens should always contain the initialTokens
+  for (final Token token in initialTokens) {
+    if (!emptyList.contains(token)) {
+      emptyList.insert(0, token);
+    }
+  }
+
+  list.addAll(sortAssets(emptyList));
+}

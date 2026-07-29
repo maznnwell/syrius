@@ -80,7 +80,7 @@ class _SendPopulatedState extends State<SendPopulated> {
   @override
   Widget build(BuildContext context) {
     if (_availableAssets.isEmpty) {
-      _fillAvailableTokens(
+      fillAvailableTokens(
         initialTokens: kDualCoin,
         list: _availableAssets,
         tokensWithBalance: getTokensWithBalance(
@@ -330,22 +330,5 @@ class _SendPopulatedState extends State<SendPopulated> {
     _recipientController.dispose();
     _amountController.dispose();
     super.dispose();
-  }
-
-  void _fillAvailableTokens({
-    required List<Token> initialTokens,
-    required List<Token> list,
-    required List<Token> tokensWithBalance,
-  }) {
-    final List<Token> emptyList = <Token>[...tokensWithBalance];
-    // The available tokens should always contain the two coins
-    if (!emptyList.contains(kZnnCoin)) {
-      emptyList.insert(0, kZnnCoin);
-    }
-    if (!emptyList.contains(kQsrCoin)) {
-      emptyList.insert(0, kQsrCoin);
-    }
-
-    list.addAll(sortAssets(emptyList));
   }
 }
