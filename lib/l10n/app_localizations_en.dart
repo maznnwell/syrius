@@ -447,7 +447,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get ownZtsToken => 'You own this ZTS token';
 
   @override
+  String get p2pSwapAddressHint => 'Enter NoM address';
+
+  @override
+  String get p2pSwapCounterpartyAddress => 'Counterparty address';
+
+  @override
+  String get p2pSwapCounterpartyAddressDescription =>
+      'The address of the trading partner for the swap.';
+
+  @override
+  String get p2pSwapFillDetails => 'Fill in the swap details';
+
+  @override
   String get p2pSwapGeneratingPlasma => 'Please wait while Plasma is generated';
+
+  @override
+  String p2pSwapHours(Object hours) {
+    return '$hours hours';
+  }
 
   @override
   String get p2pSwapJoin => 'Join swap';
@@ -457,6 +475,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Join a native swap started by a counterparty.';
 
   @override
+  String get p2pSwapMachineOnly =>
+      'The swap must be completed on this machine.';
+
+  @override
   String get p2pSwapOptionsDescription =>
       'Starting and joining P2P swaps can be done from this card.';
 
@@ -464,7 +486,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get p2pSwapOptionsTitle => 'P2P Swap Options';
 
   @override
+  String get p2pSwapOwnAddressError => 'Cannot swap with your own address';
+
+  @override
+  String get p2pSwapReclaimFundsPrefix => 'You can reclaim your funds in';
+
+  @override
+  String get p2pSwapReclaimFundsSuffix =>
+      'if the counterparty fails to join the swap.';
+
+  @override
   String get p2pSwapRecoverDeposit => 'Recover deposit';
+
+  @override
+  String get p2pSwapSendingTransaction => 'Sending transaction';
 
   @override
   String get p2pSwapStart => 'Start swap';
@@ -477,11 +512,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get p2pSwapTutorial => 'View swap tutorial';
 
   @override
+  String get p2pSwapWaitForCounterparty =>
+      'After starting the swap, wait for the counterparty to join the swap with the agreed upon amount.';
+
+  @override
   String get p2pSwapWarningDescription =>
       'Please note that the P2P swap is an experimental feature and may result in funds being lost.\n\nUse the feature with caution and consider splitting large swaps into multiple smaller ones.';
 
   @override
   String get p2pSwapWarningTitle => 'Before continuing';
+
+  @override
+  String get p2pSwapYouAreSending => 'You are sending';
+
+  @override
+  String get p2pSwapYourAddress => 'Your address';
 
   @override
   String get password => 'Password';

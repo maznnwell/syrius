@@ -820,11 +820,41 @@ abstract class AppLocalizations {
   /// **'You own this ZTS token'**
   String get ownZtsToken;
 
+  /// No description provided for @p2pSwapAddressHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter NoM address'**
+  String get p2pSwapAddressHint;
+
+  /// No description provided for @p2pSwapCounterpartyAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Counterparty address'**
+  String get p2pSwapCounterpartyAddress;
+
+  /// No description provided for @p2pSwapCounterpartyAddressDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'The address of the trading partner for the swap.'**
+  String get p2pSwapCounterpartyAddressDescription;
+
+  /// No description provided for @p2pSwapFillDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in the swap details'**
+  String get p2pSwapFillDetails;
+
   /// No description provided for @p2pSwapGeneratingPlasma.
   ///
   /// In en, this message translates to:
   /// **'Please wait while Plasma is generated'**
   String get p2pSwapGeneratingPlasma;
+
+  /// No description provided for @p2pSwapHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} hours'**
+  String p2pSwapHours(Object hours);
 
   /// No description provided for @p2pSwapJoin.
   ///
@@ -838,6 +868,12 @@ abstract class AppLocalizations {
   /// **'Join a native swap started by a counterparty.'**
   String get p2pSwapJoinDescription;
 
+  /// No description provided for @p2pSwapMachineOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'The swap must be completed on this machine.'**
+  String get p2pSwapMachineOnly;
+
   /// No description provided for @p2pSwapOptionsDescription.
   ///
   /// In en, this message translates to:
@@ -850,11 +886,35 @@ abstract class AppLocalizations {
   /// **'P2P Swap Options'**
   String get p2pSwapOptionsTitle;
 
+  /// No description provided for @p2pSwapOwnAddressError.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot swap with your own address'**
+  String get p2pSwapOwnAddressError;
+
+  /// No description provided for @p2pSwapReclaimFundsPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'You can reclaim your funds in'**
+  String get p2pSwapReclaimFundsPrefix;
+
+  /// No description provided for @p2pSwapReclaimFundsSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'if the counterparty fails to join the swap.'**
+  String get p2pSwapReclaimFundsSuffix;
+
   /// No description provided for @p2pSwapRecoverDeposit.
   ///
   /// In en, this message translates to:
   /// **'Recover deposit'**
   String get p2pSwapRecoverDeposit;
+
+  /// No description provided for @p2pSwapSendingTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending transaction'**
+  String get p2pSwapSendingTransaction;
 
   /// No description provided for @p2pSwapStart.
   ///
@@ -874,6 +934,12 @@ abstract class AppLocalizations {
   /// **'View swap tutorial'**
   String get p2pSwapTutorial;
 
+  /// No description provided for @p2pSwapWaitForCounterparty.
+  ///
+  /// In en, this message translates to:
+  /// **'After starting the swap, wait for the counterparty to join the swap with the agreed upon amount.'**
+  String get p2pSwapWaitForCounterparty;
+
   /// No description provided for @p2pSwapWarningDescription.
   ///
   /// In en, this message translates to:
@@ -885,6 +951,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Before continuing'**
   String get p2pSwapWarningTitle;
+
+  /// No description provided for @p2pSwapYouAreSending.
+  ///
+  /// In en, this message translates to:
+  /// **'You are sending'**
+  String get p2pSwapYouAreSending;
+
+  /// No description provided for @p2pSwapYourAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Your address'**
+  String get p2pSwapYourAddress;
 
   /// No description provided for @password.
   ///
