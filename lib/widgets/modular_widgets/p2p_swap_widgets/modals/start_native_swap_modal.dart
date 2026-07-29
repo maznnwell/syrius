@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:stacked/stacked.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/dashboard/balance_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/start_htlc_swap_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
-import 'package:zenon_syrius_wallet_flutter/model/p2p_swap/htlc_swap.dart';
 import 'package:zenon_syrius_wallet_flutter/model/p2p_swap/p2p_swap.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/start_htlc_swap/start_htlc_swap.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/base_modal.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/account_block_utils.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/clipboard_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
@@ -21,11 +23,9 @@ import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_field
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/input_field.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/labeled_input_container.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_widget.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/base_modal.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class StartNativeSwapModal extends StatefulWidget {
-
   const StartNativeSwapModal({
     required this.onSwapStarted,
     super.key,
@@ -62,13 +62,28 @@ class _StartNativeSwapModalState extends State<StartNativeSwapModal> {
 
   @override
   Widget build(BuildContext context) {
-    return BaseModal(
-      title: 'Start swap',
-      child: _getContent(),
+    return BlocProvider<StartHtlcSwapBloc>(
+      create: (_) => StartHtlcSwapBloc(
+        accountBlockUtils: AccountBlockUtils(),
+        htlcSwapsService: htlcSwapsService!,
+        zenon: zenon!,
+        zenonAddressUtils: ZenonAddressUtils(),
+      ),
+      child: Builder(
+        builder: (BuildContext context) {
+          return BlocListener<StartHtlcSwapBloc, StartHtlcSwapState>(
+            listener: _onStartHtlcSwapStateChanged,
+            child: BaseModal(
+              title: 'Start swap',
+              child: _buildContent(context),
+            ),
+          );
+        },
+      ),
     );
   }
 
-  Widget _getContent() {
+  Widget _buildContent(BuildContext blocContext) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -107,11 +122,12 @@ class _StartNativeSwapModalState extends State<StartNativeSwapModal> {
                     suffixIcon: RawMaterialButton(
                       shape: const CircleBorder(),
                       onPressed: () {
-                        ClipboardUtils.pasteToClipboard(callback:
-                            (String value) {
-                          _counterpartyAddressController.text = value;
-                          setState(() {});
-                        });
+                        ClipboardUtils.pasteToClipboard(
+                          callback: (String value) {
+                            _counterpartyAddressController.text = value;
+                            setState(() {});
+                          },
+                        );
                       },
                       child: const Icon(
                         Icons.content_paste,
@@ -175,81 +191,90 @@ class _StartNativeSwapModalState extends State<StartNativeSwapModal> {
           bulletPoints: <RichText>[
             RichText(
               text: BulletPointCard.textSpan(
-                  'After starting the swap, wait for the counterparty to join the swap with the agreed upon amount.',),
+                'After starting the swap, wait for the counterparty to join the swap with the agreed upon amount.',
+              ),
             ),
             RichText(
               text: BulletPointCard.textSpan(
                 '''You can reclaim your funds in ''',
                 children: <TextSpan>[
                   TextSpan(
-                      text: '${kInitialHtlcDuration.inHours} hours',
-                      style:
-                          const TextStyle(fontSize: 14, color: Colors.white),),
+                    text: '${kInitialHtlcDuration.inHours} hours',
+                    style: const TextStyle(fontSize: 14, color: Colors.white),
+                  ),
                   BulletPointCard.textSpan(
-                      ' if the counterparty fails to join the swap.',),
+                    ' if the counterparty fails to join the swap.',
+                  ),
                 ],
               ),
             ),
             RichText(
               text: BulletPointCard.textSpan(
-                  'The swap must be completed on this machine.',),
+                'The swap must be completed on this machine.',
+              ),
             ),
           ],
         ),
         const SizedBox(height: 20),
-        _getStartSwapViewModel(),
+        _buildStartSwapButton(blocContext),
       ],
     );
   }
 
-  ViewModelBuilder<StartHtlcSwapBloc> _getStartSwapViewModel() {
-    return ViewModelBuilder<StartHtlcSwapBloc>.reactive(
-      onViewModelReady: (StartHtlcSwapBloc model) {
-        model.stream.listen(
-          (HtlcSwap? event) async {
-            if (event is HtlcSwap) {
-              widget.onSwapStarted.call(event.id);
-            }
-          },
-          onError: (error) {
-            setState(() {
-              _isLoading = false;
-            });
-            ToastUtils.showToast(context, error.toString());
-          },
-        );
-      },
-      builder: (_, StartHtlcSwapBloc model, __) => _getStartSwapButton(model),
-      viewModelBuilder: StartHtlcSwapBloc.new,
-    );
-  }
-
-  Widget _getStartSwapButton(StartHtlcSwapBloc model) {
+  Widget _buildStartSwapButton(BuildContext blocContext) {
     return InstructionButton(
       text: 'Start swap',
       instructionText: 'Fill in the swap details',
       loadingText: 'Sending transaction',
       isEnabled: _isInputValid(),
       isLoading: _isLoading,
-      onPressed: () => _onStartButtonPressed(model),
+      onPressed: () => _onStartButtonPressed(blocContext),
     );
   }
 
-  Future<void> _onStartButtonPressed(StartHtlcSwapBloc model) async {
+  void _onStartButtonPressed(BuildContext blocContext) {
     setState(() {
       _isLoading = true;
     });
-    model.startHtlcSwap(
+
+    blocContext.read<StartHtlcSwapBloc>().add(
+      StartHtlcSwapRequested(
         selfAddress: Address.parse(_selectedSelfAddress!),
         counterpartyAddress: Address.parse(_counterpartyAddressController.text),
         fromToken: _selectedToken,
-        fromAmount:
-            _amountController.text.extractDecimals(_selectedToken.decimals),
+        fromAmount: _amountController.text.extractDecimals(
+          _selectedToken.decimals,
+        ),
         hashType: htlcHashTypeSha3,
         swapType: P2pSwapType.native,
         fromChain: P2pSwapChain.nom,
         toChain: P2pSwapChain.nom,
-        initialHtlcDuration: kInitialHtlcDuration.inSeconds,);
+        initialHtlcDuration: kInitialHtlcDuration.inSeconds,
+      ),
+    );
+  }
+
+  void _onStartHtlcSwapStateChanged(
+    BuildContext context,
+    StartHtlcSwapState state,
+  ) {
+    switch (state) {
+      case StartHtlcSwapInitial():
+        break;
+      case StartHtlcSwapLoading():
+        if (!_isLoading) {
+          setState(() {
+            _isLoading = true;
+          });
+        }
+      case StartHtlcSwapDone(:final swap):
+        widget.onSwapStarted.call(swap.id);
+      case StartHtlcSwapFailure(:final exception):
+        setState(() {
+          _isLoading = false;
+        });
+        ToastUtils.showToast(context, exception.toString());
+    }
   }
 
   bool _isInputValid() =>
