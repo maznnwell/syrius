@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/pow_generating_status_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap_options/widgets/p2p_swap_options_button.dart';
@@ -22,9 +23,17 @@ class P2pSwapOptionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NewCardScaffold(
-      data: _buildCardData(context: context),
-      body: const _View(),
+    return BlocProvider<StartNativeSwapBloc>(
+      create: (_) => StartNativeSwapBloc(
+        accountBlockUtils: AccountBlockUtils(),
+        htlcSwapsService: htlcSwapsService!,
+        zenon: zenon!,
+        zenonAddressUtils: ZenonAddressUtils(),
+      ),
+      child: NewCardScaffold(
+        data: _buildCardData(context: context),
+        body: const _View(),
+      ),
     );
   }
 
@@ -39,18 +48,21 @@ class _View extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<PowStatus>(
-      stream: sl.get<PowGeneratingStatusBloc>().stream,
-      builder: (_, AsyncSnapshot<PowStatus> snapshot) {
-        if (snapshot.hasError) {
-          return SyriusErrorWidget(snapshot.error!);
-        }
+    return BlocListener<StartNativeSwapBloc, StartNativeSwapState>(
+      listener: _onStartNativeSwapStateChanged,
+      child: StreamBuilder<PowStatus>(
+        stream: sl.get<PowGeneratingStatusBloc>().stream,
+        builder: (_, AsyncSnapshot<PowStatus> snapshot) {
+          if (snapshot.hasError) {
+            return SyriusErrorWidget(snapshot.error!);
+          }
 
-        return _buildNativeOptions(
-          context: context,
-          isGeneratingPlasma: snapshot.data == PowStatus.generating,
-        );
-      },
+          return _buildNativeOptions(
+            context: context,
+            isGeneratingPlasma: snapshot.data == PowStatus.generating,
+          );
+        },
+      ),
     );
   }
 
@@ -109,16 +121,15 @@ class _View extends StatelessWidget {
       return;
     }
 
-    final String? swapId = await showCustomDialog<String>(
-      context: context,
-      content: const StartNativeSwapModal(),
+    unawaited(
+      showCustomDialog(
+        context: context,
+        content: BlocProvider<StartNativeSwapBloc>.value(
+          value: context.read<StartNativeSwapBloc>(),
+          child: const StartNativeSwapModal(),
+        ),
+      ),
     );
-
-    if (swapId == null || !context.mounted) {
-      return;
-    }
-
-    _showNativeSwapDetailsModal(context, swapId);
   }
 
   Future<void> _onJoinSwapPressed(BuildContext context) async {
@@ -174,6 +185,21 @@ class _View extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _onStartNativeSwapStateChanged(
+    BuildContext context,
+    StartNativeSwapState state,
+  ) {
+    if (state is StartNativeSwapDone) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          _showNativeSwapDetailsModal(context, state.swap.id);
+        }
+      });
+    } else if (state is StartNativeSwapFailure) {
+      ToastUtils.showToast(context, state.exception.toString());
+    }
   }
 
   void _showGeneratingPlasmaToast(BuildContext context) {

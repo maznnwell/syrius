@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/model/p2p_swap/p2p_swap.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/multiple_balance/multiple_balance.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/start_native_swap/bloc/start_native_swap_bloc.dart';
@@ -22,15 +21,7 @@ class StartNativeSwapModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<StartNativeSwapBloc>(
-      create: (_) => StartNativeSwapBloc(
-        accountBlockUtils: AccountBlockUtils(),
-        htlcSwapsService: htlcSwapsService!,
-        zenon: zenon!,
-        zenonAddressUtils: ZenonAddressUtils(),
-      ),
-      child: const _View(),
-    );
+    return const _View();
   }
 }
 
@@ -265,9 +256,7 @@ class _ViewState extends State<_View> {
     StartNativeSwapState state,
   ) {
     if (state is StartNativeSwapDone) {
-      Navigator.pop(context, state.swap.id);
-    } else if (state is StartNativeSwapFailure) {
-      ToastUtils.showToast(context, state.exception.toString());
+      Navigator.pop(context);
     }
   }
 
