@@ -22,7 +22,8 @@ Future<bool> showWarningDialog({
       content: Text(description),
       actions: <Widget>[
         TextButton(
-          onPressed: onActionButtonPressed ??
+          onPressed:
+              onActionButtonPressed ??
               () {
                 Navigator.pop(context);
               },
@@ -35,7 +36,8 @@ Future<bool> showWarningDialog({
           ),
         ),
         TextButton(
-          onPressed: onActionButtonPressed ??
+          onPressed:
+              onActionButtonPressed ??
               () {
                 isPressed = true;
                 Navigator.pop(context);
@@ -61,52 +63,64 @@ Future<bool?> showDialogWithNoAndYesOptions({
   required bool isBarrierDismissible,
   Widget? content,
   String? description,
-}) =>
-    showDialog<bool>(
-      barrierDismissible: isBarrierDismissible,
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: Text(title),
-        content: content ?? Text(description!),
-        actions: <Widget>[
-          TextButton(
-            key: const Key('dialog_no_button'),
-            style: TextButton.styleFrom(
-              backgroundColor: AppColors.znnColor,
-            ),
-            onPressed: () {
-              Navigator.pop(context, false);
-            },
-            child: Text(
-              'No',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-          ),
-          TextButton(
-            key: const Key('dialog_yes_button'),
-            style: TextButton.styleFrom(
-              backgroundColor: AppColors.errorColor,
-            ),
-            onPressed: () {
-              Navigator.pop(context, true);
-            },
-            child: Text(
-              'Yes',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-          ),
-        ],
+}) => showDialog<bool>(
+  barrierDismissible: isBarrierDismissible,
+  context: context,
+  builder: (BuildContext context) => AlertDialog(
+    title: Text(title),
+    content: content ?? Text(description!),
+    actions: <Widget>[
+      TextButton(
+        key: const Key('dialog_no_button'),
+        style: TextButton.styleFrom(
+          backgroundColor: AppColors.znnColor,
+        ),
+        onPressed: () {
+          Navigator.pop(context, false);
+        },
+        child: Text(
+          'No',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
       ),
-    );
+      TextButton(
+        key: const Key('dialog_yes_button'),
+        style: TextButton.styleFrom(
+          backgroundColor: AppColors.errorColor,
+        ),
+        onPressed: () {
+          Navigator.pop(context, true);
+        },
+        child: Text(
+          'Yes',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      ),
+    ],
+  ),
+);
 
-Future<Object?> showCustomDialog({required BuildContext context, required Widget content}) =>
-    showGeneralDialog(
-      context: context,
-      barrierLabel: '',
-      barrierDismissible: true,
-      pageBuilder: (BuildContext context, Animation<double> animation,
-              Animation<double> secondaryAnimation,) =>
-          Center(
+Future<Object?> showCustomDialog({
+  required BuildContext context,
+  required Widget content,
+}) => showGeneralDialog(
+  context: context,
+  barrierLabel: '',
+  barrierDismissible: true,
+  pageBuilder:
+      (
+        BuildContext context,
+        Animation<double> animation,
+        Animation<double> secondaryAnimation,
+      ) {
+    final Size size = MediaQuery.sizeOf(context);
+
+        return Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: size.height * 0.8,
+              maxWidth: size.width * 0.4,
+            ),
             child: Theme(
               data: context.newThemeData,
               child: Card.filled(
@@ -114,8 +128,10 @@ Future<Object?> showCustomDialog({required BuildContext context, required Widget
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
                 ),
-                child: content,
+                child: SingleChildScrollView(child: content),
               ),
             ),
           ),
-    );
+        );
+      },
+);

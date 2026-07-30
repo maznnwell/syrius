@@ -11,39 +11,33 @@ class BaseModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.8,
-        maxWidth: MediaQuery.of(context).size.height * 0.4,
-      ),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(25),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      Text(
-                        _title,
-                        style: context.textTheme.titleLarge,
-                      ),
-                    ],
-                  ),
-                  IconButton(
-                    onPressed: Navigator.of(context).pop,
-                    icon: const Icon(
-                      Icons.clear,
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(25),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Column(
+                  children: <Widget>[
+                    Text(
+                      _title,
+                      style: context.textTheme.titleLarge,
                     ),
+                  ],
+                ),
+                IconButton(
+                  onPressed: Navigator.of(context).pop,
+                  icon: const Icon(
+                    Icons.clear,
                   ),
-                ],
-              ),
-              _child,
-            ],
-          ),
+                ),
+              ],
+            ),
+            _child,
+          ],
         ),
       ),
     );
