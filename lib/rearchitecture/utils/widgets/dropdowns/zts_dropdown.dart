@@ -8,13 +8,11 @@ class ZtsDropdown extends StatefulWidget {
   /// Creates a new instance.
   const ZtsDropdown({
     required this._availableTokens,
-    required this._onChangeCallback,
     required this._selectedToken,
     super.key,
   });
 
-  final void Function(Token) _onChangeCallback;
-  final Token _selectedToken;
+  final ValueNotifier<Token> _selectedToken;
   final List<Token> _availableTokens;
 
   @override
@@ -22,6 +20,8 @@ class ZtsDropdown extends StatefulWidget {
 }
 
 class _ZtsDropdownState extends State<ZtsDropdown> {
+  Token get _token => widget._selectedToken.value;
+
   @override
   Widget build(BuildContext context) {
     final List<DropdownMenuEntry<Token>> entries = widget._availableTokens.map(
@@ -43,12 +43,12 @@ class _ZtsDropdownState extends State<ZtsDropdown> {
     ).toList();
 
     final Color color = ColorUtils.getTokenColor(
-      widget._selectedToken.tokenStandard,
+      _token.tokenStandard,
     );
 
     return DropdownMenu<Token>(
       expandedInsets: EdgeInsets.zero,
-      initialSelection: widget._selectedToken,
+      initialSelection: _token,
       inputDecorationTheme: const InputDecorationTheme(
         filled: true,
       ),
@@ -60,7 +60,7 @@ class _ZtsDropdownState extends State<ZtsDropdown> {
       menuHeight: kDropdownMenuHeight,
       onSelected: (Token? token) {
         if (token != null) {
-          widget._onChangeCallback(token);
+          widget._selectedToken.value = token;
         }
       },
       searchCallback: _searchCallback,

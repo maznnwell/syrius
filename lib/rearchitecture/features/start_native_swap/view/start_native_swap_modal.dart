@@ -33,7 +33,10 @@ class _View extends StatefulWidget {
 }
 
 class _ViewState extends State<_View> {
-  Token _selectedToken = kZnnCoin;
+  final ValueNotifier<Token> _tokenNotifier = .new(kZnnCoin);
+
+  Token get _token => _tokenNotifier.value;
+
   String? _selectedSelfAddress = kSelectedAddress;
   bool _isAmountValid = false;
 
@@ -150,12 +153,12 @@ class _ViewState extends State<_View> {
                     accountInfo: accountInfo,
                     valuePadding: 10,
                     textColor: Theme.of(context).colorScheme.inverseSurface,
-                    initialToken: _selectedToken,
+                    initialToken: _token,
                     hintText: '0.0',
                     onChanged: (Token token, bool isValid) {
                       if (!isLoading) {
                         setState(() {
-                          _selectedToken = token;
+                          _tokenNotifier.value = token;
                           _isAmountValid = isValid;
                         });
                       }
@@ -168,16 +171,7 @@ class _ViewState extends State<_View> {
             Expanded(
               child: ZtsDropdown(
                 availableTokens: getTokensWithBalance(accountInfo: accountInfo),
-                selectedToken: _selectedToken,
-                onChangeCallback: (Token value) {
-                  if (_selectedToken != value) {
-                    setState(
-                      () {
-                        _selectedToken = value;
-                      },
-                    );
-                  }
-                },
+                selectedToken: _tokenNotifier,
               ),
             ),
           ],
@@ -238,9 +232,9 @@ class _ViewState extends State<_View> {
       StartNativeSwapRequested(
         selfAddress: Address.parse(_selectedSelfAddress!),
         counterpartyAddress: Address.parse(_counterpartyAddressController.text),
-        fromToken: _selectedToken,
+        fromToken: _token,
         fromAmount: _amountController.text.extractDecimals(
-          _selectedToken.decimals,
+          _token.decimals,
         ),
         hashType: htlcHashTypeSha3,
         swapType: P2pSwapType.native,

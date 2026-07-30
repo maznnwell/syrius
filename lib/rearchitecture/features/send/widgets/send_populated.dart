@@ -122,8 +122,9 @@ class _SendPopulatedState extends State<SendPopulated> {
                     ),
                     kHorizontalGap8,
                     Expanded(
-                      child: _buildCoinDropdown(
-                        selectedToken: selectedToken,
+                      child: ZtsDropdown(
+                        availableTokens: _availableAssets,
+                        selectedToken: _selectedToken,
                       ),
                     ),
                   ],
@@ -247,18 +248,6 @@ class _SendPopulatedState extends State<SendPopulated> {
       ),
     );
   }
-
-  Widget _buildCoinDropdown({
-    required Token selectedToken,
-  }) => ZtsDropdown(
-    availableTokens: _availableAssets,
-    selectedToken: selectedToken,
-    onChangeCallback: (Token value) {
-      if (selectedToken != value) {
-        _selectedToken.value = value;
-      }
-    },
-  );
 
   Future<void> _sendErrorNotification(SyriusException error) async {
     final String recipient = ZenonAddressUtils.getLabel(_recipient);

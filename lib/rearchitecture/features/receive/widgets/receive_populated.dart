@@ -33,34 +33,42 @@ class ReceivePopulated extends StatefulWidget {
 class _ReceivePopulatedState extends State<ReceivePopulated> {
   final TextEditingController _amountController = TextEditingController();
 
-  final ValueNotifier<String> _receiver = .new(kSelectedAddress!);
+  final ValueNotifier<String> _receiverNotifier = .new(kSelectedAddress!);
 
-  late Token _selectedToken;
+  late final ValueNotifier<Token> _tokenNotifier;
+
+  Token get _token => _tokenNotifier.value;
 
   String get _amount => _amountController.text;
 
   String? get _amountErrorText => InputValidators.correctValue(
     _amount,
     kBigP255m1,
-    _selectedToken.decimals,
+    _token.decimals,
     BigInt.zero,
   );
 
   @override
   void initState() {
     super.initState();
-    _selectedToken = widget.assets.firstWhere(
+    final Token networkZnn = widget.assets.firstWhere(
       (Token asset) => asset.tokenStandard.toString() == znnTokenStandard,
     );
+    _tokenNotifier = .new(networkZnn);
   }
 
   @override
   Widget build(BuildContext context) {
     final List<Token> sortedAssets = sortAssets(widget.assets);
 
-    return ValueListenableBuilder<String>(
-      valueListenable: _receiver,
-      builder: (_, String receiver, _) {
+    return ListenableBuilder(
+      listenable: Listenable.merge(<Listenable?>[
+        _tokenNotifier,
+        _receiverNotifier,
+      ]),
+      builder: (_, _) {
+        final String receiver = _receiverNotifier.value;
+
         return Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -72,7 +80,7 @@ class _ReceivePopulatedState extends State<ReceivePopulated> {
                   address: receiver,
                 ),
                 size: 150,
-                tokenStandard: _selectedToken.tokenStandard,
+                tokenStandard: _token.tokenStandard,
               ),
               kHorizontalGap16,
               Expanded(
@@ -84,17 +92,14 @@ class _ReceivePopulatedState extends State<ReceivePopulated> {
                           child: _buildDefaultAddressDropdown(),
                         ),
                         CopyToClipboardButton(
-                          _receiver.value,
+                          _receiverNotifier.value,
                         ),
                       ],
                     ),
                     kVerticalGap16,
                     ZtsDropdown(
                       availableTokens: sortedAssets,
-                      onChangeCallback: (Token token) => setState(() {
-                        _selectedToken = token;
-                      }),
-                      selectedToken: _selectedToken,
+                      selectedToken: _tokenNotifier,
                     ),
                     kVerticalGap16,
                     TextField(
@@ -121,14 +126,14 @@ class _ReceivePopulatedState extends State<ReceivePopulated> {
   String _getQrString({
     required String address,
   }) {
-    return '${_selectedToken.symbol.toLowerCase()}:'
-        '$address?zts=${_selectedToken.tokenStandard}'
+    return '${_token.symbol.toLowerCase()}:'
+        '$address?zts=${_token.tokenStandard}'
         '&amount=${_getAmount()}';
   }
 
   BigInt _getAmount() {
     try {
-      return _amountController.text.extractDecimals(_selectedToken.decimals);
+      return _amountController.text.extractDecimals(_token.decimals);
     } on Exception catch (_) {
       return BigInt.zero;
     }
@@ -137,14 +142,14 @@ class _ReceivePopulatedState extends State<ReceivePopulated> {
   Widget _buildDefaultAddressDropdown() {
     return NewAddressesDropdown(
       addresses: kDefaultAddressList.map((String? e) => e!).toList(),
-      selectedAddress: _receiver,
+      selectedAddress: _receiverNotifier,
     );
   }
 
   @override
   void dispose() {
     _amountController.dispose();
-    _receiver.dispose();
+    _receiverNotifier.dispose();
     super.dispose();
   }
 }
