@@ -6,10 +6,10 @@ import 'package:zenon_syrius_wallet_flutter/blocs/blocs.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/send/send.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/amount_text_field.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
-import 'package:zenon_syrius_wallet_flutter/utils/format_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/global.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/input_validators.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/notification_utils.dart';
@@ -149,26 +149,18 @@ class _SendPopulatedState extends State<SendPopulated> {
             ValueListenableBuilder<TextEditingValue>(
               valueListenable: _amountController,
               builder: (_, TextEditingValue amount, _) {
-                return TextField(
+                return AmountTextField(
+                  accountInfo: _accountInfo,
                   key: const Key('send_amount_field'),
                   controller: _amountController,
-                  decoration: InputDecoration(
-                    errorText: _amountErrorText,
-                    hintText: context.l10n.amount,
-                    suffixIcon: TextButton(
-                      onPressed: () => _onMaxPressed(_accountInfo),
-                      child: Text(context.l10n.max.toUpperCase()),
-                    ),
-                  ),
                   focusNode: _amountFocusNode,
-                  inputFormatters: FormatUtils.getAmountTextInputFormatters(
-                    _amountController.text,
-                  ),
+                  errorText: _amountErrorText,
                   onSubmitted: (String value) {
                     if (_isValidTransaction) {
                       unawaited(_onSendPaymentPressed());
                     }
                   },
+                  token: _selectedToken,
                 );
               },
             ),
@@ -265,20 +257,6 @@ class _SendPopulatedState extends State<SendPopulated> {
       }
     },
   );
-
-  void _onMaxPressed(AccountInfo accountInfo) {
-    final BigInt maxBalance = accountInfo.getBalance(
-      _selectedToken.tokenStandard,
-    );
-
-    final BigInt currentBalance = _amount.isEmpty
-        ? BigInt.zero
-        : _amount.extractDecimals(_selectedToken.decimals);
-
-    if (currentBalance < maxBalance) {
-      _amountController.text = maxBalance.addDecimals(_selectedToken.decimals);
-    }
-  }
 
   Future<void> _sendErrorNotification(SyriusException error) async {
     final String recipient = ZenonAddressUtils.getLabel(_recipient);
