@@ -76,18 +76,15 @@ class _SendPopulatedState extends State<SendPopulated> {
 
   bool get _isValidTransaction => _hasBalance(_accountInfo) && _isInputValid;
 
+
+  @override
+  void initState() {
+    super.initState();
+    _initAvailableAssets();
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (_availableAssets.isEmpty) {
-      fillAvailableTokens(
-        initialTokens: kDualCoin,
-        list: _availableAssets,
-        tokensWithBalance: getTokensWithBalance(
-          accountInfo: widget.balances[_selectedSenderAddress]!,
-        ),
-      );
-    }
-
     return ValueListenableBuilder<Token>(
       valueListenable: _selectedToken,
       builder: (_, Token selectedToken, _) {
@@ -242,7 +239,7 @@ class _SendPopulatedState extends State<SendPopulated> {
           () {
             _selectedSenderAddress = value;
             _selectedToken.value = kDualCoin.first;
-            _availableAssets.clear();
+            _initAvailableAssets();
           },
         ),
         selectedAddress: _selectedSenderAddress,
@@ -306,6 +303,16 @@ class _SendPopulatedState extends State<SendPopulated> {
         _selectedToken.value.tokenStandard,
       ) >
       BigInt.zero;
+
+  void _initAvailableAssets() {
+    fillAvailableTokens(
+      initialTokens: kDualCoin,
+      list: _availableAssets,
+      tokensWithBalance: getTokensWithBalance(
+        accountInfo: widget.balances[_selectedSenderAddress]!,
+      ),
+    );
+  }
 
   @override
   void dispose() {

@@ -53,5 +53,7 @@ void fillAvailableTokens({
     }
   }
 
-  list.addAll(sortAssets(emptyList));
+  list
+    ..clear()
+    ..addAll(sortAssets(emptyList));
 }
