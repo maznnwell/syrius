@@ -100,10 +100,10 @@ Future<bool?> showDialogWithNoAndYesOptions({
   ),
 );
 
-Future<Object?> showCustomDialog({
+Future<T?> showCustomDialog<T>({
   required BuildContext context,
   required Widget content,
-}) => showGeneralDialog(
+}) => showGeneralDialog<T>(
   context: context,
   barrierLabel: '',
   barrierDismissible: true,

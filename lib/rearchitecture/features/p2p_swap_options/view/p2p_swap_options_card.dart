@@ -66,16 +66,7 @@ class _View extends StatelessWidget {
           subtitle: context.l10n.p2pSwapStartDescription,
           onClick: () => isGeneratingPlasma
               ? _showGeneratingPlasmaToast(context)
-              : _showUserWarningModalIfNeeded(
-                  context: context,
-                  onContinue: () => showCustomDialog(
-                    context: context,
-                    content: StartNativeSwapModal(
-                      onSwapStarted: (String swapId) =>
-                          _showNativeSwapModal(context, swapId),
-                    ),
-                  ),
-                ),
+              : unawaited(_onStartSwapPressed(context)),
         ),
         kVerticalGap25,
         P2pSwapOptionsButton(
@@ -83,16 +74,7 @@ class _View extends StatelessWidget {
           subtitle: context.l10n.p2pSwapJoinDescription,
           onClick: () => isGeneratingPlasma
               ? _showGeneratingPlasmaToast(context)
-              : _showUserWarningModalIfNeeded(
-                  context: context,
-                  onContinue: () => showCustomDialog(
-                    context: context,
-                    content: JoinNativeSwapModal(
-                      onJoinedSwap: (String swapId) =>
-                          _showNativeSwapModal(context, swapId),
-                    ),
-                  ),
-                ),
+              : unawaited(_onJoinSwapPressed(context)),
         ),
         kVerticalGap25,
         Center(
@@ -120,40 +102,72 @@ class _View extends StatelessWidget {
     );
   }
 
-  void _showUserWarningModalIfNeeded({
-    required BuildContext context,
-    required VoidCallback onContinue,
-  }) {
+  Future<void> _onStartSwapPressed(BuildContext context) async {
+    final bool canContinue = await _confirmUserWarningIfNeeded(context);
+
+    if (!canContinue || !context.mounted) {
+      return;
+    }
+
+    final String? swapId = await showCustomDialog<String>(
+      context: context,
+      content: const StartNativeSwapModal(),
+    );
+
+    if (swapId == null || !context.mounted) {
+      return;
+    }
+
+    _showNativeSwapDetailsModal(context, swapId);
+  }
+
+  Future<void> _onJoinSwapPressed(BuildContext context) async {
+    final bool canContinue = await _confirmUserWarningIfNeeded(context);
+
+    if (!canContinue || !context.mounted) {
+      return;
+    }
+
+    final String? swapId = await showCustomDialog<String>(
+      context: context,
+      content: JoinNativeSwapModal(
+        onJoinedSwap: (String swapId) => Navigator.pop(context, swapId),
+      ),
+    );
+
+    if (swapId == null || !context.mounted) {
+      return;
+    }
+
+    _showNativeSwapDetailsModal(context, swapId);
+  }
+
+  Future<bool> _confirmUserWarningIfNeeded(BuildContext context) async {
     final bool hasReadWarning = sharedPrefsService!.get(
       kHasReadP2pSwapWarningKey,
       defaultValue: kHasReadP2pSwapWarningDefaultValue,
     );
 
     if (hasReadWarning) {
-      onContinue();
-      return;
+      return true;
     }
 
-    unawaited(
-      showCustomDialog(
-        context: context,
-        content: P2pSwapWarningModal(
-          onAccepted: () {
-            Navigator.pop(context);
-            unawaited(
-              sharedPrefsService!.put(kHasReadP2pSwapWarningKey, true),
-            );
-            Timer.run(onContinue);
-          },
-        ),
-      ),
+    final bool? result = await showCustomDialog<bool>(
+      context: context,
+      content: const P2pSwapWarningModal(),
     );
+
+    if (result == true) {
+      await sharedPrefsService!.put(kHasReadP2pSwapWarningKey, true);
+      return true;
+    }
+
+    return false;
   }
 
-  void _showNativeSwapModal(BuildContext context, String swapId) {
-    Navigator.pop(context);
-    Timer.run(
-      () => showCustomDialog(
+  void _showNativeSwapDetailsModal(BuildContext context, String swapId) {
+    unawaited(
+      showCustomDialog(
         context: context,
         content: NativeP2pSwapModal(
           swapId: swapId,

@@ -18,12 +18,7 @@ import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 /// A modal containing the form used to start a native P2P swap.
 class StartNativeSwapModal extends StatelessWidget {
   /// Creates a native-swap modal.
-  const StartNativeSwapModal({
-    required this._onSwapStarted,
-    super.key,
-  });
-
-  final ValueChanged<String> _onSwapStarted;
+  const StartNativeSwapModal({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -34,15 +29,13 @@ class StartNativeSwapModal extends StatelessWidget {
         zenon: zenon!,
         zenonAddressUtils: ZenonAddressUtils(),
       ),
-      child: _View(onSwapStarted: _onSwapStarted),
+      child: const _View(),
     );
   }
 }
 
 class _View extends StatefulWidget {
-  const _View({required this._onSwapStarted});
-
-  final ValueChanged<String> _onSwapStarted;
+  const _View();
 
   @override
   State<_View> createState() => _ViewState();
@@ -155,7 +148,7 @@ class _ViewState extends State<_View> {
         ),
         kVerticalGap16,
         Row(
-          children: [
+          children: <Widget>[
             Expanded(
               child: LabeledInputContainer(
                 labelText: context.l10n.p2pSwapYouAreSending,
@@ -272,7 +265,7 @@ class _ViewState extends State<_View> {
     StartNativeSwapState state,
   ) {
     if (state is StartNativeSwapDone) {
-      widget._onSwapStarted(state.swap.id);
+      Navigator.pop(context, state.swap.id);
     } else if (state is StartNativeSwapFailure) {
       ToastUtils.showToast(context, state.exception.toString());
     }

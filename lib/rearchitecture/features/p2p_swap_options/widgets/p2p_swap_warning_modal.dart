@@ -5,11 +5,8 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 class P2pSwapWarningModal extends StatelessWidget {
   /// Creates a P2P swap warning modal.
   const P2pSwapWarningModal({
-    required this._onAccepted,
     super.key,
   });
-
-  final VoidCallback _onAccepted;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +28,7 @@ class P2pSwapWarningModal extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: _onAccepted,
+            onPressed: () => Navigator.pop(context, true),
             child: Text(
               context.l10n.continueText,
             ),
