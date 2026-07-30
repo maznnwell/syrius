@@ -79,7 +79,6 @@ class _ReceivePopulatedState extends State<ReceivePopulated> {
                 data: _getQrString(
                   address: receiver,
                 ),
-                size: 150,
                 tokenStandard: _token.tokenStandard,
               ),
               kHorizontalGap16,
