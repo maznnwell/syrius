@@ -11,7 +11,6 @@ import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/ins
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/dropdown/addresses_dropdown.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/error_widget.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/amount_input_field.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/input_field.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/labeled_input_container.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_widget.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
@@ -57,6 +56,11 @@ class _ViewState extends State<_View> {
   final TextEditingController _counterpartyAddressController =
       TextEditingController();
   final TextEditingController _amountController = TextEditingController();
+
+  String get _counterpartyAddress => _counterpartyAddressController.text;
+
+  String? get _counterpartyAddressError =>
+      _validateCounterpartyAddress(_counterpartyAddress);
 
   @override
   void initState() {
@@ -113,7 +117,7 @@ class _ViewState extends State<_View> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        const SizedBox(height: 20),
+        kVerticalGap16,
         Row(
           children: <Widget>[
             Expanded(
@@ -127,76 +131,74 @@ class _ViewState extends State<_View> {
                 ),
               ),
             ),
-            const SizedBox(
-              width: 20,
-            ),
+            kHorizontalGap16,
             Expanded(
               child: LabeledInputContainer(
                 labelText: context.l10n.p2pSwapCounterpartyAddress,
                 helpText: context.l10n.p2pSwapCounterpartyAddressDescription,
-                inputWidget: Form(
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  child: InputField(
-                    onChanged: (String value) {
-                      setState(() {});
-                    },
-                    enabled: !isLoading,
-                    validator: _validateCounterpartyAddress,
-                    controller: _counterpartyAddressController,
-                    suffixIcon: RawMaterialButton(
-                      shape: const CircleBorder(),
-                      onPressed: isLoading
-                          ? null
-                          : () {
-                              ClipboardUtils.pasteToClipboard(
-                                callback: (String value) {
-                                  _counterpartyAddressController.text = value;
-                                  setState(() {});
-                                },
-                              );
-                            },
-                      child: const Icon(
-                        Icons.content_paste,
-                        color: AppColors.darkHintTextColor,
-                        size: 15,
-                      ),
-                    ),
-                    suffixIconConstraints: const BoxConstraints(
-                      maxWidth: 45,
-                      maxHeight: 20,
-                    ),
+                inputWidget: TextField(
+                  decoration: InputDecoration(
+                    errorText: _counterpartyAddress.isNotEmpty
+                        ? _counterpartyAddressError
+                        : null,
                     hintText: context.l10n.p2pSwapAddressHint,
-                    contentLeftPadding: 10,
+                    suffixIcon: PasteContentButton(
+                      controller: _counterpartyAddressController,
+                    ),
                   ),
+                  enabled: !isLoading,
+                  controller: _counterpartyAddressController,
                 ),
               ),
             ),
           ],
         ),
-        kVerticalSpacing,
-        LabeledInputContainer(
-          labelText: context.l10n.p2pSwapYouAreSending,
-          inputWidget: Flexible(
-            child: AmountInputField(
-              controller: _amountController,
-              enabled: !isLoading,
-              accountInfo: accountInfo,
-              valuePadding: 10,
-              textColor: Theme.of(context).colorScheme.inverseSurface,
-              initialToken: _selectedToken,
-              hintText: '0.0',
-              onChanged: (Token token, bool isValid) {
-                if (!isLoading) {
-                  setState(() {
-                    _selectedToken = token;
-                    _isAmountValid = isValid;
-                  });
-                }
-              },
+        kVerticalGap16,
+        Row(
+          children: [
+            Expanded(
+              child: LabeledInputContainer(
+                labelText: context.l10n.p2pSwapYouAreSending,
+                inputWidget: Flexible(
+                  child: AmountInputField(
+                    controller: _amountController,
+                    enabled: !isLoading,
+                    accountInfo: accountInfo,
+                    valuePadding: 10,
+                    textColor: Theme.of(context).colorScheme.inverseSurface,
+                    initialToken: _selectedToken,
+                    hintText: '0.0',
+                    onChanged: (Token token, bool isValid) {
+                      if (!isLoading) {
+                        setState(() {
+                          _selectedToken = token;
+                          _isAmountValid = isValid;
+                        });
+                      }
+                    },
+                  ),
+                ),
+              ),
             ),
-          ),
+            kHorizontalGap16,
+            Expanded(
+              child: ZtsDropdown(
+                availableTokens: getTokensWithBalance(accountInfo: accountInfo),
+                selectedToken: _selectedToken,
+                onChangeCallback: (Token value) {
+                  if (_selectedToken != value) {
+                    setState(
+                      () {
+                        _selectedToken = value;
+                      },
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 20),
+        kVerticalGap16,
         BulletPointCard(
           bulletPoints: <RichText>[
             RichText(
@@ -276,10 +278,7 @@ class _ViewState extends State<_View> {
     }
   }
 
-  bool _isInputValid() =>
-      _validateCounterpartyAddress(_counterpartyAddressController.text) ==
-          null &&
-      _isAmountValid;
+  bool _isInputValid() => _counterpartyAddressError == null && _isAmountValid;
 
   String? _validateCounterpartyAddress(String? address) {
     final String? result = InputValidators.checkAddress(address);
