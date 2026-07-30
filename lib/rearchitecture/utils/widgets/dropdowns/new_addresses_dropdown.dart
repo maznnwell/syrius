@@ -22,6 +22,22 @@ class NewAddressesDropdown extends StatefulWidget {
 
 class _NewAddressesDropdownState extends State<NewAddressesDropdown> {
   final TextEditingController _searchController = TextEditingController();
+  late String _selectedLabel;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedLabel = _labelFor(widget._selectedAddress);
+  }
+
+  @override
+  void didUpdateWidget(covariant NewAddressesDropdown oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget._selectedAddress != widget._selectedAddress) {
+      _selectedLabel = _labelFor(widget._selectedAddress);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,34 +57,51 @@ class _NewAddressesDropdownState extends State<NewAddressesDropdown> {
         )
         .toList();
 
-    return DropdownMenu<String>(
-      controller: _searchController,
-      enableFilter: true,
-      expandedInsets: EdgeInsets.zero,
-      filterCallback: _filterCallback,
-      initialSelection: widget._selectedAddress,
-      inputDecorationTheme: const InputDecorationTheme(
-        filled: true,
-      ),
-      leadingIcon: const Icon(
-        Icons.search,
-        color: color,
-      ),
-      dropdownMenuEntries: entries,
-      menuHeight: kDropdownMenuHeight,
-      onSelected: (String? address) {
-        if (address != null) {
-          widget._onSelectedCallback(address);
+    return Focus(
+      onFocusChange: (bool hasFocus) {
+        if (!hasFocus) {
+          _restoreSelectedLabel();
         }
       },
-      searchCallback: _searchCallback,
-      textStyle: const TextStyle(
-        color: color,
+      child: DropdownMenu<String>(
+        controller: _searchController,
+        enableFilter: true,
+        expandedInsets: EdgeInsets.zero,
+        filterCallback: _filterCallback,
+        initialSelection: widget._selectedAddress,
+        inputDecorationTheme: const InputDecorationTheme(
+          filled: true,
+        ),
+        leadingIcon: const Icon(
+          Icons.search,
+          color: color,
+        ),
+        dropdownMenuEntries: entries,
+        menuHeight: kDropdownMenuHeight,
+        onSelected: (String? address) {
+          if (address != null) {
+            _selectedLabel = _labelFor(address);
+            widget._onSelectedCallback(address);
+          }
+        },
+        searchCallback: _searchCallback,
+        textStyle: const TextStyle(
+          color: color,
+        ),
+        trailingIcon: const Icon(
+          Icons.keyboard_arrow_down_rounded,
+          color: color,
+        ),
       ),
-      trailingIcon: const Icon(
-        Icons.keyboard_arrow_down_rounded,
-        color: color,
-      ),
+    );
+  }
+
+  String _labelFor(String address) => kAddressLabelMap[address] ?? address;
+
+  void _restoreSelectedLabel() {
+    _searchController.value = TextEditingValue(
+      text: _selectedLabel,
+      selection: TextSelection.collapsed(offset: _selectedLabel.length),
     );
   }
 
@@ -103,4 +136,10 @@ class _NewAddressesDropdownState extends State<NewAddressesDropdown> {
   bool _matchTest(DropdownMenuEntry<String> entry, String searchText) =>
       entry.label.toLowerCase().contains(searchText) ||
       entry.value.toLowerCase().contains(searchText);
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 }
