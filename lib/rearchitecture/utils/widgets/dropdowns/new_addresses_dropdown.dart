@@ -8,35 +8,27 @@ class NewAddressesDropdown extends StatefulWidget {
   /// Creates a new instance.
   const NewAddressesDropdown({
     required this._addresses,
-    required this._onSelectedCallback,
     required this._selectedAddress,
     super.key,
   });
   final List<String> _addresses;
-  final void Function(String) _onSelectedCallback;
-  final String _selectedAddress;
+  final ValueNotifier<String> _selectedAddress;
 
   @override
   State<NewAddressesDropdown> createState() => _NewAddressesDropdownState();
 }
 
 class _NewAddressesDropdownState extends State<NewAddressesDropdown> {
+  String get _address => widget._selectedAddress.value;
+
   final TextEditingController _searchController = TextEditingController();
   late String _selectedLabel;
 
   @override
   void initState() {
     super.initState();
-    _selectedLabel = _labelFor(widget._selectedAddress);
-  }
-
-  @override
-  void didUpdateWidget(covariant NewAddressesDropdown oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    if (oldWidget._selectedAddress != widget._selectedAddress) {
-      _selectedLabel = _labelFor(widget._selectedAddress);
-    }
+    _selectedLabel = _labelFor(_address);
+    widget._selectedAddress.addListener(_onSelectedAddressChanged);
   }
 
   @override
@@ -46,11 +38,9 @@ class _NewAddressesDropdownState extends State<NewAddressesDropdown> {
     final List<DropdownMenuEntry<String>> entries = widget._addresses
         .map(
           (String address) => DropdownMenuEntry<String>(
-            label: kAddressLabelMap[address]!,
+            label: _labelFor(address),
             style: MenuItemButton.styleFrom(
-              foregroundColor: address == widget._selectedAddress
-                  ? color
-                  : null,
+              foregroundColor: address == _address ? color : null,
             ),
             value: address,
           ),
@@ -68,7 +58,7 @@ class _NewAddressesDropdownState extends State<NewAddressesDropdown> {
         enableFilter: true,
         expandedInsets: EdgeInsets.zero,
         filterCallback: _filterCallback,
-        initialSelection: widget._selectedAddress,
+        initialSelection: _address,
         inputDecorationTheme: const InputDecorationTheme(
           filled: true,
         ),
@@ -80,8 +70,7 @@ class _NewAddressesDropdownState extends State<NewAddressesDropdown> {
         menuHeight: kDropdownMenuHeight,
         onSelected: (String? address) {
           if (address != null) {
-            _selectedLabel = _labelFor(address);
-            widget._onSelectedCallback(address);
+            widget._selectedAddress.value = address;
           }
         },
         searchCallback: _searchCallback,
@@ -97,6 +86,13 @@ class _NewAddressesDropdownState extends State<NewAddressesDropdown> {
   }
 
   String _labelFor(String address) => kAddressLabelMap[address] ?? address;
+
+  void _onSelectedAddressChanged() {
+    setState(() {
+      _selectedLabel = _labelFor(_address);
+    });
+    _restoreSelectedLabel();
+  }
 
   void _restoreSelectedLabel() {
     _searchController.value = TextEditingValue(
@@ -139,6 +135,7 @@ class _NewAddressesDropdownState extends State<NewAddressesDropdown> {
 
   @override
   void dispose() {
+    widget._selectedAddress.removeListener(_onSelectedAddressChanged);
     _searchController.dispose();
     super.dispose();
   }

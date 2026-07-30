@@ -45,14 +45,14 @@ class _SendPopulatedState extends State<SendPopulated> {
 
   final ValueNotifier<Token> _selectedToken = .new(kDualCoin.first);
 
-  String _selectedSenderAddress = kSelectedAddress!;
+  final ValueNotifier<String> _sender = .new(kSelectedAddress!);
 
   // The amount as inputted by the user
   String get _amount => _amountController.text;
 
   String get _recipient => _recipientController.text;
 
-  AccountInfo get _accountInfo => widget.balances[_selectedSenderAddress]!;
+  AccountInfo get _accountInfo => widget.balances[_sender.value]!;
 
   String? get _recipientErrorText =>
       _recipient.isNotEmpty ? InputValidators.checkAddress(_recipient) : null;
@@ -76,18 +76,26 @@ class _SendPopulatedState extends State<SendPopulated> {
 
   bool get _isValidTransaction => _hasBalance(_accountInfo) && _isInputValid;
 
-
   @override
   void initState() {
     super.initState();
+    _sender.addListener(() {
+      _selectedToken.value = kDualCoin.first;
+      _initAvailableAssets();
+    });
     _initAvailableAssets();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<Token>(
-      valueListenable: _selectedToken,
-      builder: (_, Token selectedToken, _) {
+    return ListenableBuilder(
+      listenable: Listenable.merge(<Listenable>[
+        _selectedToken,
+        _sender,
+      ]),
+      builder: (_, _) {
+        final Token selectedToken = _selectedToken.value;
+
         return BlocListener<SendTransactionBloc, SendTransactionState>(
           listener: (_, SendTransactionState state) {
             if (state.status == SendTransactionStatus.loading) {
@@ -110,7 +118,7 @@ class _SendPopulatedState extends State<SendPopulated> {
                 Row(
                   children: <Widget>[
                     Expanded(
-                      child: _getDefaultAddressDropdown(),
+                      child: _buildDefaultAddressDropdown(),
                     ),
                     kHorizontalGap8,
                     Expanded(
@@ -223,26 +231,19 @@ class _SendPopulatedState extends State<SendPopulated> {
     context.read<SendTransactionBloc>().add(
       SendTransactionInitiate(
         amount: _amount.extractDecimals(_selectedToken.value.decimals),
-        fromAddress: _selectedSenderAddress,
+        fromAddress: _sender.value,
         toAddress: _recipient,
         token: _selectedToken.value,
       ),
     );
   }
 
-  Widget _getDefaultAddressDropdown() {
+  Widget _buildDefaultAddressDropdown() {
     return Tooltip(
       message: context.l10n.senderAddressDescription,
       child: NewAddressesDropdown(
         addresses: kDefaultAddressList.map((String? e) => e!).toList(),
-        onSelectedCallback: (String value) => setState(
-          () {
-            _selectedSenderAddress = value;
-            _selectedToken.value = kDualCoin.first;
-            _initAvailableAssets();
-          },
-        ),
-        selectedAddress: _selectedSenderAddress,
+        selectedAddress: _sender,
       ),
     );
   }
@@ -277,14 +278,14 @@ class _SendPopulatedState extends State<SendPopulated> {
   }) async {
     final String recipient = ZenonAddressUtils.getLabel(_recipient);
 
-    final String sender = ZenonAddressUtils.getLabel(_selectedSenderAddress);
+    final String senderLabel = ZenonAddressUtils.getLabel(_sender.value);
 
     final String symbol = _selectedToken.value.symbol;
 
     final String title = context.l10n.sentDetails(
       _amount,
       recipient,
-      sender,
+      senderLabel,
       symbol,
     );
 
@@ -309,7 +310,7 @@ class _SendPopulatedState extends State<SendPopulated> {
       initialTokens: kDualCoin,
       list: _availableAssets,
       tokensWithBalance: getTokensWithBalance(
-        accountInfo: widget.balances[_selectedSenderAddress]!,
+        accountInfo: widget.balances[_sender.value]!,
       ),
     );
   }
@@ -318,6 +319,8 @@ class _SendPopulatedState extends State<SendPopulated> {
   void dispose() {
     _recipientController.dispose();
     _amountController.dispose();
+    _selectedToken.dispose();
+    _sender.dispose();
     super.dispose();
   }
 }

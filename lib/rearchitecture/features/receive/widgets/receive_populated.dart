@@ -33,7 +33,7 @@ class ReceivePopulated extends StatefulWidget {
 class _ReceivePopulatedState extends State<ReceivePopulated> {
   final TextEditingController _amountController = TextEditingController();
 
-  String _selectedSenderAddress = kSelectedAddress!;
+  final ValueNotifier<String> _receiver = .new(kSelectedAddress!);
 
   late Token _selectedToken;
 
@@ -58,62 +58,71 @@ class _ReceivePopulatedState extends State<ReceivePopulated> {
   Widget build(BuildContext context) {
     final List<Token> sortedAssets = sortAssets(widget.assets);
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          ReceiveQrImage(
-            data: _getQrString(),
-            size: 150,
-            tokenStandard: _selectedToken.tokenStandard,
-          ),
-          kHorizontalGap16,
-          Expanded(
-            child: Column(
-              children: <Widget>[
-                Row(
+    return ValueListenableBuilder<String>(
+      valueListenable: _receiver,
+      builder: (_, String receiver, _) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              ReceiveQrImage(
+                data: _getQrString(
+                  address: receiver,
+                ),
+                size: 150,
+                tokenStandard: _selectedToken.tokenStandard,
+              ),
+              kHorizontalGap16,
+              Expanded(
+                child: Column(
                   children: <Widget>[
-                    Expanded(
-                      child: _getDefaultAddressDropdown(),
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: _buildDefaultAddressDropdown(),
+                        ),
+                        CopyToClipboardButton(
+                          _receiver.value,
+                        ),
+                      ],
                     ),
-                    CopyToClipboardButton(
-                      _selectedSenderAddress,
+                    kVerticalGap16,
+                    ZtsDropdown(
+                      availableTokens: sortedAssets,
+                      onChangeCallback: (Token token) => setState(() {
+                        _selectedToken = token;
+                      }),
+                      selectedToken: _selectedToken,
+                    ),
+                    kVerticalGap16,
+                    TextField(
+                      decoration: InputDecoration(
+                        errorText: _amount.isNotEmpty ? _amountErrorText : null,
+                        hintText: context.l10n.amount,
+                      ),
+                      onChanged: (String value) => setState(() {}),
+                      inputFormatters: FormatUtils.getAmountTextInputFormatters(
+                        _amountController.text,
+                      ),
+                      controller: _amountController,
                     ),
                   ],
                 ),
-                kVerticalGap16,
-                ZtsDropdown(
-                  availableTokens: sortedAssets,
-                  onChangeCallback: (Token token) => setState(() {
-                    _selectedToken = token;
-                  }),
-                  selectedToken: _selectedToken,
-                ),
-                kVerticalGap16,
-                TextField(
-                  decoration: InputDecoration(
-                    errorText: _amount.isNotEmpty ? _amountErrorText : null,
-                    hintText: context.l10n.amount,
-                  ),
-                  onChanged: (String value) => setState(() {}),
-                  inputFormatters: FormatUtils.getAmountTextInputFormatters(
-                    _amountController.text,
-                  ),
-                  controller: _amountController,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
-  String _getQrString() {
+  String _getQrString({
+    required String address,
+  }) {
     return '${_selectedToken.symbol.toLowerCase()}:'
-        '$_selectedSenderAddress?zts=${_selectedToken.tokenStandard}'
+        '$address?zts=${_selectedToken.tokenStandard}'
         '&amount=${_getAmount()}';
   }
 
@@ -125,21 +134,17 @@ class _ReceivePopulatedState extends State<ReceivePopulated> {
     }
   }
 
-  Widget _getDefaultAddressDropdown() {
+  Widget _buildDefaultAddressDropdown() {
     return NewAddressesDropdown(
       addresses: kDefaultAddressList.map((String? e) => e!).toList(),
-      selectedAddress: _selectedSenderAddress,
-      onSelectedCallback: (String value) => setState(
-        () {
-          _selectedSenderAddress = value;
-        },
-      ),
+      selectedAddress: _receiver,
     );
   }
 
   @override
   void dispose() {
     _amountController.dispose();
+    _receiver.dispose();
     super.dispose();
   }
 }

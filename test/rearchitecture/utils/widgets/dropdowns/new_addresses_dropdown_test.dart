@@ -17,13 +17,13 @@ void main() {
   testWidgets('restores the selected label after focus is lost', (
     WidgetTester tester,
   ) async {
-    String? selectedAddress;
+    final ValueNotifier<String> selectedAddress = ValueNotifier<String>(
+      firstAddress,
+    );
+    addTearDown(selectedAddress.dispose);
 
     await tester.pumpWidget(
-      _TestApp(
-        onSelected: (String address) => selectedAddress = address,
-        selectedAddress: firstAddress,
-      ),
+      _TestApp(selectedAddress: selectedAddress),
     );
     await tester.tap(find.byType(TextField));
     await tester.enterText(find.byType(TextField), 'invalid filter');
@@ -32,19 +32,19 @@ void main() {
     await tester.pump();
 
     expect(_fieldText(tester), 'Address 1');
-    expect(selectedAddress, isNull);
+    expect(selectedAddress.value, firstAddress);
   });
 
   testWidgets('restores the label of the latest menu selection', (
     WidgetTester tester,
   ) async {
-    String? selectedAddress;
+    final ValueNotifier<String> selectedAddress = ValueNotifier<String>(
+      firstAddress,
+    );
+    addTearDown(selectedAddress.dispose);
 
     await tester.pumpWidget(
-      _TestApp(
-        onSelected: (String address) => selectedAddress = address,
-        selectedAddress: firstAddress,
-      ),
+      _TestApp(selectedAddress: selectedAddress),
     );
     await tester.tap(find.byType(DropdownMenu<String>));
     await tester.pumpAndSettle();
@@ -56,7 +56,29 @@ void main() {
     FocusManager.instance.primaryFocus?.unfocus();
     await tester.pump();
 
-    expect(selectedAddress, secondAddress);
+    expect(selectedAddress.value, secondAddress);
+    expect(_fieldText(tester), 'Address 2');
+  });
+
+  testWidgets('reacts to an external selected-address change', (
+    WidgetTester tester,
+  ) async {
+    final ValueNotifier<String> selectedAddress = ValueNotifier<String>(
+      firstAddress,
+    );
+    addTearDown(selectedAddress.dispose);
+
+    await tester.pumpWidget(
+      _TestApp(selectedAddress: selectedAddress),
+    );
+
+    selectedAddress.value = secondAddress;
+    await tester.pump();
+    await tester.tap(find.byType(TextField));
+    await tester.enterText(find.byType(TextField), 'temporary filter');
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pump();
+
     expect(_fieldText(tester), 'Address 2');
   });
 }
@@ -69,13 +91,9 @@ String _fieldText(WidgetTester tester) {
 }
 
 class _TestApp extends StatelessWidget {
-  const _TestApp({
-    required this.onSelected,
-    required this.selectedAddress,
-  });
+  const _TestApp({required this.selectedAddress});
 
-  final ValueChanged<String> onSelected;
-  final String selectedAddress;
+  final ValueNotifier<String> selectedAddress;
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +104,6 @@ class _TestApp extends StatelessWidget {
             width: 300,
             child: NewAddressesDropdown(
               addresses: const <String>['address-1', 'address-2'],
-              onSelectedCallback: onSelected,
               selectedAddress: selectedAddress,
             ),
           ),
