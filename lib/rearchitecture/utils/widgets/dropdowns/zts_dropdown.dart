@@ -22,8 +22,6 @@ class ZtsDropdown extends StatefulWidget {
 }
 
 class _ZtsDropdownState extends State<ZtsDropdown> {
-  final TextEditingController _searchController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     final List<DropdownMenuEntry<Token>> entries = widget._availableTokens.map(
@@ -49,7 +47,6 @@ class _ZtsDropdownState extends State<ZtsDropdown> {
     );
 
     return DropdownMenu<Token>(
-      controller: _searchController,
       expandedInsets: EdgeInsets.zero,
       initialSelection: widget._selectedToken,
       inputDecorationTheme: const InputDecorationTheme(
