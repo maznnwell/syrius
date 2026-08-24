@@ -63,6 +63,7 @@ final ThemeData newLightTheme = ThemeData(
   inputDecorationTheme: InputDecorationTheme(
     fillColor: AppColors.lightTextFormFieldFill,
     filled: true,
+    floatingLabelBehavior: FloatingLabelBehavior.always,
     errorStyle: kTextFormFieldErrorStyle,
     hintStyle: kHintTextStyle.copyWith(
       color: AppColors.lightHintTextColor,
@@ -118,6 +119,7 @@ final ThemeData newDarkTheme = ThemeData(
   inputDecorationTheme: InputDecorationTheme(
     fillColor: AppColors.darkTextFormFieldFill,
     filled: true,
+    floatingLabelBehavior: FloatingLabelBehavior.always,
     errorStyle: kTextFormFieldErrorStyle,
     hintStyle: kHintTextStyle.copyWith(
       color: AppColors.darkHintTextColor,

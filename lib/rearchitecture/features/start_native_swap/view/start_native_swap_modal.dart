@@ -8,7 +8,6 @@ import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/bullet_point_card.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/instruction_button.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/error_widget.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/labeled_input_container.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_widget.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -124,35 +123,29 @@ class _ViewState extends State<_View> {
                 Row(
                   children: <Widget>[
                     Expanded(
-                      child: LabeledInputContainer(
-                        labelText: context.l10n.p2pSwapYourAddress,
-                        inputWidget: NewAddressesDropdown(
-                          addresses: kDefaultAddressList
-                              .map((String? e) => e!)
-                              .toList(),
-                          selectedAddress: _sender,
-                        ),
+                      child: NewAddressesDropdown(
+                        addresses: kDefaultAddressList
+                            .map((String? e) => e!)
+                            .toList(),
+                        label: Text(context.l10n.p2pSwapYourAddress),
+                        selectedAddress: _sender,
                       ),
                     ),
                     kHorizontalGap16,
                     Expanded(
-                      child: LabeledInputContainer(
-                        labelText: context.l10n.p2pSwapCounterpartyAddress,
-                        helpText:
-                            context.l10n.p2pSwapCounterpartyAddressDescription,
-                        inputWidget: TextField(
-                          decoration: InputDecoration(
-                            errorText: _counterpartyAddress.isNotEmpty
-                                ? _counterpartyAddressError
-                                : null,
-                            hintText: context.l10n.p2pSwapAddressHint,
-                            suffixIcon: PasteContentButton(
-                              controller: _counterpartyAddressController,
-                            ),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          errorText: _counterpartyAddress.isNotEmpty
+                              ? _counterpartyAddressError
+                              : null,
+                          hintText: context.l10n.p2pSwapAddressHint,
+                          labelText: context.l10n.p2pSwapCounterpartyAddress,
+                          suffixIcon: PasteContentButton(
+                            controller: _counterpartyAddressController,
                           ),
-                          enabled: !isLoading,
-                          controller: _counterpartyAddressController,
                         ),
+                        enabled: !isLoading,
+                        controller: _counterpartyAddressController,
                       ),
                     ),
                   ],
@@ -161,17 +154,13 @@ class _ViewState extends State<_View> {
                 Row(
                   children: <Widget>[
                     Expanded(
-                      child: LabeledInputContainer(
+                      child: AmountTextField(
+                        accountInfo: accountInfo,
+                        controller: _amountController,
+                        errorText: amountError,
                         labelText: context.l10n.p2pSwapYouAreSending,
-                        inputWidget: Flexible(
-                          child: AmountTextField(
-                            accountInfo: accountInfo,
-                            controller: _amountController,
-                            errorText: amountError,
-                            token: _token,
-                            onSubmitted: (_) {},
-                          ),
-                        ),
+                        token: _token,
+                        onSubmitted: (_) {},
                       ),
                     ),
                     kHorizontalGap16,
@@ -180,6 +169,7 @@ class _ViewState extends State<_View> {
                         availableTokens: getTokensWithBalance(
                           accountInfo: accountInfo,
                         ),
+                        label: Text(context.l10n.asset),
                         selectedToken: _tokenNotifier,
                       ),
                     ),

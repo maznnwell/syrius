@@ -9,9 +9,11 @@ class NewAddressesDropdown extends StatefulWidget {
   const NewAddressesDropdown({
     required this._addresses,
     required this._selectedAddress,
+    this._label,
     super.key,
   });
   final List<String> _addresses;
+  final Widget? _label;
   final ValueNotifier<String> _selectedAddress;
 
   @override
@@ -62,6 +64,7 @@ class _NewAddressesDropdownState extends State<NewAddressesDropdown> {
         inputDecorationTheme: const InputDecorationTheme(
           filled: true,
         ),
+        label: widget._label,
         leadingIcon: const Icon(
           Icons.search,
           color: color,

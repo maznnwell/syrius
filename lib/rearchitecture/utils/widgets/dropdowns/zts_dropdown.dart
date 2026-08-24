@@ -9,11 +9,13 @@ class ZtsDropdown extends StatefulWidget {
   const ZtsDropdown({
     required this._availableTokens,
     required this._selectedToken,
+    this._label,
     super.key,
   });
 
   final ValueNotifier<Token> _selectedToken;
   final List<Token> _availableTokens;
+  final Widget? _label;
 
   @override
   State<ZtsDropdown> createState() => _ZtsDropdownState();
@@ -52,6 +54,7 @@ class _ZtsDropdownState extends State<ZtsDropdown> {
       inputDecorationTheme: const InputDecorationTheme(
         filled: true,
       ),
+      label: widget._label,
       leadingIcon: Icon(
         Icons.search,
         color: color,

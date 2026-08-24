@@ -11,6 +11,7 @@ class AmountTextField extends StatelessWidget {
     required this._errorText,
     required this._onSubmitted,
     this._focusNode,
+    this._labelText,
     super.key,
   });
 
@@ -20,6 +21,7 @@ class AmountTextField extends StatelessWidget {
   final FocusNode? _focusNode;
   final void Function(String) _onSubmitted;
   final Token _token;
+  final String? _labelText;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +31,7 @@ class AmountTextField extends StatelessWidget {
       decoration: InputDecoration(
         errorText: _errorText,
         hintText: context.l10n.amount,
+        labelText: _labelText,
         suffixIcon: TextButton(
           onPressed: () => _onMaxPressed(
             accountInfo: _accountInfo,
