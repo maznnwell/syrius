@@ -4,6 +4,7 @@ import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
+import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart';
 
 /// A widget to be used along with `Receive` card.
 class SendCard extends StatelessWidget {
@@ -23,9 +24,11 @@ class SendCard extends StatelessWidget {
       },
       body: BlocBuilder<MultipleBalanceBloc, MultipleBalanceState>(
         builder: (_, MultipleBalanceState state) => switch (state.status) {
-          MultipleBalanceStatus.failure => SendError(error: state.error!),
-          MultipleBalanceStatus.initial => const SendEmpty(),
-          MultipleBalanceStatus.loading => const SendLoading(),
+          MultipleBalanceStatus.failure => SyriusErrorWidget(state.error!),
+          MultipleBalanceStatus.initial => SyriusErrorWidget(
+            context.l10n.waitingForDataFetching,
+          ),
+          MultipleBalanceStatus.loading => const SyriusLoadingWidget(),
           MultipleBalanceStatus.success => SendPopulated(
             balances: state.data!,
           ),
