@@ -118,6 +118,7 @@ class _ViewState extends State<_View> {
             return Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: kVerticalGap16.height!,
               children: <Widget>[
                 kVerticalGap16,
                 Row(
@@ -150,7 +151,6 @@ class _ViewState extends State<_View> {
                     ),
                   ],
                 ),
-                kVerticalGap16,
                 Row(
                   children: <Widget>[
                     Expanded(
@@ -175,7 +175,6 @@ class _ViewState extends State<_View> {
                     ),
                   ],
                 ),
-                kVerticalGap16,
                 BulletPointCard(
                   bulletPoints: <String>[
                     context.l10n.p2pSwapWaitForCounterparty,
@@ -187,7 +186,6 @@ class _ViewState extends State<_View> {
                     context.l10n.p2pSwapMachineOnly,
                   ],
                 ),
-                const SizedBox(height: 20),
                 _buildStartSwapButton(context, isLoading: isLoading),
               ],
             );
