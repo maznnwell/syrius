@@ -48,8 +48,6 @@ class _ViewState extends State<_View> {
   String? get _counterpartyAddressError =>
       _validateCounterpartyAddress(_counterpartyAddress);
 
-  String? _amountError;
-
   @override
   void initState() {
     super.initState();
@@ -71,161 +69,163 @@ class _ViewState extends State<_View> {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: Listenable.merge([
-        _sender,
-      ]),
-      builder: (_, _) {
-        return BlocConsumer<StartNativeSwapBloc, StartNativeSwapState>(
-          listener: _onStartNativeSwapStateChanged,
-          builder: (BuildContext context, StartNativeSwapState swapState) {
-            return BaseModal(
-              title: context.l10n.p2pSwapStart,
-              child: BlocBuilder<MultipleBalanceBloc, MultipleBalanceState>(
-                builder: (_, MultipleBalanceState balanceState) =>
-                    switch (balanceState.status) {
-                      MultipleBalanceStatus.failure => SyriusErrorWidget(
-                        balanceState.error!,
-                      ),
-                      MultipleBalanceStatus.initial =>
-                        const SyriusLoadingWidget(),
-                      MultipleBalanceStatus.loading =>
-                        const SyriusLoadingWidget(),
-                      MultipleBalanceStatus.success => _buildContent(
-                        context,
-                        accountInfo: balanceState.data![_sender.value]!,
-                        isLoading: swapState is StartNativeSwapLoading,
-                      ),
-                    },
+    return BaseModal(
+      title: context.l10n.p2pSwapStart,
+      child: BlocBuilder<MultipleBalanceBloc, MultipleBalanceState>(
+        builder: (_, MultipleBalanceState balanceState) =>
+            switch (balanceState.status) {
+              MultipleBalanceStatus.failure => SyriusErrorWidget(
+                balanceState.error!,
               ),
-            );
-          },
-        );
-      },
+              MultipleBalanceStatus.initial => const SyriusLoadingWidget(),
+              MultipleBalanceStatus.loading => const SyriusLoadingWidget(),
+              MultipleBalanceStatus.success => _buildContent(
+                balances: balanceState.data!,
+              ),
+            },
+      ),
     );
   }
 
   Widget _buildContent(
-    BuildContext context, {
-    required AccountInfo accountInfo,
-    required bool isLoading,
+{
+    required Map<String, AccountInfo> balances,
   }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        kVerticalGap16,
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: LabeledInputContainer(
-                labelText: context.l10n.p2pSwapYourAddress,
-                inputWidget: NewAddressesDropdown(
-                  addresses: kDefaultAddressList
-                      .map((String? e) => e!)
-                      .toList(),
-                  selectedAddress: _sender,
-                ),
-              ),
-            ),
-            kHorizontalGap16,
-            Expanded(
-              child: LabeledInputContainer(
-                labelText: context.l10n.p2pSwapCounterpartyAddress,
-                helpText: context.l10n.p2pSwapCounterpartyAddressDescription,
-                inputWidget: TextField(
-                  decoration: InputDecoration(
-                    errorText: _counterpartyAddress.isNotEmpty
-                        ? _counterpartyAddressError
-                        : null,
-                    hintText: context.l10n.p2pSwapAddressHint,
-                    suffixIcon: PasteContentButton(
-                      controller: _counterpartyAddressController,
-                    ),
-                  ),
-                  enabled: !isLoading,
-                  controller: _counterpartyAddressController,
-                ),
-              ),
-            ),
-          ],
-        ),
-        kVerticalGap16,
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: LabeledInputContainer(
-                labelText: context.l10n.p2pSwapYouAreSending,
-                inputWidget: Flexible(
-                  child: ValueListenableBuilder<TextEditingValue>(
-                    valueListenable: _amountController,
-                    builder: (_, _, _) {
-                      _amountError = _amount.isNotEmpty
-                          ? InputValidators.correctValue(
-                              _amount,
-                              accountInfo.getBalance(
-                                _token.tokenStandard,
-                              ),
-                              _token.decimals,
-                              BigInt.zero,
-                            )
-                          : null;
+    return BlocConsumer<StartNativeSwapBloc, StartNativeSwapState>(
+      listener: _onStartNativeSwapStateChanged,
+      builder: (BuildContext context, StartNativeSwapState swapState) {
+        final bool isLoading = swapState is StartNativeSwapLoading;
 
-                      return AmountTextField(
-                        accountInfo: accountInfo,
-                        controller: _amountController,
-                        errorText: _amountError,
-                        token: _token,
-                        onSubmitted: (_) {},
-                      );
-                    },
-                  ),
-                ),
+        return ListenableBuilder(
+          listenable: Listenable.merge(<Listenable?>[
+            _amountController,
+            _sender,
+            _tokenNotifier,
+          ]),
+          builder: (_, _) {
+            final AccountInfo accountInfo = balances[_sender.value]!;
+
+            final String? amountError = _amount.isNotEmpty
+                ? InputValidators.correctValue(
+              _amount,
+              accountInfo.getBalance(
+                _token.tokenStandard,
               ),
-            ),
-            kHorizontalGap16,
-            Expanded(
-              child: ZtsDropdown(
-                availableTokens: getTokensWithBalance(accountInfo: accountInfo),
-                selectedToken: _tokenNotifier,
-              ),
-            ),
-          ],
-        ),
-        kVerticalGap16,
-        BulletPointCard(
-          bulletPoints: <RichText>[
-            RichText(
-              text: BulletPointCard.textSpan(
-                context.l10n.p2pSwapWaitForCounterparty,
-              ),
-            ),
-            RichText(
-              text: BulletPointCard.textSpan(
-                '${context.l10n.p2pSwapReclaimFundsPrefix} ',
-                children: <TextSpan>[
-                  TextSpan(
-                    text: context.l10n.p2pSwapHours(
-                      kInitialHtlcDuration.inHours,
+              _token.decimals,
+              BigInt.zero,
+            )
+                : null;
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                kVerticalGap16,
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: LabeledInputContainer(
+                        labelText: context.l10n.p2pSwapYourAddress,
+                        inputWidget: NewAddressesDropdown(
+                          addresses: kDefaultAddressList
+                              .map((String? e) => e!)
+                              .toList(),
+                          selectedAddress: _sender,
+                        ),
+                      ),
                     ),
-                    style: const TextStyle(fontSize: 14, color: Colors.white),
-                  ),
-                  BulletPointCard.textSpan(
-                    ' ${context.l10n.p2pSwapReclaimFundsSuffix}',
-                  ),
-                ],
-              ),
-            ),
-            RichText(
-              text: BulletPointCard.textSpan(
-                context.l10n.p2pSwapMachineOnly,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        _buildStartSwapButton(context, isLoading: isLoading),
-      ],
+                    kHorizontalGap16,
+                    Expanded(
+                      child: LabeledInputContainer(
+                        labelText: context.l10n.p2pSwapCounterpartyAddress,
+                        helpText:
+                            context.l10n.p2pSwapCounterpartyAddressDescription,
+                        inputWidget: TextField(
+                          decoration: InputDecoration(
+                            errorText: _counterpartyAddress.isNotEmpty
+                                ? _counterpartyAddressError
+                                : null,
+                            hintText: context.l10n.p2pSwapAddressHint,
+                            suffixIcon: PasteContentButton(
+                              controller: _counterpartyAddressController,
+                            ),
+                          ),
+                          enabled: !isLoading,
+                          controller: _counterpartyAddressController,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                kVerticalGap16,
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: LabeledInputContainer(
+                        labelText: context.l10n.p2pSwapYouAreSending,
+                        inputWidget: Flexible(
+                          child: AmountTextField(
+                            accountInfo: accountInfo,
+                            controller: _amountController,
+                            errorText: amountError,
+                            token: _token,
+                            onSubmitted: (_) {},
+                          ),
+                        ),
+                      ),
+                    ),
+                    kHorizontalGap16,
+                    Expanded(
+                      child: ZtsDropdown(
+                        availableTokens: getTokensWithBalance(
+                          accountInfo: accountInfo,
+                        ),
+                        selectedToken: _tokenNotifier,
+                      ),
+                    ),
+                  ],
+                ),
+                kVerticalGap16,
+                BulletPointCard(
+                  bulletPoints: <RichText>[
+                    RichText(
+                      text: BulletPointCard.textSpan(
+                        context.l10n.p2pSwapWaitForCounterparty,
+                      ),
+                    ),
+                    RichText(
+                      text: BulletPointCard.textSpan(
+                        '${context.l10n.p2pSwapReclaimFundsPrefix} ',
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: context.l10n.p2pSwapHours(
+                              kInitialHtlcDuration.inHours,
+                            ),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.white,
+                            ),
+                          ),
+                          BulletPointCard.textSpan(
+                            ' ${context.l10n.p2pSwapReclaimFundsSuffix}',
+                          ),
+                        ],
+                      ),
+                    ),
+                    RichText(
+                      text: BulletPointCard.textSpan(
+                        context.l10n.p2pSwapMachineOnly,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                _buildStartSwapButton(context, isLoading: isLoading),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
