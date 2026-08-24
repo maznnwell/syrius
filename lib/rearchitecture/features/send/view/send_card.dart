@@ -84,9 +84,9 @@ class _PopulatedState extends State<_Populated> {
   String? get _recipientErrorText =>
       _recipient.isNotEmpty ? InputValidators.checkAddress(_recipient) : null;
 
-  String? get _amountErrorText => _amountController.text.isNotEmpty
+  String? get _amountErrorText => _amount.isNotEmpty
       ? InputValidators.correctValue(
-          _amountController.text,
+          _amount,
           _accountInfo.getBalance(
             _selectedToken.value.tokenStandard,
           ),
@@ -98,7 +98,7 @@ class _PopulatedState extends State<_Populated> {
   bool get _isInputValid =>
       _recipientErrorText == null &&
       _amountErrorText == null &&
-      _amountController.text.isNotEmpty &&
+      _amount.isNotEmpty &&
       _recipient.isNotEmpty;
 
   @override
