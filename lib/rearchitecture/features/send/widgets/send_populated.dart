@@ -74,8 +74,6 @@ class _SendPopulatedState extends State<SendPopulated> {
       _amountController.text.isNotEmpty &&
       _recipient.isNotEmpty;
 
-  bool get _isValidTransaction => _hasBalance(_accountInfo) && _isInputValid;
-
   @override
   void initState() {
     super.initState();
@@ -166,7 +164,7 @@ class _SendPopulatedState extends State<SendPopulated> {
                       focusNode: _amountFocusNode,
                       errorText: _amountErrorText,
                       onSubmitted: (String value) {
-                        if (_isValidTransaction) {
+                        if (_isInputValid) {
                           unawaited(_onSendPaymentPressed());
                         }
                       },
@@ -187,7 +185,7 @@ class _SendPopulatedState extends State<SendPopulated> {
                         child: SendButton(
                           key: _sendPaymentButtonKey,
                           text: context.l10n.send,
-                          onPressed: _isValidTransaction
+                          onPressed: _isInputValid
                               ? _onSendPaymentPressed
                               : null,
                         ),
@@ -287,12 +285,6 @@ class _SendPopulatedState extends State<SendPopulated> {
       ),
     );
   }
-
-  bool _hasBalance(AccountInfo accountInfo) =>
-      accountInfo.getBalance(
-        _selectedToken.value.tokenStandard,
-      ) >
-      BigInt.zero;
 
   void _initAvailableAssets() {
     fillAvailableTokens(
