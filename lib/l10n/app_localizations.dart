@@ -892,17 +892,11 @@ abstract class AppLocalizations {
   /// **'Cannot swap with your own address'**
   String get p2pSwapOwnAddressError;
 
-  /// No description provided for @p2pSwapReclaimFundsPrefix.
+  /// Explains when the user can reclaim funds if the counterparty does not join the swap.
   ///
   /// In en, this message translates to:
-  /// **'You can reclaim your funds in'**
-  String get p2pSwapReclaimFundsPrefix;
-
-  /// No description provided for @p2pSwapReclaimFundsSuffix.
-  ///
-  /// In en, this message translates to:
-  /// **'if the counterparty fails to join the swap.'**
-  String get p2pSwapReclaimFundsSuffix;
+  /// **'You can reclaim your funds in <highlight>{duration}</highlight> if the counterparty fails to join the swap.'**
+  String p2pSwapReclaimFunds(String duration);
 
   /// No description provided for @p2pSwapRecoverDeposit.
   ///

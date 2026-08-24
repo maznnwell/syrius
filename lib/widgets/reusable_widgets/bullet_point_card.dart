@@ -1,52 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:styled_text/styled_text.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/constants/app_sizes.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
-import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
 
+/// A card that displays a vertical list of styled bullet-point strings.
 class BulletPointCard extends StatelessWidget {
-
+  /// Creates a bullet-point card.
   const BulletPointCard({
     required this.bulletPoints,
     super.key,
   });
-  final List<RichText> bulletPoints;
 
-  static TextSpan textSpan(String text, {List<TextSpan>? children}) {
-    return TextSpan(
-        text: text,
-        style: const TextStyle(fontSize: 14, color: AppColors.subtitleColor),
-        children: children,);
-  }
+  /// Text displayed as individual bullet points.
+  final List<String> bulletPoints;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).hoverColor,
+        color: context.newThemeData.inputDecorationTheme.fillColor,
         borderRadius: const BorderRadius.all(Radius.circular(8)),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: kVerticalGap16.height!,
           children: bulletPoints
-              .map((RichText e) => Row(
-                    children: <Widget>[
-                      const Text('●',
-                          style: TextStyle(
-                              fontSize: 14, color: AppColors.subtitleColor,),),
-                      const SizedBox(width: 10),
-                      Expanded(child: e),
-                    ],
-                  ),)
-              .toList()
-              .zip(
-                List.generate(
-                  bulletPoints.length - 1,
-                  (int index) => const SizedBox(
-                    height: 15,
-                  ),
+              .map(
+                (String bulletPoint) => Row(
+                  children: <Widget>[
+                    const Text(
+                      '●',
+                    ),
+                    kHorizontalGap8,
+                    Expanded(
+                      child: StyledText(
+                        text: bulletPoint,
+                        tags: const <String, StyledTextTag>{
+                          'highlight': StyledTextTag(
+                            style: TextStyle(
+                              color: AppColors.znnColor,
+                            ),
+                          ),
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-              ),
+              )
+              .toList(),
         ),
       ),
     );

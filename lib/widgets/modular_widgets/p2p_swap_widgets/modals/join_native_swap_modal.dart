@@ -211,6 +211,24 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
   }
 
   Widget _getContent(Token tokenToReceive) {
+    final int minutesLeftToJoin =
+        (((_initialHltc!.expirationTime -
+                        kMinSafeTimeToFindPreimage.inSeconds -
+                        kCounterHtlcDuration.inSeconds) -
+                    DateTimeUtils.unixTimeNow) /
+                60)
+            .ceil();
+    final String joinDeadlineBullet =
+        'You have <highlight>$minutesLeftToJoin minutes</highlight> '
+        'left to join the swap.';
+    final String counterpartyDeadlineBullet =
+        'The counterparty will have '
+        '<highlight>~${kCounterHtlcDuration.inHours} hour</highlight> '
+        'to complete the swap.';
+    const String reclaimBullet =
+        'You can reclaim your funds if the counterparty fails to complete '
+        'the swap.';
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -299,43 +317,10 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
         if (_safeExpirationTime != null) const SizedBox(height: 20),
         if (_safeExpirationTime != null)
           BulletPointCard(
-            bulletPoints: <RichText>[
-              RichText(
-                text: BulletPointCard.textSpan(
-                  'You have ',
-                  children: <TextSpan>[
-                    TextSpan(
-                      text:
-                          '${(((_initialHltc!.expirationTime - kMinSafeTimeToFindPreimage.inSeconds - kCounterHtlcDuration.inSeconds) - DateTimeUtils.unixTimeNow) / 60).ceil()} minutes',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                      ),
-                    ),
-                    BulletPointCard.textSpan(' left to join the swap.'),
-                  ],
-                ),
-              ),
-              RichText(
-                text: BulletPointCard.textSpan(
-                  'The counterparty will have ',
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: '~${kCounterHtlcDuration.inHours} hour',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                      ),
-                    ),
-                    BulletPointCard.textSpan(' to complete the swap.'),
-                  ],
-                ),
-              ),
-              RichText(
-                text: BulletPointCard.textSpan(
-                  'You can reclaim your funds if the counterparty fails to complete the swap. ',
-                ),
-              ),
+            bulletPoints: <String>[
+              joinDeadlineBullet,
+              counterpartyDeadlineBullet,
+              reclaimBullet,
             ],
           ),
         const SizedBox(height: 20),

@@ -177,36 +177,14 @@ class _ViewState extends State<_View> {
                 ),
                 kVerticalGap16,
                 BulletPointCard(
-                  bulletPoints: <RichText>[
-                    RichText(
-                      text: BulletPointCard.textSpan(
-                        context.l10n.p2pSwapWaitForCounterparty,
+                  bulletPoints: <String>[
+                    context.l10n.p2pSwapWaitForCounterparty,
+                    context.l10n.p2pSwapReclaimFunds(
+                      context.l10n.p2pSwapHours(
+                        kInitialHtlcDuration.inHours,
                       ),
                     ),
-                    RichText(
-                      text: BulletPointCard.textSpan(
-                        '${context.l10n.p2pSwapReclaimFundsPrefix} ',
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: context.l10n.p2pSwapHours(
-                              kInitialHtlcDuration.inHours,
-                            ),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.white,
-                            ),
-                          ),
-                          BulletPointCard.textSpan(
-                            ' ${context.l10n.p2pSwapReclaimFundsSuffix}',
-                          ),
-                        ],
-                      ),
-                    ),
-                    RichText(
-                      text: BulletPointCard.textSpan(
-                        context.l10n.p2pSwapMachineOnly,
-                      ),
-                    ),
+                    context.l10n.p2pSwapMachineOnly,
                   ],
                 ),
                 const SizedBox(height: 20),

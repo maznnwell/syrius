@@ -68,6 +68,7 @@ dependencies:
   share_plus: ^12.0.1
   stacked: ^3.4.1
   stream_transform: ^2.1.0
+  styled_text: ^10.0.0
   tray_manager: ^0.5.2
   url_launcher: ^6.1.12
   validators: ^3.0.0

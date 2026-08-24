@@ -132,8 +132,16 @@
   "p2pSwapOptionsDescription": "Starting and joining P2P swaps can be done from this card.",
   "p2pSwapOptionsTitle": "P2P Swap Options",
   "p2pSwapOwnAddressError": "Cannot swap with your own address",
-  "p2pSwapReclaimFundsPrefix": "You can reclaim your funds in",
-  "p2pSwapReclaimFundsSuffix": "if the counterparty fails to join the swap.",
+  "p2pSwapReclaimFunds": "You can reclaim your funds in <highlight>{duration}</highlight> if the counterparty fails to join the swap.",
+  "@p2pSwapReclaimFunds": {
+    "description": "Explains when the user can reclaim funds if the counterparty does not join the swap.",
+    "placeholders": {
+      "duration": {
+        "type": "String",
+        "example": "1 hour"
+      }
+    }
+  },
   "p2pSwapRecoverDeposit": "Recover deposit",
   "p2pSwapSendingTransaction": "Sending transaction",
   "p2pSwapStart": "Start swap",

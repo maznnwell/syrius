@@ -489,11 +489,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get p2pSwapOwnAddressError => 'Cannot swap with your own address';
 
   @override
-  String get p2pSwapReclaimFundsPrefix => 'You can reclaim your funds in';
-
-  @override
-  String get p2pSwapReclaimFundsSuffix =>
-      'if the counterparty fails to join the swap.';
+  String p2pSwapReclaimFunds(String duration) {
+    return 'You can reclaim your funds in <highlight>$duration</highlight> if the counterparty fails to join the swap.';
+  }
 
   @override
   String get p2pSwapRecoverDeposit => 'Recover deposit';
