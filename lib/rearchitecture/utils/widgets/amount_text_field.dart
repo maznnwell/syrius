@@ -9,15 +9,15 @@ class AmountTextField extends StatelessWidget {
     required this._token,
     required this._controller,
     required this._errorText,
-    required this._focusNode,
     required this._onSubmitted,
+    this._focusNode,
     super.key,
   });
 
   final AccountInfo _accountInfo;
   final TextEditingController _controller;
   final String? _errorText;
-  final FocusNode _focusNode;
+  final FocusNode? _focusNode;
   final void Function(String) _onSubmitted;
   final Token _token;
 

@@ -9,7 +9,6 @@ import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/bullet_poin
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/instruction_button.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/dropdown/addresses_dropdown.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/error_widget.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/amount_input_field.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/labeled_input_container.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_widget.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
@@ -38,16 +37,19 @@ class _ViewState extends State<_View> {
   Token get _token => _tokenNotifier.value;
 
   String? _selectedSelfAddress = kSelectedAddress;
-  bool _isAmountValid = false;
 
   final TextEditingController _counterpartyAddressController =
       TextEditingController();
   final TextEditingController _amountController = TextEditingController();
 
+  String get _amount => _amountController.text;
+
   String get _counterpartyAddress => _counterpartyAddressController.text;
 
   String? get _counterpartyAddressError =>
       _validateCounterpartyAddress(_counterpartyAddress);
+
+  String? _amountError;
 
   @override
   void initState() {
@@ -100,6 +102,7 @@ class _ViewState extends State<_View> {
     required AccountInfo accountInfo,
     required bool isLoading,
   }) {
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -147,21 +150,27 @@ class _ViewState extends State<_View> {
               child: LabeledInputContainer(
                 labelText: context.l10n.p2pSwapYouAreSending,
                 inputWidget: Flexible(
-                  child: AmountInputField(
-                    controller: _amountController,
-                    enabled: !isLoading,
-                    accountInfo: accountInfo,
-                    valuePadding: 10,
-                    textColor: Theme.of(context).colorScheme.inverseSurface,
-                    initialToken: _token,
-                    hintText: '0.0',
-                    onChanged: (Token token, bool isValid) {
-                      if (!isLoading) {
-                        setState(() {
-                          _tokenNotifier.value = token;
-                          _isAmountValid = isValid;
-                        });
-                      }
+                  child: ValueListenableBuilder<TextEditingValue>(
+                    valueListenable: _amountController,
+                    builder: (_, _, _) {
+                      _amountError = _amount.isNotEmpty ? InputValidators.correctValue(
+                        _amount,
+                        accountInfo.getBalance(
+                          _token.tokenStandard,
+                        ),
+                        _token.decimals,
+                        BigInt.zero,
+                      ) : null;
+
+                      return AmountTextField(
+                        accountInfo: accountInfo,
+                        controller: _amountController,
+                        errorText: _amountError,
+                        token: _token,
+                        onSubmitted: (_) {
+
+                        },
+                      );
                     },
                   ),
                 ),
@@ -254,13 +263,14 @@ class _ViewState extends State<_View> {
     }
   }
 
-  bool _isInputValid() => _counterpartyAddressError == null && _isAmountValid;
+  bool _isInputValid() => _counterpartyAddressError == null;
 
   String? _validateCounterpartyAddress(String? address) {
     final String? result = InputValidators.checkAddress(address);
     if (result != null) {
       return result;
     } else {
+      // TODO: bug, the user can manually generate addresses and bypass check
       return kDefaultAddressList.contains(address)
           ? context.l10n.p2pSwapOwnAddressError
           : null;
