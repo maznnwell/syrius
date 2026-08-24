@@ -85,6 +85,12 @@ class _SendPopulatedState extends State<SendPopulated> {
   }
 
   @override
+  void didUpdateWidget(covariant SendPopulated oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _initAvailableAssets();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: Listenable.merge(<Listenable>[
@@ -95,110 +101,48 @@ class _SendPopulatedState extends State<SendPopulated> {
         final Token selectedToken = _selectedToken.value;
 
         return BlocListener<SendTransactionBloc, SendTransactionState>(
-          listener: (_, SendTransactionState state) {
-            if (state.status == SendTransactionStatus.loading) {
-              _sendPaymentButtonKey.currentState?.animateForward();
-            } else if (state.status == SendTransactionStatus.success) {
-              unawaited(_sendConfirmationNotification(block: state.data!));
-              _sendPaymentButtonKey.currentState?.animateReverse();
-              _amountController.clear();
-              _recipientController.clear();
-            } else if (state.status == SendTransactionStatus.failure) {
-              _sendPaymentButtonKey.currentState?.animateReverse();
-              unawaited(_sendErrorNotification(state.error!));
-            }
-          },
+          listenWhen:
+              (SendTransactionState previous, SendTransactionState current) =>
+                  previous.status != current.status,
+          listener: (_, SendTransactionState state) =>
+              _onTransactionStateChanged(state),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: _buildDefaultAddressDropdown(),
-                    ),
-                    kHorizontalGap8,
-                    Expanded(
-                      child: ZtsDropdown(
-                        availableTokens: _availableAssets,
-                        selectedToken: _selectedToken,
-                      ),
-                    ),
-                  ],
-                ),
+                _buildAddressAndTokenRow(),
                 kVerticalGap8,
                 AvailableBalance(
                   selectedToken,
                   _accountInfo,
                 ),
                 kVerticalGap8,
-                ValueListenableBuilder<TextEditingValue>(
-                  valueListenable: _recipientController,
-                  builder: (_, TextEditingValue recipient, _) {
-                    return TextField(
-                      key: const Key('send_recipient_field'),
-                      controller: _recipientController,
-                      decoration: InputDecoration(
-                        errorText: _recipientErrorText,
-                        hintText: context.l10n.recipientAddress,
-                        suffixIcon: FieldSuffixButtons(
-                          controller: _recipientController,
-                        ),
-                      ),
-                      focusNode: _recipientFocusNode,
-                      onSubmitted: (_) {
-                        FocusScope.of(context).requestFocus(_amountFocusNode);
-                      },
-                    );
-                  },
-                ),
+                _buildRecipientField(),
                 kVerticalGap16,
-                ValueListenableBuilder<TextEditingValue>(
-                  valueListenable: _amountController,
-                  builder: (_, TextEditingValue amount, _) {
-                    return AmountTextField(
-                      accountInfo: _accountInfo,
-                      key: const Key('send_amount_field'),
-                      controller: _amountController,
-                      focusNode: _amountFocusNode,
-                      errorText: _amountErrorText,
-                      onSubmitted: (String value) {
-                        if (_isInputValid) {
-                          unawaited(_onSendPaymentPressed());
-                        }
-                      },
-                      token: selectedToken,
-                    );
-                  },
-                ),
+                _buildAmountField(selectedToken),
                 kVerticalGap16,
-                Center(
-                  child: ListenableBuilder(
-                    listenable: Listenable.merge(<Listenable>[
-                      _amountController,
-                      _recipientController,
-                    ]),
-                    builder: (_, _) {
-                      return KeyedSubtree(
-                        key: const Key('send_submit_button'),
-                        child: SendButton(
-                          key: _sendPaymentButtonKey,
-                          text: context.l10n.send,
-                          onPressed: _isInputValid
-                              ? _onSendPaymentPressed
-                              : null,
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                _buildSendButton(),
               ],
             ),
           ),
         );
       },
     );
+  }
+
+  void _onTransactionStateChanged(SendTransactionState state) {
+    if (state.status == SendTransactionStatus.loading) {
+      _sendPaymentButtonKey.currentState?.animateForward();
+    } else if (state.status == SendTransactionStatus.success) {
+      unawaited(_sendConfirmationNotification(block: state.data!));
+      _sendPaymentButtonKey.currentState?.animateReverse();
+      _amountController.clear();
+      _recipientController.clear();
+    } else if (state.status == SendTransactionStatus.failure) {
+      _sendPaymentButtonKey.currentState?.animateReverse();
+      unawaited(_sendErrorNotification(state.error!));
+    }
   }
 
   Future<void> _onSendPaymentPressed() async {
@@ -221,6 +165,10 @@ class _SendPopulatedState extends State<SendPopulated> {
       description: description,
     );
 
+    if (!mounted) {
+      return;
+    }
+
     if (txConfirmed ?? false) {
       _sendPayment();
     }
@@ -233,6 +181,88 @@ class _SendPopulatedState extends State<SendPopulated> {
         fromAddress: _sender.value,
         toAddress: _recipient,
         token: _selectedToken.value,
+      ),
+    );
+  }
+
+  Widget _buildAddressAndTokenRow() {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: _buildDefaultAddressDropdown(),
+        ),
+        kHorizontalGap8,
+        Expanded(
+          child: ZtsDropdown(
+            availableTokens: _availableAssets,
+            selectedToken: _selectedToken,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRecipientField() {
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: _recipientController,
+      builder: (_, TextEditingValue recipient, _) {
+        return TextField(
+          key: const Key('send_recipient_field'),
+          controller: _recipientController,
+          decoration: InputDecoration(
+            errorText: _recipientErrorText,
+            hintText: context.l10n.recipientAddress,
+            suffixIcon: FieldSuffixButtons(
+              controller: _recipientController,
+            ),
+          ),
+          focusNode: _recipientFocusNode,
+          onSubmitted: (_) {
+            FocusScope.of(context).requestFocus(_amountFocusNode);
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildAmountField(Token selectedToken) {
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: _amountController,
+      builder: (_, TextEditingValue amount, _) {
+        return AmountTextField(
+          accountInfo: _accountInfo,
+          key: const Key('send_amount_field'),
+          controller: _amountController,
+          focusNode: _amountFocusNode,
+          errorText: _amountErrorText,
+          onSubmitted: (String value) {
+            if (_isInputValid) {
+              unawaited(_onSendPaymentPressed());
+            }
+          },
+          token: selectedToken,
+        );
+      },
+    );
+  }
+
+  Widget _buildSendButton() {
+    return Center(
+      child: ListenableBuilder(
+        listenable: Listenable.merge(<Listenable>[
+          _amountController,
+          _recipientController,
+        ]),
+        builder: (_, _) {
+          return KeyedSubtree(
+            key: const Key('send_submit_button'),
+            child: LoadingButton(
+              key: _sendPaymentButtonKey,
+              text: context.l10n.send,
+              onPressed: _isInputValid ? _onSendPaymentPressed : null,
+            ),
+          );
+        },
       ),
     );
   }
@@ -300,6 +330,8 @@ class _SendPopulatedState extends State<SendPopulated> {
   void dispose() {
     _recipientController.dispose();
     _amountController.dispose();
+    _recipientFocusNode.dispose();
+    _amountFocusNode.dispose();
     _selectedToken.dispose();
     _sender.dispose();
     super.dispose();
