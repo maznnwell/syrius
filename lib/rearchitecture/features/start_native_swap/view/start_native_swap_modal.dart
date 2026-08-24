@@ -7,7 +7,6 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/bullet_point_card.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/instruction_button.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/dropdown/addresses_dropdown.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/error_widget.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/labeled_input_container.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_widget.dart';
@@ -36,7 +35,7 @@ class _ViewState extends State<_View> {
 
   Token get _token => _tokenNotifier.value;
 
-  String? _selectedSelfAddress = kSelectedAddress;
+  final ValueNotifier<String> _sender = .new(kSelectedAddress!);
 
   final TextEditingController _counterpartyAddressController =
       TextEditingController();
@@ -72,26 +71,35 @@ class _ViewState extends State<_View> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<StartNativeSwapBloc, StartNativeSwapState>(
-      listener: _onStartNativeSwapStateChanged,
-      builder: (BuildContext context, StartNativeSwapState swapState) {
-        return BaseModal(
-          title: context.l10n.p2pSwapStart,
-          child: BlocBuilder<MultipleBalanceBloc, MultipleBalanceState>(
-            builder: (_, MultipleBalanceState balanceState) =>
-                switch (balanceState.status) {
-                  MultipleBalanceStatus.failure => SyriusErrorWidget(
-                    balanceState.error!,
-                  ),
-                  MultipleBalanceStatus.initial => const SyriusLoadingWidget(),
-                  MultipleBalanceStatus.loading => const SyriusLoadingWidget(),
-                  MultipleBalanceStatus.success => _buildContent(
-                    context,
-                    accountInfo: balanceState.data![_selectedSelfAddress]!,
-                    isLoading: swapState is StartNativeSwapLoading,
-                  ),
-                },
-          ),
+    return ListenableBuilder(
+      listenable: Listenable.merge([
+        _sender,
+      ]),
+      builder: (_, _) {
+        return BlocConsumer<StartNativeSwapBloc, StartNativeSwapState>(
+          listener: _onStartNativeSwapStateChanged,
+          builder: (BuildContext context, StartNativeSwapState swapState) {
+            return BaseModal(
+              title: context.l10n.p2pSwapStart,
+              child: BlocBuilder<MultipleBalanceBloc, MultipleBalanceState>(
+                builder: (_, MultipleBalanceState balanceState) =>
+                    switch (balanceState.status) {
+                      MultipleBalanceStatus.failure => SyriusErrorWidget(
+                        balanceState.error!,
+                      ),
+                      MultipleBalanceStatus.initial =>
+                        const SyriusLoadingWidget(),
+                      MultipleBalanceStatus.loading =>
+                        const SyriusLoadingWidget(),
+                      MultipleBalanceStatus.success => _buildContent(
+                        context,
+                        accountInfo: balanceState.data![_sender.value]!,
+                        isLoading: swapState is StartNativeSwapLoading,
+                      ),
+                    },
+              ),
+            );
+          },
         );
       },
     );
@@ -102,7 +110,6 @@ class _ViewState extends State<_View> {
     required AccountInfo accountInfo,
     required bool isLoading,
   }) {
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -113,11 +120,11 @@ class _ViewState extends State<_View> {
             Expanded(
               child: LabeledInputContainer(
                 labelText: context.l10n.p2pSwapYourAddress,
-                inputWidget: AddressesDropdown(
-                  _selectedSelfAddress,
-                  (String? address) => setState(() {
-                    _selectedSelfAddress = address;
-                  }),
+                inputWidget: NewAddressesDropdown(
+                  addresses: kDefaultAddressList
+                      .map((String? e) => e!)
+                      .toList(),
+                  selectedAddress: _sender,
                 ),
               ),
             ),
@@ -153,23 +160,23 @@ class _ViewState extends State<_View> {
                   child: ValueListenableBuilder<TextEditingValue>(
                     valueListenable: _amountController,
                     builder: (_, _, _) {
-                      _amountError = _amount.isNotEmpty ? InputValidators.correctValue(
-                        _amount,
-                        accountInfo.getBalance(
-                          _token.tokenStandard,
-                        ),
-                        _token.decimals,
-                        BigInt.zero,
-                      ) : null;
+                      _amountError = _amount.isNotEmpty
+                          ? InputValidators.correctValue(
+                              _amount,
+                              accountInfo.getBalance(
+                                _token.tokenStandard,
+                              ),
+                              _token.decimals,
+                              BigInt.zero,
+                            )
+                          : null;
 
                       return AmountTextField(
                         accountInfo: accountInfo,
                         controller: _amountController,
                         errorText: _amountError,
                         token: _token,
-                        onSubmitted: (_) {
-
-                        },
+                        onSubmitted: (_) {},
                       );
                     },
                   ),
@@ -239,7 +246,7 @@ class _ViewState extends State<_View> {
   void _onStartButtonPressed(BuildContext context) {
     context.read<StartNativeSwapBloc>().add(
       StartNativeSwapRequested(
-        selfAddress: Address.parse(_selectedSelfAddress!),
+        selfAddress: Address.parse(_sender.value),
         counterpartyAddress: Address.parse(_counterpartyAddressController.text),
         fromToken: _token,
         fromAmount: _amountController.text.extractDecimals(
