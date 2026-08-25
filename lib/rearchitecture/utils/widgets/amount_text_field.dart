@@ -10,6 +10,7 @@ class AmountTextField extends StatelessWidget {
     required this._controller,
     required this._errorText,
     required this._onSubmitted,
+    this._enabled,
     this._focusNode,
     this._labelText,
     super.key,
@@ -22,10 +23,12 @@ class AmountTextField extends StatelessWidget {
   final void Function(String) _onSubmitted;
   final Token _token;
   final String? _labelText;
+  final bool? _enabled;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      enabled: _enabled,
       key: const Key('send_amount_field'),
       controller: _controller,
       decoration: InputDecoration(

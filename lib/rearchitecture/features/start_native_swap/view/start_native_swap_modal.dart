@@ -92,7 +92,7 @@ class _ViewState extends State<_View> {
     return BlocConsumer<StartNativeSwapBloc, StartNativeSwapState>(
       listener: _onStartNativeSwapStateChanged,
       builder: (BuildContext context, StartNativeSwapState swapState) {
-        final bool isLoading = swapState is StartNativeSwapLoading;
+        final bool isSwapLoading = swapState is StartNativeSwapLoading;
 
         return ListenableBuilder(
           listenable: Listenable.merge(<Listenable?>[
@@ -132,6 +132,7 @@ class _ViewState extends State<_View> {
                         addresses: kDefaultAddressList
                             .map((String? e) => e!)
                             .toList(),
+                        enabled: !isSwapLoading,
                         label: Text(context.l10n.p2pSwapYourAddress),
                         selectedAddress: _sender,
                       ),
@@ -149,7 +150,7 @@ class _ViewState extends State<_View> {
                             controller: _counterpartyAddressController,
                           ),
                         ),
-                        enabled: !isLoading,
+                        enabled: !isSwapLoading,
                         controller: _counterpartyAddressController,
                       ),
                     ),
@@ -161,6 +162,7 @@ class _ViewState extends State<_View> {
                       child: AmountTextField(
                         accountInfo: accountInfo,
                         controller: _amountController,
+                        enabled: !isSwapLoading,
                         errorText: _amount.isNotEmpty ? amountError : null,
                         labelText: context.l10n.p2pSwapYouAreSending,
                         token: _token,
@@ -173,6 +175,7 @@ class _ViewState extends State<_View> {
                         availableTokens: getTokensWithBalance(
                           accountInfo: accountInfo,
                         ),
+                        enabled: !isSwapLoading,
                         label: Text(context.l10n.asset),
                         selectedToken: _tokenNotifier,
                       ),
@@ -192,7 +195,7 @@ class _ViewState extends State<_View> {
                 ),
                 _buildStartSwapButton(
                   isInputValid: isInputValid,
-                  isLoading: isLoading,
+                  isLoading: isSwapLoading,
                 ),
               ],
             );
