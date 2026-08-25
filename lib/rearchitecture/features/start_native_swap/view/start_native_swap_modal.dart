@@ -86,8 +86,7 @@ class _ViewState extends State<_View> {
     );
   }
 
-  Widget _buildContent(
-{
+  Widget _buildContent({
     required Map<String, AccountInfo> balances,
   }) {
     return BlocConsumer<StartNativeSwapBloc, StartNativeSwapState>(
@@ -98,22 +97,27 @@ class _ViewState extends State<_View> {
         return ListenableBuilder(
           listenable: Listenable.merge(<Listenable?>[
             _amountController,
+            _counterpartyAddressController,
             _sender,
             _tokenNotifier,
           ]),
           builder: (_, _) {
             final AccountInfo accountInfo = balances[_sender.value]!;
 
-            final String? amountError = _amount.isNotEmpty
-                ? InputValidators.correctValue(
+            final String? amountError = InputValidators.correctValue(
               _amount,
               accountInfo.getBalance(
                 _token.tokenStandard,
               ),
               _token.decimals,
               BigInt.zero,
-            )
-                : null;
+            );
+
+            final bool isInputValid =
+                _counterpartyAddress.isNotEmpty &&
+                _counterpartyAddressError == null &&
+                _amount.isNotEmpty &&
+                amountError == null;
 
             return Column(
               mainAxisSize: MainAxisSize.min,
@@ -157,7 +161,7 @@ class _ViewState extends State<_View> {
                       child: AmountTextField(
                         accountInfo: accountInfo,
                         controller: _amountController,
-                        errorText: amountError,
+                        errorText: _amount.isNotEmpty ? amountError : null,
                         labelText: context.l10n.p2pSwapYouAreSending,
                         token: _token,
                         onSubmitted: (_) {},
@@ -186,7 +190,10 @@ class _ViewState extends State<_View> {
                     context.l10n.p2pSwapMachineOnly,
                   ],
                 ),
-                _buildStartSwapButton(context, isLoading: isLoading),
+                _buildStartSwapButton(
+                  isInputValid: isInputValid,
+                  isLoading: isLoading,
+                ),
               ],
             );
           },
@@ -195,15 +202,15 @@ class _ViewState extends State<_View> {
     );
   }
 
-  Widget _buildStartSwapButton(
-    BuildContext context, {
+  Widget _buildStartSwapButton({
     required bool isLoading,
+    required bool isInputValid,
   }) {
     return InstructionButton(
       text: context.l10n.p2pSwapStart,
       instructionText: context.l10n.p2pSwapFillDetails,
       loadingText: context.l10n.p2pSwapSendingTransaction,
-      isEnabled: _isInputValid(),
+      isEnabled: isInputValid,
       isLoading: isLoading,
       onPressed: () => _onStartButtonPressed(context),
     );
@@ -236,14 +243,13 @@ class _ViewState extends State<_View> {
     }
   }
 
-  bool _isInputValid() => _counterpartyAddressError == null;
-
   String? _validateCounterpartyAddress(String? address) {
     final String? result = InputValidators.checkAddress(address);
     if (result != null) {
       return result;
     } else {
-      // TODO: bug, the user can manually generate addresses and bypass check
+      // loss check to see if two addresses are from the same seed, but also
+      // probably impossible to check properly - maznnwell
       return kDefaultAddressList.contains(address)
           ? context.l10n.p2pSwapOwnAddressError
           : null;
