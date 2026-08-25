@@ -37,7 +37,7 @@ void main() {
   });
 
   group('StartNativeSwapBloc', () {
-    const int expirationDuration = 60;
+    const int expirationDuration = kInitialHtlcDurationInSeconds;
     const int frontierTimestamp = 1000;
     final BigInt fromAmount = BigInt.one;
     final Address selfAddress = emptyAddress;
@@ -60,11 +60,6 @@ void main() {
       counterpartyAddress: counterpartyAddress,
       fromToken: kZnnCoin,
       fromAmount: fromAmount,
-      hashType: htlcHashTypeSha3,
-      swapType: P2pSwapType.native,
-      fromChain: P2pSwapChain.nom,
-      toChain: P2pSwapChain.nom,
-      initialHtlcDuration: expirationDuration,
     );
 
     setUp(() {

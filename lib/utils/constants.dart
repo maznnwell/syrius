@@ -214,7 +214,10 @@ const List<Tabs> kTabsWithTextTitles = <Tabs>[
 ];
 
 // P2P swap constants
-const Duration kInitialHtlcDuration = Duration(hours: 8);
+const int kInitialHtlcDurationInSeconds = 8 * Duration.secondsPerHour;
+const Duration kInitialHtlcDuration = Duration(
+  seconds: kInitialHtlcDurationInSeconds,
+);
 const Duration kCounterHtlcDuration = Duration(hours: 1);
 const Duration kMaxAllowedInitialHtlcDuration = Duration(hours: 24);
 const Duration kMinSafeTimeToFindPreimage = Duration(hours: 6);

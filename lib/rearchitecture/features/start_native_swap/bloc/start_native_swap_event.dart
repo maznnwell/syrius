@@ -17,11 +17,11 @@ final class StartNativeSwapRequested extends StartNativeSwapEvent {
     required this.counterpartyAddress,
     required this.fromToken,
     required this.fromAmount,
-    required this.hashType,
-    required this.swapType,
-    required this.fromChain,
-    required this.toChain,
-    required this.initialHtlcDuration,
+    this.hashType = htlcHashTypeSha3,
+    this.swapType = P2pSwapType.native,
+    this.fromChain = P2pSwapChain.nom,
+    this.toChain = P2pSwapChain.nom,
+    this.initialHtlcDuration = kInitialHtlcDurationInSeconds,
   });
 
   /// Address funding the HTLC.

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/model/p2p_swap/p2p_swap.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/multiple_balance/multiple_balance.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/start_native_swap/bloc/start_native_swap_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
@@ -228,11 +227,6 @@ class _ViewState extends State<_View> {
         fromAmount: _amountController.text.extractDecimals(
           _token.decimals,
         ),
-        hashType: htlcHashTypeSha3,
-        swapType: P2pSwapType.native,
-        fromChain: P2pSwapChain.nom,
-        toChain: P2pSwapChain.nom,
-        initialHtlcDuration: kInitialHtlcDuration.inSeconds,
       ),
     );
   }
