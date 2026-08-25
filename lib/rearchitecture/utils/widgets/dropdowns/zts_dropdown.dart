@@ -9,6 +9,7 @@ class ZtsDropdown extends StatefulWidget {
   const ZtsDropdown({
     required this._availableTokens,
     required this._selectedToken,
+    this._enabled = true,
     this._label,
     super.key,
   });
@@ -16,6 +17,7 @@ class ZtsDropdown extends StatefulWidget {
   final ValueNotifier<Token> _selectedToken;
   final List<Token> _availableTokens;
   final Widget? _label;
+  final bool _enabled;
 
   @override
   State<ZtsDropdown> createState() => _ZtsDropdownState();
@@ -49,6 +51,7 @@ class _ZtsDropdownState extends State<ZtsDropdown> {
     );
 
     return DropdownMenu<Token>(
+      enabled: widget._enabled,
       expandedInsets: EdgeInsets.zero,
       initialSelection: _token,
       inputDecorationTheme: const InputDecorationTheme(

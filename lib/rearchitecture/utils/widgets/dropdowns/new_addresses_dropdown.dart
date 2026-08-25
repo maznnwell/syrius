@@ -9,12 +9,14 @@ class NewAddressesDropdown extends StatefulWidget {
   const NewAddressesDropdown({
     required this._addresses,
     required this._selectedAddress,
+    this._enabled = true,
     this._label,
     super.key,
   });
   final List<String> _addresses;
   final Widget? _label;
   final ValueNotifier<String> _selectedAddress;
+  final bool _enabled;
 
   @override
   State<NewAddressesDropdown> createState() => _NewAddressesDropdownState();
@@ -56,6 +58,7 @@ class _NewAddressesDropdownState extends State<NewAddressesDropdown> {
         }
       },
       child: DropdownMenu<String>(
+        enabled: widget._enabled,
         controller: _searchController,
         enableFilter: true,
         expandedInsets: EdgeInsets.zero,
