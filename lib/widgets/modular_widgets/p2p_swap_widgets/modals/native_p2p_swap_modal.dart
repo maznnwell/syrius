@@ -57,7 +57,6 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
             ),
             P2pSwapDetailsFailure(:final SyriusException exception) =>
               BaseModal(
-                title: '',
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: SyriusErrorWidget(exception),
@@ -71,8 +70,8 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
     );
   }
 
-  String _getTitle(HtlcSwap swap) {
-    return swap.state == P2pSwapState.active ? 'Active swap' : '';
+  String? _getTitle(HtlcSwap swap) {
+    return swap.state == P2pSwapState.active ? 'Active swap' : null;
   }
 
   Widget _getContent(HtlcSwap swap) {

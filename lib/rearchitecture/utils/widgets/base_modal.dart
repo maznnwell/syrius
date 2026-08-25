@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 
 class BaseModal extends StatelessWidget {
-
   const BaseModal({
-    required this._title, required this._child, super.key,
+    required this._child, this._title,
+    super.key,
   });
-  final String _title;
+
   final Widget _child;
+  final String? _title;
 
   @override
   Widget build(BuildContext context) {
@@ -20,13 +21,9 @@ class BaseModal extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Text(
-                      _title,
-                      style: context.textTheme.titleLarge,
-                    ),
-                  ],
+                Text(
+                  _title ?? '',
+                  style: context.textTheme.titleLarge,
                 ),
                 IconButton(
                   onPressed: Navigator.of(context).pop,

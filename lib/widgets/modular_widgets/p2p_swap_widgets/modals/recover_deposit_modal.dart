@@ -48,8 +48,8 @@ class _RecoverDepositModalState extends State<RecoverDepositModal> {
     );
   }
 
-  String _getTitle() {
-    return _isPendingFunds ? '' : 'Recover deposit';
+  String? _getTitle() {
+    return _isPendingFunds ? null : 'Recover deposit';
   }
 
   Widget _getContent() {
