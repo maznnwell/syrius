@@ -1,15 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:stacked/stacked.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/complete_htlc_swap_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/htlc_swap_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/reclaim_htlc_swap_funds_bloc.dart';
+import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/model/p2p_swap/htlc_swap.dart';
 import 'package:zenon_syrius_wallet_flutter/model/p2p_swap/p2p_swap.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/base_modal.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap_details/p2p_swap_details.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/modular_widgets/p2p_swap_widgets/htlc_card.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/modular_widgets/p2p_swap_widgets/htlc_swap_details_widget.dart';
@@ -35,47 +37,38 @@ class NativeP2pSwapModal extends StatefulWidget {
 }
 
 class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
-  late final HtlcSwapBloc _htlcSwapBloc;
-
   String _swapCompletedText = 'Swap completed.';
 
   bool _isSendingTransaction = false;
   bool _shouldShowIncorrectAmountInstructions = false;
 
   @override
-  void initState() {
-    super.initState();
-    _htlcSwapBloc = HtlcSwapBloc(widget.swapId);
-    _htlcSwapBloc.getDataPeriodically();
-  }
-
-  @override
-  void dispose() {
-    _htlcSwapBloc.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return StreamBuilder<HtlcSwap>(
-      stream: _htlcSwapBloc.stream,
-      builder: (_, AsyncSnapshot<HtlcSwap> snapshot) {
-        if (snapshot.hasData) {
-          return BaseModal(
-            title: _getTitle(snapshot.data!),
-            child: _getContent(snapshot.data!),
-          );
-        } else if (snapshot.hasError) {
-          return BaseModal(
-            title: '',
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: SyriusErrorWidget(snapshot.error!),
+    return BlocProvider<P2pSwapDetailsBloc>(
+      create: (_) => P2pSwapDetailsBloc(
+        htlcSwapsService: htlcSwapsService!,
+        swapId: widget.swapId,
+      )..add(const P2pSwapDetailsRequested()),
+      child: BlocBuilder<P2pSwapDetailsBloc, P2pSwapDetailsState>(
+        builder: (_, P2pSwapDetailsState state) {
+          return switch (state) {
+            P2pSwapDetailsPopulated(:final HtlcSwap swap) => BaseModal(
+              title: _getTitle(swap),
+              child: _getContent(swap),
             ),
-          );
-        }
-        return const SyriusLoadingWidget();
-      },
+            P2pSwapDetailsFailure(:final SyriusException exception) =>
+              BaseModal(
+                title: '',
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: SyriusErrorWidget(exception),
+                ),
+              ),
+            P2pSwapDetailsInitial() => const SyriusLoadingWidget(),
+            P2pSwapDetailsLoading() => const SyriusLoadingWidget(),
+          };
+        },
+      ),
     );
   }
 
