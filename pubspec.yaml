@@ -36,6 +36,7 @@ dependencies:
   flutter_staggered_grid_view: ^0.7.0
   flutter_svg: ^2.0.0+1
   flutter_vector_icons: ^2.0.0
+  freezed_annotation: ^3.1.0
   get_it: ^8.3.0
   hex: ^0.2.0
   hive_ce: ^2.19.3
@@ -101,6 +102,7 @@ dev_dependencies:
   dependency_validator: ^5.0.5
   flutter_test:
     sdk: flutter
+  freezed: ^3.2.0
   hive_ce_generator: ^1.11.2
   integration_test:
     sdk: flutter

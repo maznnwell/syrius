@@ -1,7 +1,6 @@
 import 'package:zenon_syrius_wallet_flutter/blocs/base_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
-import 'package:zenon_syrius_wallet_flutter/model/p2p_swap/htlc_swap.dart';
-import 'package:zenon_syrius_wallet_flutter/model/p2p_swap/p2p_swap.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -17,7 +16,9 @@ class CompleteHtlcSwapBloc extends BaseBloc<HtlcSwap?> {
 
       // Make sure that the HTLC exists and has a safe amount of time left
       // until expiration.
-      final HtlcInfo htlc = await zenon!.embedded.htlc.getById(Hash.parse(htlcId));
+      final HtlcInfo htlc = await zenon!.embedded.htlc.getById(
+        Hash.parse(htlcId),
+      );
       if (htlc.expirationTime <=
           DateTimeUtils.unixTimeNow + kMinSafeTimeToCompleteSwap.inSeconds) {
         throw 'The swap will expire too soon for a safe swap.';
@@ -28,22 +29,33 @@ class CompleteHtlcSwapBloc extends BaseBloc<HtlcSwap?> {
         throw 'The swap secret size exceeds the maximum allowed size.';
       }
 
-      final AccountBlockTemplate transactionParams = zenon!.embedded.htlc.unlock(
-          Hash.parse(htlcId), FormatUtils.decodeHexString(swap.preimage!),);
-      AccountBlockUtils().createAccountBlock(transactionParams, 'complete swap',
-              address: Address.parse(swap.selfAddress), waitForRequiredPlasma: true,)
+      final AccountBlockTemplate transactionParams = zenon!.embedded.htlc
+          .unlock(
+            Hash.parse(htlcId),
+            FormatUtils.decodeHexString(swap.preimage!),
+          );
+      AccountBlockUtils()
+          .createAccountBlock(
+            transactionParams,
+            'complete swap',
+            address: Address.parse(swap.selfAddress),
+            waitForRequiredPlasma: true,
+          )
           .then(
-        (AccountBlockTemplate response) async {
-          swap.state = P2pSwapState.completed;
-          await htlcSwapsService!.storeSwap(swap);
-          ZenonAddressUtils().refreshBalance();
-          addEvent(swap);
-        },
-      ).onError(
-        (Object? error, StackTrace stackTrace) {
-          addError(error.toString(), stackTrace);
-        },
-      );
+            (AccountBlockTemplate response) async {
+              final HtlcSwap completedSwap = swap.copyWith(
+                state: P2pSwapState.completed,
+              );
+              await htlcSwapsService!.storeSwap(completedSwap);
+              ZenonAddressUtils().refreshBalance();
+              addEvent(completedSwap);
+            },
+          )
+          .onError(
+            (Object? error, StackTrace stackTrace) {
+              addError(error.toString(), stackTrace);
+            },
+          );
     } catch (e, stackTrace) {
       addError(e, stackTrace);
     }

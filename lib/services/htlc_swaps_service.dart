@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:hive_ce/hive_ce.dart';
 import 'package:zenon_syrius_wallet_flutter/model/model.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/global.dart';
 
@@ -19,17 +20,23 @@ class HtlcSwapsService {
 
   bool get isMaxSwapsReached => _htlcSwapsBox!.length >= kMaxP2pSwapsToStore;
 
-  Future<void> openBoxes(String htlcSwapsBoxSuffix, List<int> cipherKey,
-      {List<int>? newCipherKey,}) async {
+  Future<void> openBoxes(
+    String htlcSwapsBoxSuffix,
+    List<int> cipherKey, {
+    List<int>? newCipherKey,
+  }) async {
     if (_htlcSwapsBox == null || !_htlcSwapsBox!.isOpen) {
-      _htlcSwapsBox = await Hive.openBox('${kHtlcSwapsBox}_$htlcSwapsBoxSuffix',
-          encryptionCipher: HiveAesCipher(cipherKey),);
+      _htlcSwapsBox = await Hive.openBox(
+        '${kHtlcSwapsBox}_$htlcSwapsBoxSuffix',
+        encryptionCipher: HiveAesCipher(cipherKey),
+      );
       if (newCipherKey != null) {
         final Map values = _htlcSwapsBox!.toMap();
         await _htlcSwapsBox!.deleteFromDisk();
         _htlcSwapsBox = await Hive.openBox(
-            '${kHtlcSwapsBox}_$htlcSwapsBoxSuffix',
-            encryptionCipher: HiveAesCipher(newCipherKey),);
+          '${kHtlcSwapsBox}_$htlcSwapsBoxSuffix',
+          encryptionCipher: HiveAesCipher(newCipherKey),
+        );
         _htlcSwapsBox!.putAll(values);
         _htlcSwapsBox!.flush();
       }
@@ -38,14 +45,16 @@ class HtlcSwapsService {
     if (_lastCheckedHtlcBlockHeightBox == null ||
         !_lastCheckedHtlcBlockHeightBox!.isOpen) {
       _lastCheckedHtlcBlockHeightBox = await Hive.openBox(
-          kLastCheckedHtlcBlockBox,
-          encryptionCipher: HiveAesCipher(cipherKey),);
+        kLastCheckedHtlcBlockBox,
+        encryptionCipher: HiveAesCipher(cipherKey),
+      );
       if (newCipherKey != null) {
         final Map values = _lastCheckedHtlcBlockHeightBox!.toMap();
         await _lastCheckedHtlcBlockHeightBox!.deleteFromDisk();
         _lastCheckedHtlcBlockHeightBox = await Hive.openBox(
-            kLastCheckedHtlcBlockBox,
-            encryptionCipher: HiveAesCipher(newCipherKey),);
+          kLastCheckedHtlcBlockBox,
+          encryptionCipher: HiveAesCipher(newCipherKey),
+        );
         _lastCheckedHtlcBlockHeightBox!.putAll(values);
         _lastCheckedHtlcBlockHeightBox!.flush();
       }
@@ -76,8 +85,9 @@ class HtlcSwapsService {
 
   HtlcSwap? getSwapByHashLock(String hashLock) {
     try {
-      return _swapsForCurrentChainId
-          .firstWhereOrNull((HtlcSwap e) => e.hashLock == hashLock);
+      return _swapsForCurrentChainId.firstWhereOrNull(
+        (HtlcSwap e) => e.hashLock == hashLock,
+      );
     } on HiveError {
       return null;
     }
@@ -86,7 +96,8 @@ class HtlcSwapsService {
   HtlcSwap? getSwapByHtlcId(String htlcId) {
     try {
       return _swapsForCurrentChainId.firstWhereOrNull(
-          (HtlcSwap e) => e.initialHtlcId == htlcId || e.counterHtlcId == htlcId,);
+        (HtlcSwap e) => e.initialHtlcId == htlcId || e.counterHtlcId == htlcId,
+      );
     } on HiveError {
       return null;
     }
@@ -94,15 +105,19 @@ class HtlcSwapsService {
 
   HtlcSwap? getSwapById(String id) {
     try {
-      return _swapsForCurrentChainId.firstWhereOrNull((HtlcSwap e) => e.id == id);
+      return _swapsForCurrentChainId.firstWhereOrNull(
+        (HtlcSwap e) => e.id == id,
+      );
     } on HiveError {
       return null;
     }
   }
 
   int getLastCheckedHtlcBlockHeight() {
-    return _lastCheckedHtlcBlockHeightBox!
-        .get(kLastCheckedHtlcBlockKey, defaultValue: 0);
+    return _lastCheckedHtlcBlockHeightBox!.get(
+      kLastCheckedHtlcBlockKey,
+      defaultValue: 0,
+    );
   }
 
   Future<void> storeSwap(HtlcSwap swap) async => _htlcSwapsBox!
@@ -113,35 +128,42 @@ class HtlcSwapsService {
       .then((_) async => _pruneSwapsHistoryIfNeeded());
 
   Future<void> storeLastCheckedHtlcBlockHeight(int height) async =>
-      _lastCheckedHtlcBlockHeightBox!
-          .put(kLastCheckedHtlcBlockKey, height);
+      _lastCheckedHtlcBlockHeightBox!.put(kLastCheckedHtlcBlockKey, height);
 
-  Future<void> deleteSwap(String swapId) async =>
-      _htlcSwapsBox!.delete(swapId);
+  Future<void> deleteSwap(String swapId) async => _htlcSwapsBox!.delete(swapId);
 
-  Future<void> deleteInactiveSwaps() async =>
-      _htlcSwapsBox!.deleteAll(_swapsForCurrentChainId
-          .where((HtlcSwap e) => <P2pSwapState>[
-                P2pSwapState.completed,
-                P2pSwapState.unsuccessful,
-                P2pSwapState.error,
-              ].contains(e.state),)
-          .map((HtlcSwap e) => e.id),);
+  Future<void> deleteInactiveSwaps() async => _htlcSwapsBox!.deleteAll(
+    _swapsForCurrentChainId
+        .where(
+          (HtlcSwap e) => <P2pSwapState>[
+            P2pSwapState.completed,
+            P2pSwapState.unsuccessful,
+            P2pSwapState.error,
+          ].contains(e.state),
+        )
+        .map((HtlcSwap e) => e.id),
+  );
 
   List<HtlcSwap> get _swapsForCurrentChainId {
     return kNodeChainId != null
         ? _htlcSwapsBox!.values
-            .where(
-                (e) => HtlcSwap.fromJson(jsonDecode(e)).chainId == kNodeChainId,)
-            .map((e) => HtlcSwap.fromJson(jsonDecode(e)))
-            .toList()
+              .map(
+                (dynamic value) =>
+                    P2pSwap.fromJson(jsonDecode(value)) as HtlcSwap,
+              )
+              .where((HtlcSwap swap) => swap.chainId == kNodeChainId)
+              .toList()
         : <HtlcSwap>[];
   }
 
   HtlcSwap? _getOldestPrunableSwap() {
     final List<HtlcSwap> swaps = getAllSwaps()
-        .where((HtlcSwap e) => <P2pSwapState>[P2pSwapState.completed, P2pSwapState.unsuccessful]
-            .contains(e.state),)
+        .where(
+          (HtlcSwap e) => <P2pSwapState>[
+            P2pSwapState.completed,
+            P2pSwapState.unsuccessful,
+          ].contains(e.state),
+        )
         .toList();
     swaps.sort((HtlcSwap a, HtlcSwap b) => b.startTime.compareTo(a.startTime));
     return swaps.isNotEmpty ? swaps.last : null;
