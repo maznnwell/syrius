@@ -26,11 +26,9 @@ class NativeP2pSwapModal extends StatefulWidget {
 
   const NativeP2pSwapModal({
     required this.swapId,
-    this.onSwapStarted,
     super.key,
   });
   final String swapId;
-  final Function(String)? onSwapStarted;
 
   @override
   State<NativeP2pSwapModal> createState() => _NativeP2pSwapModalState();
