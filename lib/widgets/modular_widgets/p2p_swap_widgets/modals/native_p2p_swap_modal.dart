@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
@@ -7,6 +9,7 @@ import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/htlc_swap_b
 import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/reclaim_htlc_swap_funds_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/model/p2p_swap/htlc_swap.dart';
 import 'package:zenon_syrius_wallet_flutter/model/p2p_swap/p2p_swap.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/base_modal.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/modular_widgets/p2p_swap_widgets/htlc_card.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/modular_widgets/p2p_swap_widgets/htlc_swap_details_widget.dart';
@@ -17,7 +20,6 @@ import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/exchange_ra
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/important_text_container.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_info_text.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_widget.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/base_modal.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class NativeP2pSwapModal extends StatefulWidget {
@@ -283,9 +285,9 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
                 if (remainingDuration.inSeconds > 0)
                   TweenAnimationBuilder<Duration>(
                     duration: remainingDuration,
-                    tween: Tween(begin: remainingDuration, end: Duration.zero),
+                    tween: .new(begin: remainingDuration, end: Duration.zero),
                     onEnd: () => setState(() {}),
-                    builder: (_, Duration d, __) {
+                    builder: (_, Duration d, _) {
                       return Visibility(
                         visible: d.inSeconds > 0,
                         child: Padding(
@@ -447,9 +449,9 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
         kMinSafeTimeToCompleteSwap;
     return TweenAnimationBuilder<Duration>(
       duration: timeToCompleteSwap,
-      tween: Tween(begin: timeToCompleteSwap, end: Duration.zero),
+      tween: .new(begin: timeToCompleteSwap, end: Duration.zero),
       onEnd: () => setState(() {}),
-      builder: (_, Duration d, __) {
+      builder: (_, Duration d, _) {
         return Visibility(
           visible: timeToCompleteSwap <= warningThreshold,
           child: Padding(
@@ -483,7 +485,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
           },
         );
       },
-      builder: (_, CompleteHtlcSwapBloc model, __) => InstructionButton(
+      builder: (_, CompleteHtlcSwapBloc model, _) => InstructionButton(
         text: 'Swap',
         isEnabled: true,
         isLoading: _isSendingTransaction,
@@ -492,7 +494,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
           setState(() {
             _isSendingTransaction = true;
           });
-          model.completeHtlcSwap(swap: swap);
+          unawaited(model.completeHtlcSwap(swap: swap));
         },
       ),
       viewModelBuilder: CompleteHtlcSwapBloc.new,
@@ -553,7 +555,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
           },
         );
       },
-      builder: (_, ReclaimHtlcSwapFundsBloc model, __) => InstructionButton(
+      builder: (_, ReclaimHtlcSwapFundsBloc model, _) => InstructionButton(
         text: 'Reclaim funds',
         isEnabled: true,
         isLoading: _isSendingTransaction,
@@ -562,12 +564,12 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
           setState(() {
             _isSendingTransaction = true;
           });
-          model.reclaimFunds(
+          unawaited(model.reclaimFunds(
             htlcId: swap.direction == P2pSwapDirection.outgoing
                 ? Hash.parse(swap.initialHtlcId)
                 : Hash.parse(swap.counterHtlcId!),
             selfAddress: Address.parse(swap.selfAddress),
-          );
+          ));
         },
       ),
       viewModelBuilder: ReclaimHtlcSwapFundsBloc.new,
