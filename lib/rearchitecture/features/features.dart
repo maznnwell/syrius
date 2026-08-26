@@ -22,6 +22,7 @@ export 'fused_plasma/fused_plasma.dart';
 export 'latest_transactions/latest_transactions.dart';
 export 'mint_token/mint_token.dart';
 export 'multiple_balance/multiple_balance.dart';
+export 'native_p2p_swap/native_p2p_swap.dart';
 export 'node_sync_status/node_sync_status.dart';
 export 'p2p_swap_details/p2p_swap_details.dart';
 export 'p2p_swap_options/p2p_swap_options.dart';
