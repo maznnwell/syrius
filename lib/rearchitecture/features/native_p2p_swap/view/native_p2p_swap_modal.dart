@@ -457,7 +457,6 @@ class _Unsuccessful extends StatefulWidget {
 }
 
 class _UnsuccessfulState extends State<_Unsuccessful> {
-
   bool _isSendingTransaction = false;
 
   @override
@@ -471,7 +470,7 @@ class _UnsuccessfulState extends State<_Unsuccessful> {
 
     final bool isReclaimable =
         remainingDuration.inSeconds <= 0 &&
-            widget._swap.state == P2pSwapState.reclaimable;
+        widget._swap.state == P2pSwapState.reclaimable;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -519,23 +518,15 @@ class _UnsuccessfulState extends State<_Unsuccessful> {
               return Visibility(
                 visible: d.inSeconds > 0,
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 15),
+                  padding: const EdgeInsets.all(16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       const Text(
                         'Deposit expires in',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: AppColors.subtitleColor,
-                        ),
                       ),
                       Text(
                         d.toString().split('.').first,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: AppColors.subtitleColor,
-                        ),
                       ),
                     ],
                   ),
@@ -598,4 +589,3 @@ class _AmountInfo extends StatelessWidget {
     return Text('$amount $symbol');
   }
 }
-
