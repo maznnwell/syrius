@@ -163,7 +163,7 @@ class _ViewState extends State<_View> {
                         controller: _amountController,
                         enabled: !isSwapLoading,
                         errorText: _amount.isNotEmpty ? amountError : null,
-                        labelText: context.l10n.p2pSwapYouAreSending,
+                        labelText: context.l10n.youAreSending,
                         token: _token,
                         onSubmitted: (_) {},
                       ),

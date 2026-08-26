@@ -436,6 +436,12 @@ abstract class AppLocalizations {
   /// **'Deposit expires in'**
   String get depositExpiresIn;
 
+  /// No description provided for @depositId.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit ID'**
+  String get depositId;
+
   /// No description provided for @deposited.
   ///
   /// In en, this message translates to:
@@ -639,6 +645,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Expiration'**
   String get expiration;
+
+  /// No description provided for @expired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get expired;
+
+  /// No description provided for @expiresIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires in'**
+  String get expiresIn;
 
   /// No description provided for @expectedProducedMomentums.
   ///
@@ -1006,12 +1024,6 @@ abstract class AppLocalizations {
   /// **'Before continuing'**
   String get p2pSwapWarningTitle;
 
-  /// No description provided for @p2pSwapYouAreSending.
-  ///
-  /// In en, this message translates to:
-  /// **'You are sending'**
-  String get p2pSwapYouAreSending;
-
   /// No description provided for @password.
   ///
   /// In en, this message translates to:
@@ -1257,6 +1269,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'I\'m receiving the wrong token or amount.'**
   String get receivingWrongTokenOrAmount;
+
+  /// No description provided for @recipient.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient'**
+  String get recipient;
 
   /// No description provided for @recipientAddress.
   ///
@@ -1745,11 +1763,29 @@ abstract class AppLocalizations {
   /// **'Token Name'**
   String get tokenName;
 
+  /// No description provided for @tokenInFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'This token is in your favorites.'**
+  String get tokenInFavorites;
+
+  /// No description provided for @tokenNotInFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'This token is not in your favorites.'**
+  String get tokenNotInFavorites;
+
   /// No description provided for @tokenRemovedFromFavorites.
   ///
   /// In en, this message translates to:
   /// **'{name} token has been removed from favorites'**
   String tokenRemovedFromFavorites(Object name);
+
+  /// No description provided for @tokenStandard.
+  ///
+  /// In en, this message translates to:
+  /// **'Token standard'**
+  String get tokenStandard;
 
   /// No description provided for @tokenStatusUtilityTooltip.
   ///
@@ -1784,6 +1820,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Token Transactions'**
   String get tokenTransactions;
+
+  /// No description provided for @tokenVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'This token is verified.'**
+  String get tokenVerified;
 
   /// No description provided for @tokens.
   ///
@@ -1947,6 +1989,12 @@ abstract class AppLocalizations {
   /// **'Waiting for data fetching'**
   String get waitingForDataFetching;
 
+  /// No description provided for @waitingForCounterpartyToJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the counterparty to join the swap.'**
+  String get waitingForCounterpartyToJoin;
+
   /// No description provided for @waitingForCounterpartyKeepRunning.
   ///
   /// In en, this message translates to:
@@ -1988,6 +2036,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have deposited {coins} {kQsrCoinSymbol}'**
   String youHaveDeposited(Object coins, Object kQsrCoinSymbol);
+
+  /// No description provided for @youAreReceiving.
+  ///
+  /// In en, this message translates to:
+  /// **'You are receiving'**
+  String get youAreReceiving;
+
+  /// No description provided for @youAreSending.
+  ///
+  /// In en, this message translates to:
+  /// **'You are sending'**
+  String get youAreSending;
 
   /// No description provided for @yourAddress.
   ///

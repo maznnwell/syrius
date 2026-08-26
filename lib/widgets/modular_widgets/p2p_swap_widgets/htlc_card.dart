@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_ce/hive_ce.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/color_utils.dart';
@@ -13,7 +14,6 @@ import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_inf
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class HtlcCard extends StatefulWidget {
-
   const HtlcCard({
     required this.title,
     required this.sender,
@@ -29,62 +29,61 @@ class HtlcCard extends StatefulWidget {
   });
 
   factory HtlcCard.sending({
+    required BuildContext context,
     required HtlcSwap swap,
-  }) =>
-      HtlcCard(
-        title: 'You are sending',
-        sender: swap.selfAddress,
-        htlcId: swap.direction == P2pSwapDirection.outgoing
-            ? swap.initialHtlcId
-            : swap.counterHtlcId,
-        hashLock: swap.hashLock,
-        expirationTime: swap.direction == P2pSwapDirection.outgoing
-            ? swap.initialHtlcExpirationTime
-            : swap.counterHtlcExpirationTime,
-        recipient: swap.counterpartyAddress,
-        amount: swap.fromAmount,
-        tokenStandard: swap.fromTokenStandard,
-        tokenDecimals: swap.fromDecimals,
-        tokenSymbol: swap.fromSymbol,
-      );
+  }) => HtlcCard(
+    title: context.l10n.youAreSending,
+    sender: swap.selfAddress,
+    htlcId: swap.direction == P2pSwapDirection.outgoing
+        ? swap.initialHtlcId
+        : swap.counterHtlcId,
+    hashLock: swap.hashLock,
+    expirationTime: swap.direction == P2pSwapDirection.outgoing
+        ? swap.initialHtlcExpirationTime
+        : swap.counterHtlcExpirationTime,
+    recipient: swap.counterpartyAddress,
+    amount: swap.fromAmount,
+    tokenStandard: swap.fromTokenStandard,
+    tokenDecimals: swap.fromDecimals,
+    tokenSymbol: swap.fromSymbol,
+  );
 
   factory HtlcCard.receiving({
+    required BuildContext context,
     required HtlcSwap swap,
-  }) =>
-      HtlcCard(
-        title: 'You are receiving',
-        sender: swap.counterpartyAddress,
-        htlcId: swap.direction == P2pSwapDirection.outgoing
-            ? swap.counterHtlcId
-            : swap.initialHtlcId,
-        hashLock: swap.hashLock,
-        expirationTime: swap.direction == P2pSwapDirection.outgoing
-            ? swap.counterHtlcExpirationTime
-            : swap.initialHtlcExpirationTime,
-        recipient: swap.selfAddress,
-        amount: swap.toAmount,
-        tokenStandard: swap.toTokenStandard,
-        tokenDecimals: swap.toDecimals,
-        tokenSymbol: swap.toSymbol,
-      );
+  }) => HtlcCard(
+    title: context.l10n.youAreReceiving,
+    sender: swap.counterpartyAddress,
+    htlcId: swap.direction == P2pSwapDirection.outgoing
+        ? swap.counterHtlcId
+        : swap.initialHtlcId,
+    hashLock: swap.hashLock,
+    expirationTime: swap.direction == P2pSwapDirection.outgoing
+        ? swap.counterHtlcExpirationTime
+        : swap.initialHtlcExpirationTime,
+    recipient: swap.selfAddress,
+    amount: swap.toAmount,
+    tokenStandard: swap.toTokenStandard,
+    tokenDecimals: swap.toDecimals,
+    tokenSymbol: swap.toSymbol,
+  );
 
   factory HtlcCard.fromHtlcInfo({
     required String title,
     required HtlcInfo htlc,
     required Token token,
-  }) =>
-      HtlcCard(
-        title: title,
-        sender: htlc.timeLocked.toString(),
-        htlcId: htlc.id.toString(),
-        hashLock: FormatUtils.encodeHexString(htlc.hashLock),
-        expirationTime: htlc.expirationTime,
-        recipient: htlc.hashLocked.toString(),
-        amount: htlc.amount,
-        tokenStandard: token.tokenStandard.toString(),
-        tokenDecimals: token.decimals,
-        tokenSymbol: token.symbol,
-      );
+  }) => HtlcCard(
+    title: title,
+    sender: htlc.timeLocked.toString(),
+    htlcId: htlc.id.toString(),
+    hashLock: FormatUtils.encodeHexString(htlc.hashLock),
+    expirationTime: htlc.expirationTime,
+    recipient: htlc.hashLocked.toString(),
+    amount: htlc.amount,
+    tokenStandard: token.tokenStandard.toString(),
+    tokenDecimals: token.decimals,
+    tokenSymbol: token.symbol,
+  );
   final String title;
   final String sender;
   final String? htlcId;
@@ -134,10 +133,10 @@ class _HtlcCardState extends State<HtlcCard>
   }
 
   Widget _getWaitingBody() {
-    return const SizedBox(
+    return SizedBox(
       height: 94,
       child: LoadingInfoText(
-        text: 'Waiting for the counterparty to join the swap.',
+        text: context.l10n.waitingForCounterpartyToJoin,
       ),
     );
   }
@@ -150,8 +149,10 @@ class _HtlcCardState extends State<HtlcCard>
         children: <Widget>[
           Text(
             widget.title,
-            style:
-                const TextStyle(fontSize: 14, color: AppColors.subtitleColor),
+            style: const TextStyle(
+              fontSize: 14,
+              color: AppColors.subtitleColor,
+            ),
           ),
           const SizedBox(
             height: 10,
@@ -191,7 +192,8 @@ class _HtlcCardState extends State<HtlcCard>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: ColorUtils.getTokenColor(
-                          TokenStandard.parse(widget.tokenStandard!),),
+                        TokenStandard.parse(widget.tokenStandard!),
+                      ),
                     ),
                   ),
                 ],
@@ -247,34 +249,38 @@ class _HtlcCardState extends State<HtlcCard>
     children.add(_getExpirationRow(widget.expirationTime!));
     children.add(
       DetailRow(
-          label: 'Deposit ID',
-          value: htlcId.toString(),
-          valueToShow: htlcId.toShortString(),),
+        label: context.l10n.depositId,
+        value: htlcId.toString(),
+        valueToShow: htlcId.toShortString(),
+      ),
     );
     children.add(
       DetailRow(
-        label: 'Token standard',
+        label: context.l10n.tokenStandard,
         value: widget.tokenStandard!,
         prefixWidget: _getTokenStandardTooltip(widget.tokenStandard ?? ''),
       ),
     );
     children.add(
       DetailRow(
-          label: 'Sender',
-          value: widget.sender,
-          valueToShow: ZenonAddressUtils.getLabel(widget.sender),),
+        label: context.l10n.sender,
+        value: widget.sender,
+        valueToShow: ZenonAddressUtils.getLabel(widget.sender),
+      ),
     );
     children.add(
       DetailRow(
-          label: 'Recipient',
-          value: widget.recipient!,
-          valueToShow: ZenonAddressUtils.getLabel(widget.recipient!),),
+        label: context.l10n.recipient,
+        value: widget.recipient!,
+        valueToShow: ZenonAddressUtils.getLabel(widget.recipient!),
+      ),
     );
     children.add(
       DetailRow(
-          label: 'Hashlock',
-          value: hashLock.toString(),
-          valueToShow: hashLock.toShortString(),),
+        label: context.l10n.hashlock,
+        value: hashLock.toString(),
+        valueToShow: hashLock.toShortString(),
+      ),
     );
     return Column(
       children: children.zip(
@@ -289,15 +295,15 @@ class _HtlcCardState extends State<HtlcCard>
   }
 
   Widget? _getTokenStandardTooltip(String tokenStandard) {
-    String message = 'This token is not in your favorites.';
+    String message = context.l10n.tokenNotInFavorites;
     IconData icon = Icons.help;
     Color iconColor = AppColors.errorColor;
     if (<String>[znnTokenStandard, qsrTokenStandard].contains(tokenStandard)) {
-      message = 'This token is verified.';
+      message = context.l10n.tokenVerified;
       icon = Icons.check_circle_outline;
       iconColor = AppColors.znnColor;
     } else if (Hive.box(kFavoriteTokensBox).values.contains(tokenStandard)) {
-      message = 'This token is in your favorites.';
+      message = context.l10n.tokenInFavorites;
       icon = Icons.star;
       iconColor = AppColors.znnColor;
     } else {}
@@ -315,20 +321,25 @@ class _HtlcCardState extends State<HtlcCard>
   }
 
   Widget _getExpirationRow(int expirationTime) {
-    final Duration duration =
-        Duration(seconds: expirationTime - DateTimeUtils.unixTimeNow);
+    final Duration duration = Duration(
+      seconds: expirationTime - DateTimeUtils.unixTimeNow,
+    );
     if (duration.isNegative) {
-      return const DetailRow(
-          label: 'Expires in', value: 'Expired', canBeCopied: false,);
+      return DetailRow(
+        label: context.l10n.expiresIn,
+        value: context.l10n.expired,
+        canBeCopied: false,
+      );
     }
     return TweenAnimationBuilder<Duration>(
       duration: duration,
       tween: Tween(begin: duration, end: Duration.zero),
       builder: (_, Duration d, __) {
         return DetailRow(
-            label: 'Expires in',
-            value: d.toString().split('.').first,
-            canBeCopied: false,);
+          label: context.l10n.expiresIn,
+          value: d.toString().split('.').first,
+          canBeCopied: false,
+        );
       },
     );
   }

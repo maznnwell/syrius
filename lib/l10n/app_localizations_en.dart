@@ -210,6 +210,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get depositExpiresIn => 'Deposit expires in';
 
   @override
+  String get depositId => 'Deposit ID';
+
+  @override
   String deposited(Object kQsrCoinSymbol) {
     return '$kQsrCoinSymbol deposited';
   }
@@ -338,6 +341,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expiration => 'Expiration';
+
+  @override
+  String get expired => 'Expired';
+
+  @override
+  String get expiresIn => 'Expires in';
 
   @override
   String get expectedProducedMomentums => 'Expected/produced momentums';
@@ -551,9 +560,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get p2pSwapWarningTitle => 'Before continuing';
 
   @override
-  String get p2pSwapYouAreSending => 'You are sending';
-
-  @override
   String get password => 'Password';
 
   @override
@@ -696,6 +702,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get receivingWrongTokenOrAmount =>
       'I\'m receiving the wrong token or amount.';
+
+  @override
+  String get recipient => 'Recipient';
 
   @override
   String get recipientAddress => 'Recipient Address';
@@ -992,9 +1001,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tokenName => 'Token Name';
 
   @override
+  String get tokenInFavorites => 'This token is in your favorites.';
+
+  @override
+  String get tokenNotInFavorites => 'This token is not in your favorites.';
+
+  @override
   String tokenRemovedFromFavorites(Object name) {
     return '$name token has been removed from favorites';
   }
+
+  @override
+  String get tokenStandard => 'Token standard';
 
   @override
   String get tokenStatusUtilityTooltip =>
@@ -1019,6 +1037,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tokenTransactions => 'Token Transactions';
+
+  @override
+  String get tokenVerified => 'This token is verified.';
 
   @override
   String get tokens => 'Tokens';
@@ -1113,6 +1134,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get waitingForDataFetching => 'Waiting for data fetching';
 
   @override
+  String get waitingForCounterpartyToJoin =>
+      'Waiting for the counterparty to join the swap.';
+
+  @override
   String get waitingForCounterpartyKeepRunning =>
       'Waiting for the counterparty. Please keep Syrius running.';
 
@@ -1138,6 +1163,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String youHaveDeposited(Object coins, Object kQsrCoinSymbol) {
     return 'You have deposited $coins $kQsrCoinSymbol';
   }
+
+  @override
+  String get youAreReceiving => 'You are receiving';
+
+  @override
+  String get youAreSending => 'You are sending';
 
   @override
   String get yourAddress => 'Your address';
