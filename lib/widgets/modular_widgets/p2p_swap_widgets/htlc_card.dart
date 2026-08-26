@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_ce/hive_ce.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/constants/app_sizes.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
@@ -99,202 +100,151 @@ class HtlcCard extends StatefulWidget {
   State<HtlcCard> createState() => _HtlcCardState();
 }
 
-class _HtlcCardState extends State<HtlcCard>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _animationController;
-
+class _HtlcCardState extends State<HtlcCard> {
   final Duration _animationDuration = const Duration(milliseconds: 100);
-  final Cubic _animationCurve = Curves.easeInOut;
-
   bool _areDetailsExpanded = false;
 
   @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: _animationDuration,
-      vsync: this,
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return AnimatedSize(
-      duration: _animationDuration,
-      curve: _animationCurve,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary,
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
-        ),
-        child: widget.htlcId == null ? _getWaitingBody() : _getWidgetBody(),
-      ),
+    final Widget loading = LoadingInfoText(
+      text: context.l10n.waitingForCounterpartyToJoin,
     );
-  }
 
-  Widget _getWaitingBody() {
+    final Widget cardChild = widget.htlcId == null
+        ? loading
+        : _buildWidgetBody();
+
     return SizedBox(
-      height: 94,
-      child: LoadingInfoText(
-        text: context.l10n.waitingForCounterpartyToJoin,
+      height: 72,
+      child: Card.filled(
+        color: AppColors.znnColor.withAlpha((255 * 0.2).round()),
+        clipBehavior: Clip.hardEdge,
+        child: cardChild,
       ),
     );
   }
 
-  Widget _getWidgetBody() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Text(
-            widget.title,
-            style: const TextStyle(
-              fontSize: 14,
-              color: AppColors.subtitleColor,
-            ),
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              Row(
-                children: <Widget>[
-                  Container(
-                    constraints: const BoxConstraints(maxWidth: 280),
-                    child: Text(
-                      widget.amount!.addDecimals(widget.tokenDecimals!),
-                      style: const TextStyle(fontSize: 18),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      softWrap: false,
-                    ),
-                  ),
-                  Container(
-                    constraints: const BoxConstraints(maxWidth: 150),
-                    child: Text(
-                      ' ${widget.tokenSymbol!}',
-                      style: const TextStyle(fontSize: 18),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      softWrap: false,
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 8,
-                  ),
-                  Container(
-                    height: 6,
-                    width: 6,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: ColorUtils.getTokenColor(
-                        TokenStandard.parse(widget.tokenStandard!),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              _getDetailsButton(),
-            ],
-          ),
-          _getDetailsSection(),
-        ],
-      ),
-    );
-  }
+  Widget _buildWidgetBody() {
+    final String title =
+        '${widget.title} ${widget.amount!.addDecimals(widget.tokenDecimals!)} ';
 
-  Widget _getDetailsButton() {
     return InkWell(
-      onTap: () {
-        setState(() {
-          _areDetailsExpanded = !_areDetailsExpanded;
-          _areDetailsExpanded
-              ? _animationController.forward()
-              : _animationController.reverse();
-        });
-      },
-      child: RotationTransition(
-        turns: Tween<double>(begin: 0, end: 0.5).animate(_animationController),
-        child: const Icon(Icons.keyboard_arrow_down, size: 22),
-      ),
-    );
-  }
-
-  Widget _getDetailsSection() {
-    return AnimatedSize(
-      duration: _animationDuration,
-      curve: _animationCurve,
-      child: Visibility(
-        visible: _areDetailsExpanded,
+      mouseCursor: SystemMouseCursors.click,
+      onTap: () => setState(() => _areDetailsExpanded = !_areDetailsExpanded),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const SizedBox(height: 20),
-            Divider(color: Colors.white.withOpacity(0.1)),
-            const SizedBox(height: 20),
-            _getDetailsList(),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: RichText(
+                    text: TextSpan(
+                      text: title,
+                      children: <InlineSpan>[
+                        TextSpan(
+                          text: widget.tokenSymbol,
+                          style: TextStyle(
+                            color: ColorUtils.getTokenColor(
+                              TokenStandard.parse(widget.tokenStandard!),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                _buildArrowButton(),
+              ],
+            ),
+            _buildDetailsSection(),
           ],
         ),
       ),
     );
   }
 
-  Widget _getDetailsList() {
-    final List<Widget> children = <Widget>[];
+  Widget _buildArrowButton() {
+    return AnimatedRotation(
+      turns: _areDetailsExpanded ? 0.5 : 0,
+      duration: _animationDuration,
+      child: const Icon(Icons.keyboard_arrow_down),
+    );
+  }
+
+  Widget _buildDetailsSection() {
+    // TODO(maznnwell): create a widget that expands and shrinks
+    return AnimatedSwitcher(
+      duration: _animationDuration,
+      transitionBuilder:
+          (
+            Widget child,
+            Animation<double> animation,
+          ) {
+            return SizeTransition(
+              sizeFactor: animation,
+              child: child,
+            );
+          },
+      child: _areDetailsExpanded
+          ? Column(
+              children: <Widget>[
+                kVerticalGap16,
+                Divider(
+                  color: Colors.white.withAlpha((255 * 0.1).round()),
+                ),
+                kVerticalGap16,
+                _buildDetailsList(),
+              ],
+            )
+          : null,
+    );
+  }
+
+  Widget _buildDetailsList() {
     final Hash htlcId = Hash.parse(widget.htlcId!);
     final Hash hashLock = Hash.parse(widget.hashLock!);
-    children.add(_getExpirationRow(widget.expirationTime!));
-    children.add(
+
+    final List<Widget> children = <Widget>[
+      _buildExpirationRow(widget.expirationTime!),
       DetailRow(
         label: context.l10n.depositId,
         value: htlcId.toString(),
         valueToShow: htlcId.toShortString(),
       ),
-    );
-    children.add(
       DetailRow(
         label: context.l10n.tokenStandard,
         value: widget.tokenStandard!,
-        prefixWidget: _getTokenStandardTooltip(widget.tokenStandard ?? ''),
+        prefixWidget: _buildTokenStandardTooltip(
+          widget.tokenStandard ?? '',
+        ),
       ),
-    );
-    children.add(
       DetailRow(
         label: context.l10n.sender,
         value: widget.sender,
         valueToShow: ZenonAddressUtils.getLabel(widget.sender),
       ),
-    );
-    children.add(
       DetailRow(
         label: context.l10n.recipient,
         value: widget.recipient!,
         valueToShow: ZenonAddressUtils.getLabel(widget.recipient!),
       ),
-    );
-    children.add(
       DetailRow(
         label: context.l10n.hashlock,
         value: hashLock.toString(),
         valueToShow: hashLock.toShortString(),
       ),
-    );
+    ];
+
     return Column(
-      children: children.zip(
-        List.generate(
-          children.length - 1,
-          (int index) => const SizedBox(
-            height: 15,
-          ),
-        ),
-      ),
+      spacing: kVerticalGap16.height!,
+      children: children,
     );
   }
 
-  Widget? _getTokenStandardTooltip(String tokenStandard) {
+  Widget _buildTokenStandardTooltip(String tokenStandard) {
     String message = context.l10n.tokenNotInFavorites;
     IconData icon = Icons.help;
     Color iconColor = AppColors.errorColor;
@@ -306,40 +256,44 @@ class _HtlcCardState extends State<HtlcCard>
       message = context.l10n.tokenInFavorites;
       icon = Icons.star;
       iconColor = AppColors.znnColor;
-    } else {}
+    }
     return Tooltip(
       message: message,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 1),
-        child: Icon(
-          icon,
-          color: iconColor,
-          size: 14,
-        ),
+      child: Icon(
+        icon,
+        color: iconColor,
+        size: 16,
       ),
     );
   }
 
-  Widget _getExpirationRow(int expirationTime) {
+  Widget _buildExpirationRow(int expirationTime) {
     final Duration duration = Duration(
       seconds: expirationTime - DateTimeUtils.unixTimeNow,
     );
+
+    final Widget expired = DetailRow(
+      label: context.l10n.expiresIn,
+      value: context.l10n.expired,
+      canBeCopied: false,
+    );
+
     if (duration.isNegative) {
-      return DetailRow(
-        label: context.l10n.expiresIn,
-        value: context.l10n.expired,
-        canBeCopied: false,
-      );
+      return expired;
     }
     return TweenAnimationBuilder<Duration>(
       duration: duration,
-      tween: Tween(begin: duration, end: Duration.zero),
-      builder: (_, Duration d, __) {
-        return DetailRow(
+      tween: .new(begin: duration, end: Duration.zero),
+      builder: (_, Duration d, _) {
+        final Widget status = DetailRow(
           label: context.l10n.expiresIn,
           value: d.toString().split('.').first,
           canBeCopied: false,
         );
+
+        final Widget finalWidget = d > Duration.zero ? status : expired;
+
+        return finalWidget;
       },
     );
   }
