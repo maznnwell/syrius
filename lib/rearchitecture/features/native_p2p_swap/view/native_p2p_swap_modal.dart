@@ -83,7 +83,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
   Widget _getContent(HtlcSwap swap) {
     switch (swap.state) {
       case P2pSwapState.pending:
-        return _getPendingView();
+        return const _Pending();
       case P2pSwapState.active:
         return _getActiveView(swap);
       case P2pSwapState.completed:
@@ -94,25 +94,6 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
       default:
         return Container();
     }
-  }
-
-  Widget _getPendingView() {
-    return SizedBox(
-      height: 215,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            context.l10n.startingSwapPleaseWait,
-            style: const TextStyle(
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 25),
-          const SyriusLoadingWidget(),
-        ],
-      ),
-    );
   }
 
   Widget _getActiveView(HtlcSwap swap) {
@@ -623,5 +604,29 @@ class _AmountInfo extends StatelessWidget {
     final String symbol = _swap.fromSymbol;
 
     return Text('$amount $symbol');
+  }
+}
+
+class _Pending extends StatelessWidget {
+  const _Pending();
+
+  @override
+  Widget build(BuildContext context) {
+    final double height =
+        context.customDialogMaxHeight / 4;
+
+    return SizedBox(
+      height: height,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Text(
+            context.l10n.startingSwapPleaseWait,
+            style: context.textTheme.titleMedium,
+          ),
+          const SyriusLoadingWidget(),
+        ],
+      ),
+    );
   }
 }

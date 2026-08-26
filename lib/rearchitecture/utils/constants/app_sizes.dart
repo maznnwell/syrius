@@ -18,3 +18,6 @@ const SizedBox kHorizontalGap45 = SizedBox(width: 45);
 
 const double kInfiniteTableHorizontalPadding = 16;
 const double kDropdownMenuHeight = 400;
+
+const double kCustomDialogViewportHeightPercentage = 0.8;
+const double kCustomDialogViewportWidthPercentage = 0.4;

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:zenon_syrius_wallet_flutter/l10n/app_localizations.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/constants/app_sizes.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/theming/new_app_themes.dart';
+import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/dialogs.dart';
 
 /// Extension on the [BuildContext] class
 extension BuildContextExtension on BuildContext {
@@ -14,9 +16,32 @@ extension BuildContextExtension on BuildContext {
   TextTheme get textTheme => themeData.textTheme;
 
   /// Whether the app is currently in dark mode
-  bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
+  bool get isDarkMode =>
+      Theme
+          .of(this)
+          .brightness == Brightness.dark;
 
   /// Return the current new theme data
   //TODO(maznnwell): to be deleted/replaced
   ThemeData get newThemeData => isDarkMode ? newDarkTheme : newLightTheme;
+
+  /// Returns the current app view height in logical pixels
+  double get viewportHeight =>
+      MediaQuery
+          .sizeOf(this)
+          .height;
+
+  /// Returns the current app view width in logical pixels
+  double get viewportWidth =>
+      MediaQuery
+          .sizeOf(this)
+          .width;
+
+  /// Max height of [showCustomDialog]
+  double get customDialogMaxHeight =>
+      viewportHeight * kCustomDialogViewportHeightPercentage;
+
+  /// Max width of [showCustomDialog]
+  double get customDialogMaxWidth =>
+      viewportWidth * kCustomDialogViewportWidthPercentage;
 }

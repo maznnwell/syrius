@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/constants/app_sizes.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 
@@ -113,13 +114,11 @@ Future<T?> showCustomDialog<T>({
         Animation<double> animation,
         Animation<double> secondaryAnimation,
       ) {
-    final Size size = MediaQuery.sizeOf(context);
-
         return Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxHeight: size.height * 0.8,
-              maxWidth: size.width * 0.4,
+              maxHeight: context.customDialogMaxHeight,
+              maxWidth: context.customDialogMaxWidth,
             ),
             child: Theme(
               data: context.newThemeData,
