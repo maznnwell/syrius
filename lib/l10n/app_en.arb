@@ -1,6 +1,7 @@
 {
   "activePillars": "Active Pillars",
   "activeSentinels": "Active Sentinels",
+  "activeSwap": "Active swap",
   "address": "Address",
   "addressSearchDescription": "Addresses can be searched by label - \"Address 1\" - and by hex value - \"z1qxemdeddedxt0kenxxxxxxxxxxxxxxxxh9amk0\"",
   "addressToCollectRewards": "The address that will be able to collect the Pillar rewards",
@@ -27,6 +28,9 @@
   "burnableToken": "Burnable by any holder",
   "burnTokenIssueFee": "You will need to burn {amount} {symbol} to issue a token",
   "continueText": "Continue",
+  "copyDepositId": "Copy deposit ID",
+  "counterpartyAddress": "Counterparty address",
+  "counterpartyDepositId": "Counterparty deposit ID",
   "create": "Create",
   "createAnotherToken": "Create another Token",
   "createPillarDescription": "Start the process of deploying a Pillar Node in the network",
@@ -51,7 +55,10 @@
   "delegationStatsDescription": "This card displays the amount of {kZnnCoinSymbol} and the name of the Pillar that you delegated to",
   "delegators": "Delegators: {number}",
   "deposit": "Deposit",
+  "depositExpiresIn": "Deposit expires in",
   "deposited": "{kQsrCoinSymbol} deposited",
+  "depositedAmount": "Deposited amount",
+  "depositedAmountReclaimed": "Deposited amount (reclaimed)",
   "depositedCoinWillBurn": "All the deposited {kQsrCoinSymbol} will be burned in order to create the Pillar Slot",
   "disassemble": "DISASSEMBLE",
   "disassemblePillarToUnlockCoin": "You will be able to unlock the {kZnnCoinSymbol} if you choose to disassemble the Pillar",
@@ -59,6 +66,7 @@
   "dualCoinStats": "Dual Coin Stats",
   "dualCoinStatsDescription": "This card displays the circulating {kZnnCoinSymbol} and {kQsrCoinSymbol} supply from the network",
   "duration": "Duration",
+  "exchangeRate": "Exchange Rate",
   "errorCreatingToken": "Error while creating a new ZTS token",
   "errorAddingTokenToFavorites": "Error adding {name} token to favorites",
   "errorBurningZts": "Error while trying to burn ZTS",
@@ -82,7 +90,7 @@
   "errorWhileWithdrawing": "Error while withdrawing {kQsrCoinSymbol}",
   "expiration": "Expiration",
   "expectedProducedMomentums": "Expected/produced momentums",
-  "from": "from",
+  "from": "From",
   "fuse": "Fuse",
   "fusePlasmaDescription": "This card displays information about Plasma available per wallet address. A minimum of 10 {kQsrCoinSymbol} are needed to be fused in order to generate Plasma. The more {kQsrCoinSymbol} fused, the more Plasma is produced for the beneficiary address\n\nInsufficient Plasma: Proof-of-work for Plasma generation; limited to 1 transaction per momentum\nLow Plasma: between 10 and 89 {kQsrCoinSymbol}\nAverage Plasma: between 90 and 119 {kQsrCoinSymbol}\nHigh Plasma: over 120 {kQsrCoinSymbol}; recommended for complex transactions (register Pillars, Sentinels, staking and issuing ZTS tokens)",
   "fusePlasmaTitle": "Fuse Plasma",
@@ -91,7 +99,9 @@
   "goBack": "Go back",
   "hAgo": "h ago",
   "hash": "Hash",
+  "hashlock": "Hashlock",
   "hashValue": "Hash: {value}",
+  "hideDetails": "Hide details",
   "issueToken": "Issue Token",
   "latestTransactionsDescription": "This card displays the latest transactions (including ZTS tokens) of your selected address",
   "latestTransactionsTitle": "Latest Transactions",
@@ -121,7 +131,6 @@
   "numberOfDecimals": "Number of decimals: {number}",
   "ownZtsToken": "You own this ZTS token",
   "p2pSwapAddressHint": "Enter NoM address",
-  "p2pSwapCounterpartyAddress": "Counterparty address",
   "p2pSwapCounterpartyAddressDescription": "The address of the trading partner for the swap.",
   "p2pSwapFillDetails": "Fill in the swap details",
   "p2pSwapGeneratingPlasma": "Please wait while Plasma is generated",
@@ -151,7 +160,6 @@
   "p2pSwapWarningDescription": "Please note that the P2P swap is an experimental feature and may result in funds being lost.\n\nUse the feature with caution and consider splitting large swaps into multiple smaller ones.",
   "p2pSwapWarningTitle": "Before continuing",
   "p2pSwapYouAreSending": "You are sending",
-  "p2pSwapYourAddress": "Your address",
   "password": "Password",
   "pending": "Pending",
   "pendingTransactionsDescription": "This card displays the pending transactions (including ZTS tokens) for the selected address",
@@ -192,7 +200,10 @@
   "realtimeStatsDescription": "This card displays the number of {kZnnCoinSymbol} and {kQsrCoinSymbol} transactions. For example, a delegation is considered a {kZnnCoinSymbol} transaction from the network's perspective. Every interaction with the network embedded contracts is internally considered a transaction",
   "receive": "Receive",
   "receiver": "Receiver",
+  "receivingWrongTokenOrAmount": "I'm receiving the wrong token or amount.",
   "recipientAddress": "Recipient Address",
+  "reclaimFunds": "Reclaim funds",
+  "reclaimingFundsPleaseWait": "Reclaiming. This will take a moment.",
   "register": "Register",
   "registerAnotherPillar": "Register another Pillar",
   "registerPillar": "Register Pillar",
@@ -225,6 +236,8 @@
   "sentinelsListDescription": "This card displays information about the Sentinels that are currently active in the network",
   "sentinelsListTitle": "Sentinels List",
   "shareQr": "Share QR",
+  "shareDepositIdWithCounterparty": "Send your deposit ID to the counterparty via a messaging service so that they can join the swap.",
+  "showDetails": "Show details",
   "spawn": "Spawn",
   "stake": "Stake",
   "stakeCollectDescription": "This card displays your current staking rewards that are ready to be collected. If there are any rewards available, you will be able to collect them",
@@ -234,6 +247,7 @@
   "stakingStatsDescription": "This card displays the number of staking entries and the total {kZnnCoinSymbol} that you are currently staking",
   "stakesListDescription": "This card displays information about the stake entries for the selected address",
   "stakesListTitle": "Stakes",
+  "startingSwapPleaseWait": "Starting swap. This will take a moment.",
   "stakingRewardsDescription": "This card displays a chart with your staking rewards from your staking entries",
   "stakingRewardsBlockCreated": "Successfully created block for collecting the staking rewards. It will take at least 30 seconds for the data to update and to be able to receive the rewards.",
   "stakingRewardsTitle": "Staking Rewards",
@@ -243,7 +257,24 @@
   "successfullyMinted": "Successfully minted {amount} {symbol}",
   "successfullyMintedRequestedAmount": "You have successfully minted the requested amount: {amount} {symbol} {hash}",
   "sufficientPlasma": "Sufficient Plasma",
-  "to": "to",
+  "swap": "Swap",
+  "swapCompleted": "Swap completed.",
+  "swapCompletedFundsSoon": "Swap completed. You will receive the funds shortly.",
+  "swapExpiresIn": "The swap will expire in {duration}",
+  "@swapExpiresIn": {
+    "description": "Shows the remaining time before a swap expires.",
+    "placeholders": {
+      "duration": {
+        "type": "String",
+        "example": "0:10:00"
+      }
+    }
+  },
+  "swapSecret": "Swap secret",
+  "swapUnsuccessful": "The swap was unsuccessful.",
+  "swapUnsuccessfulWaitForExpiration": "The swap was unsuccessful.\nPlease wait for your deposit to expire to reclaim your funds.",
+  "swapping": "Swapping",
+  "to": "To",
   "tokenAddedToFavorites": "{name} token has been added to favorites",
   "tokenBalanceDescription": "This card displays information about ZTS tokens that you currently hold in your wallet",
   "tokenBalanceTitle": "Token Balance",
@@ -285,14 +316,38 @@
   "uptime": "Uptime",
   "utilityToken": "Utility token",
   "usDateFormat": "MM/dd/yyyy",
+  "verifyNonFavoriteToken": "You are receiving a token that is not in your favorites. Please verify that the token standard is correct: {tokenStandard}",
+  "@verifyNonFavoriteToken": {
+    "description": "Warns the user to verify a token that is not in their favorites.",
+    "placeholders": {
+      "tokenStandard": {
+        "type": "String",
+        "example": "zts1znnxxxxxxxxxxxxx9z4ulx"
+      }
+    }
+  },
   "viewPillars": "View Pillars",
   "viewMyTokens": "View my Tokens",
   "viewSentinels": "View Sentinels",
   "waitingForDataFetching": "Waiting for data fetching",
+  "waitingForCounterpartyKeepRunning": "Waiting for the counterparty. Please keep Syrius running.",
+  "waitToReclaimIncorrectDeposit": "If the token or the amount you are receiving is not what you have agreed upon, wait until your deposit expires to reclaim your funds.\nYour deposit will expire at {expirationDate}.",
+  "@waitToReclaimIncorrectDeposit": {
+    "description": "Explains when an incorrect swap deposit can be reclaimed.",
+    "placeholders": {
+      "expirationDate": {
+        "type": "String",
+        "example": "01/01/2026 12:00"
+      }
+    }
+  },
   "weight": "Weight",
+  "walletNotAutoLocked": "Your wallet will not be auto-locked while the swap is in progress.",
   "withdraw": "Withdraw",
   "yes": "yes",
   "youHaveDeposited": "You have deposited {coins} {kQsrCoinSymbol}",
+  "yourAddress": "Your address",
+  "yourDepositId": "Your deposit ID",
   "zenonTransactions": "{zenon} transactions",
   "znnController": "znn-controller ",
   "ztsSearchDescription": "Coins and tokens can be searched by name - \"Zenon\" -, by symbol - \"ZNN\" -, and by token standard - \"zts1znnxxxxxxxxxxxxx9z4ulx\""

@@ -15,6 +15,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activeSentinels => 'Active Sentinels';
 
   @override
+  String get activeSwap => 'Active swap';
+
+  @override
   String get address => 'Address';
 
   @override
@@ -102,6 +105,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get continueText => 'Continue';
+
+  @override
+  String get copyDepositId => 'Copy deposit ID';
+
+  @override
+  String get counterpartyAddress => 'Counterparty address';
+
+  @override
+  String get counterpartyDepositId => 'Counterparty deposit ID';
 
   @override
   String get create => 'Create';
@@ -195,9 +207,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deposit => 'Deposit';
 
   @override
+  String get depositExpiresIn => 'Deposit expires in';
+
+  @override
   String deposited(Object kQsrCoinSymbol) {
     return '$kQsrCoinSymbol deposited';
   }
+
+  @override
+  String get depositedAmount => 'Deposited amount';
+
+  @override
+  String get depositedAmountReclaimed => 'Deposited amount (reclaimed)';
 
   @override
   String depositedCoinWillBurn(Object kQsrCoinSymbol) {
@@ -230,6 +251,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get duration => 'Duration';
+
+  @override
+  String get exchangeRate => 'Exchange Rate';
 
   @override
   String get errorCreatingToken => 'Error while creating a new ZTS token';
@@ -316,7 +340,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expectedProducedMomentums => 'Expected/produced momentums';
 
   @override
-  String get from => 'from';
+  String get from => 'From';
 
   @override
   String get fuse => 'Fuse';
@@ -347,9 +371,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hash => 'Hash';
 
   @override
+  String get hashlock => 'Hashlock';
+
+  @override
   String hashValue(Object value) {
     return 'Hash: $value';
   }
+
+  @override
+  String get hideDetails => 'Hide details';
 
   @override
   String get issueToken => 'Issue Token';
@@ -450,9 +480,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get p2pSwapAddressHint => 'Enter NoM address';
 
   @override
-  String get p2pSwapCounterpartyAddress => 'Counterparty address';
-
-  @override
   String get p2pSwapCounterpartyAddressDescription =>
       'The address of the trading partner for the swap.';
 
@@ -522,9 +549,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get p2pSwapYouAreSending => 'You are sending';
-
-  @override
-  String get p2pSwapYourAddress => 'Your address';
 
   @override
   String get password => 'Password';
@@ -667,7 +691,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get receiver => 'Receiver';
 
   @override
+  String get receivingWrongTokenOrAmount =>
+      'I\'m receiving the wrong token or amount.';
+
+  @override
   String get recipientAddress => 'Recipient Address';
+
+  @override
+  String get reclaimFunds => 'Reclaim funds';
+
+  @override
+  String get reclaimingFundsPleaseWait =>
+      'Reclaiming. This will take a moment.';
 
   @override
   String get register => 'Register';
@@ -785,6 +820,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shareQr => 'Share QR';
 
   @override
+  String get shareDepositIdWithCounterparty =>
+      'Send your deposit ID to the counterparty via a messaging service so that they can join the swap.';
+
+  @override
+  String get showDetails => 'Show details';
+
+  @override
   String get spawn => 'Spawn';
 
   @override
@@ -814,6 +856,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stakesListTitle => 'Stakes';
+
+  @override
+  String get startingSwapPleaseWait =>
+      'Starting swap. This will take a moment.';
 
   @override
   String get stakingRewardsDescription =>
@@ -861,7 +907,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sufficientPlasma => 'Sufficient Plasma';
 
   @override
-  String get to => 'to';
+  String get swap => 'Swap';
+
+  @override
+  String get swapCompleted => 'Swap completed.';
+
+  @override
+  String get swapCompletedFundsSoon =>
+      'Swap completed. You will receive the funds shortly.';
+
+  @override
+  String swapExpiresIn(String duration) {
+    return 'The swap will expire in $duration';
+  }
+
+  @override
+  String get swapSecret => 'Swap secret';
+
+  @override
+  String get swapUnsuccessful => 'The swap was unsuccessful.';
+
+  @override
+  String get swapUnsuccessfulWaitForExpiration =>
+      'The swap was unsuccessful.\nPlease wait for your deposit to expire to reclaim your funds.';
+
+  @override
+  String get swapping => 'Swapping';
+
+  @override
+  String get to => 'To';
 
   @override
   String tokenAddedToFavorites(Object name) {
@@ -1015,6 +1089,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get usDateFormat => 'MM/dd/yyyy';
 
   @override
+  String verifyNonFavoriteToken(String tokenStandard) {
+    return 'You are receiving a token that is not in your favorites. Please verify that the token standard is correct: $tokenStandard';
+  }
+
+  @override
   String get viewPillars => 'View Pillars';
 
   @override
@@ -1027,7 +1106,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get waitingForDataFetching => 'Waiting for data fetching';
 
   @override
+  String get waitingForCounterpartyKeepRunning =>
+      'Waiting for the counterparty. Please keep Syrius running.';
+
+  @override
+  String waitToReclaimIncorrectDeposit(String expirationDate) {
+    return 'If the token or the amount you are receiving is not what you have agreed upon, wait until your deposit expires to reclaim your funds.\nYour deposit will expire at $expirationDate.';
+  }
+
+  @override
   String get weight => 'Weight';
+
+  @override
+  String get walletNotAutoLocked =>
+      'Your wallet will not be auto-locked while the swap is in progress.';
 
   @override
   String get withdraw => 'Withdraw';
@@ -1039,6 +1131,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String youHaveDeposited(Object coins, Object kQsrCoinSymbol) {
     return 'You have deposited $coins $kQsrCoinSymbol';
   }
+
+  @override
+  String get yourAddress => 'Your address';
+
+  @override
+  String get yourDepositId => 'Your deposit ID';
 
   @override
   String zenonTransactions(Object zenon) {

@@ -132,7 +132,7 @@ class _ViewState extends State<_View> {
                             .map((String? e) => e!)
                             .toList(),
                         enabled: !isSwapLoading,
-                        label: Text(context.l10n.p2pSwapYourAddress),
+                        label: Text(context.l10n.yourAddress),
                         selectedAddress: _sender,
                       ),
                     ),
@@ -144,7 +144,7 @@ class _ViewState extends State<_View> {
                               ? _counterpartyAddressError
                               : null,
                           hintText: context.l10n.p2pSwapAddressHint,
-                          labelText: context.l10n.p2pSwapCounterpartyAddress,
+                          labelText: context.l10n.counterpartyAddress,
                           suffixIcon: PasteContentButton(
                             controller: _counterpartyAddressController,
                           ),

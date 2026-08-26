@@ -106,6 +106,12 @@ abstract class AppLocalizations {
   /// **'Active Sentinels'**
   String get activeSentinels;
 
+  /// No description provided for @activeSwap.
+  ///
+  /// In en, this message translates to:
+  /// **'Active swap'**
+  String get activeSwap;
+
   /// No description provided for @address.
   ///
   /// In en, this message translates to:
@@ -262,6 +268,24 @@ abstract class AppLocalizations {
   /// **'Continue'**
   String get continueText;
 
+  /// No description provided for @copyDepositId.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy deposit ID'**
+  String get copyDepositId;
+
+  /// No description provided for @counterpartyAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Counterparty address'**
+  String get counterpartyAddress;
+
+  /// No description provided for @counterpartyDepositId.
+  ///
+  /// In en, this message translates to:
+  /// **'Counterparty deposit ID'**
+  String get counterpartyDepositId;
+
   /// No description provided for @create.
   ///
   /// In en, this message translates to:
@@ -406,11 +430,29 @@ abstract class AppLocalizations {
   /// **'Deposit'**
   String get deposit;
 
+  /// No description provided for @depositExpiresIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit expires in'**
+  String get depositExpiresIn;
+
   /// No description provided for @deposited.
   ///
   /// In en, this message translates to:
   /// **'{kQsrCoinSymbol} deposited'**
   String deposited(Object kQsrCoinSymbol);
+
+  /// No description provided for @depositedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposited amount'**
+  String get depositedAmount;
+
+  /// No description provided for @depositedAmountReclaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposited amount (reclaimed)'**
+  String get depositedAmountReclaimed;
 
   /// No description provided for @depositedCoinWillBurn.
   ///
@@ -453,6 +495,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Duration'**
   String get duration;
+
+  /// No description provided for @exchangeRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange Rate'**
+  String get exchangeRate;
 
   /// No description provided for @errorCreatingToken.
   ///
@@ -595,7 +643,7 @@ abstract class AppLocalizations {
   /// No description provided for @from.
   ///
   /// In en, this message translates to:
-  /// **'from'**
+  /// **'From'**
   String get from;
 
   /// No description provided for @fuse.
@@ -646,11 +694,23 @@ abstract class AppLocalizations {
   /// **'Hash'**
   String get hash;
 
+  /// No description provided for @hashlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Hashlock'**
+  String get hashlock;
+
   /// No description provided for @hashValue.
   ///
   /// In en, this message translates to:
   /// **'Hash: {value}'**
   String hashValue(Object value);
+
+  /// No description provided for @hideDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide details'**
+  String get hideDetails;
 
   /// No description provided for @issueToken.
   ///
@@ -826,12 +886,6 @@ abstract class AppLocalizations {
   /// **'Enter NoM address'**
   String get p2pSwapAddressHint;
 
-  /// No description provided for @p2pSwapCounterpartyAddress.
-  ///
-  /// In en, this message translates to:
-  /// **'Counterparty address'**
-  String get p2pSwapCounterpartyAddress;
-
   /// No description provided for @p2pSwapCounterpartyAddressDescription.
   ///
   /// In en, this message translates to:
@@ -951,12 +1005,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You are sending'**
   String get p2pSwapYouAreSending;
-
-  /// No description provided for @p2pSwapYourAddress.
-  ///
-  /// In en, this message translates to:
-  /// **'Your address'**
-  String get p2pSwapYourAddress;
 
   /// No description provided for @password.
   ///
@@ -1198,11 +1246,29 @@ abstract class AppLocalizations {
   /// **'Receiver'**
   String get receiver;
 
+  /// No description provided for @receivingWrongTokenOrAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m receiving the wrong token or amount.'**
+  String get receivingWrongTokenOrAmount;
+
   /// No description provided for @recipientAddress.
   ///
   /// In en, this message translates to:
   /// **'Recipient Address'**
   String get recipientAddress;
+
+  /// No description provided for @reclaimFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Reclaim funds'**
+  String get reclaimFunds;
+
+  /// No description provided for @reclaimingFundsPleaseWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Reclaiming. This will take a moment.'**
+  String get reclaimingFundsPleaseWait;
 
   /// No description provided for @register.
   ///
@@ -1401,6 +1467,18 @@ abstract class AppLocalizations {
   /// **'Share QR'**
   String get shareQr;
 
+  /// No description provided for @shareDepositIdWithCounterparty.
+  ///
+  /// In en, this message translates to:
+  /// **'Send your deposit ID to the counterparty via a messaging service so that they can join the swap.'**
+  String get shareDepositIdWithCounterparty;
+
+  /// No description provided for @showDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Show details'**
+  String get showDetails;
+
   /// No description provided for @spawn.
   ///
   /// In en, this message translates to:
@@ -1454,6 +1532,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stakes'**
   String get stakesListTitle;
+
+  /// No description provided for @startingSwapPleaseWait.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting swap. This will take a moment.'**
+  String get startingSwapPleaseWait;
 
   /// No description provided for @stakingRewardsDescription.
   ///
@@ -1517,10 +1601,58 @@ abstract class AppLocalizations {
   /// **'Sufficient Plasma'**
   String get sufficientPlasma;
 
+  /// No description provided for @swap.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap'**
+  String get swap;
+
+  /// No description provided for @swapCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap completed.'**
+  String get swapCompleted;
+
+  /// No description provided for @swapCompletedFundsSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap completed. You will receive the funds shortly.'**
+  String get swapCompletedFundsSoon;
+
+  /// Shows the remaining time before a swap expires.
+  ///
+  /// In en, this message translates to:
+  /// **'The swap will expire in {duration}'**
+  String swapExpiresIn(String duration);
+
+  /// No description provided for @swapSecret.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap secret'**
+  String get swapSecret;
+
+  /// No description provided for @swapUnsuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'The swap was unsuccessful.'**
+  String get swapUnsuccessful;
+
+  /// No description provided for @swapUnsuccessfulWaitForExpiration.
+  ///
+  /// In en, this message translates to:
+  /// **'The swap was unsuccessful.\nPlease wait for your deposit to expire to reclaim your funds.'**
+  String get swapUnsuccessfulWaitForExpiration;
+
+  /// No description provided for @swapping.
+  ///
+  /// In en, this message translates to:
+  /// **'Swapping'**
+  String get swapping;
+
   /// No description provided for @to.
   ///
   /// In en, this message translates to:
-  /// **'to'**
+  /// **'To'**
   String get to;
 
   /// No description provided for @tokenAddedToFavorites.
@@ -1773,6 +1905,12 @@ abstract class AppLocalizations {
   /// **'MM/dd/yyyy'**
   String get usDateFormat;
 
+  /// Warns the user to verify a token that is not in their favorites.
+  ///
+  /// In en, this message translates to:
+  /// **'You are receiving a token that is not in your favorites. Please verify that the token standard is correct: {tokenStandard}'**
+  String verifyNonFavoriteToken(String tokenStandard);
+
   /// No description provided for @viewPillars.
   ///
   /// In en, this message translates to:
@@ -1797,11 +1935,29 @@ abstract class AppLocalizations {
   /// **'Waiting for data fetching'**
   String get waitingForDataFetching;
 
+  /// No description provided for @waitingForCounterpartyKeepRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for the counterparty. Please keep Syrius running.'**
+  String get waitingForCounterpartyKeepRunning;
+
+  /// Explains when an incorrect swap deposit can be reclaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'If the token or the amount you are receiving is not what you have agreed upon, wait until your deposit expires to reclaim your funds.\nYour deposit will expire at {expirationDate}.'**
+  String waitToReclaimIncorrectDeposit(String expirationDate);
+
   /// No description provided for @weight.
   ///
   /// In en, this message translates to:
   /// **'Weight'**
   String get weight;
+
+  /// No description provided for @walletNotAutoLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Your wallet will not be auto-locked while the swap is in progress.'**
+  String get walletNotAutoLocked;
 
   /// No description provided for @withdraw.
   ///
@@ -1820,6 +1976,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You have deposited {coins} {kQsrCoinSymbol}'**
   String youHaveDeposited(Object coins, Object kQsrCoinSymbol);
+
+  /// No description provided for @yourAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Your address'**
+  String get yourAddress;
+
+  /// No description provided for @yourDepositId.
+  ///
+  /// In en, this message translates to:
+  /// **'Your deposit ID'**
+  String get yourDepositId;
 
   /// No description provided for @zenonTransactions.
   ///

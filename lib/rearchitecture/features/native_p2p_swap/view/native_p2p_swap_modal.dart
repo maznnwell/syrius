@@ -9,11 +9,9 @@ import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/complete_ht
 import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/reclaim_htlc_swap_funds_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap_details/p2p_swap_details.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/modular_widgets/p2p_swap_widgets/htlc_card.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/native_p2p_swap/widgets/htlc_swap_details_widget.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/elevated_button.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/instruction_button.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/error_widget.dart';
@@ -36,10 +34,9 @@ class NativeP2pSwapModal extends StatefulWidget {
 }
 
 class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
-  String _swapCompletedText = 'Swap completed.';
-
   bool _isSendingTransaction = false;
   bool _shouldShowIncorrectAmountInstructions = false;
+  bool _shouldShowFundsReceivedMessage = false;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +68,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
   }
 
   String? _getTitle(HtlcSwap swap) {
-    return swap.state == P2pSwapState.active ? 'Active swap' : null;
+    return swap.state == P2pSwapState.active ? context.l10n.activeSwap : null;
   }
 
   Widget _getContent(HtlcSwap swap) {
@@ -91,19 +88,19 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
   }
 
   Widget _getPendingView() {
-    return const SizedBox(
+    return SizedBox(
       height: 215,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text(
-            'Starting swap. This will take a moment.',
-            style: TextStyle(
+            context.l10n.startingSwapPleaseWait,
+            style: const TextStyle(
               fontSize: 16,
             ),
           ),
-          SizedBox(height: 25),
-          SyriusLoadingWidget(),
+          const SizedBox(height: 25),
+          const SyriusLoadingWidget(),
         ],
       ),
     );
@@ -159,7 +156,9 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
           height: 30,
         ),
         Text(
-          _swapCompletedText,
+          _shouldShowFundsReceivedMessage
+              ? context.l10n.swapCompletedFundsSoon
+              : context.l10n.swapCompleted,
           style: const TextStyle(
             fontSize: 16,
           ),
@@ -177,9 +176,9 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    const Text(
-                      'From',
-                      style: TextStyle(
+                    Text(
+                      context.l10n.from,
+                      style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.subtitleColor,
                       ),
@@ -195,9 +194,9 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    const Text(
-                      'To',
-                      style: TextStyle(
+                    Text(
+                      context.l10n.to,
+                      style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.subtitleColor,
                       ),
@@ -213,9 +212,9 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    const Text(
-                      'Exchange Rate',
-                      style: TextStyle(
+                    Text(
+                      context.l10n.exchangeRate,
+                      style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.subtitleColor,
                       ),
@@ -239,12 +238,12 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
     if (swap.counterHtlcId == null) {
       return Column(
         children: <Widget>[
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Text(
-              'Send your deposit ID to the counterparty via a messaging service so that they can join the swap.',
+              context.l10n.shareDepositIdWithCounterparty,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
               ),
             ),
@@ -253,7 +252,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
             height: 25,
           ),
           SyriusElevatedButton(
-            text: 'Copy deposit ID',
+            text: context.l10n.copyDepositId,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF333333),
             ),
@@ -275,9 +274,9 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                const Text(
-                  'Exchange Rate',
-                  style: TextStyle(
+                Text(
+                  context.l10n.exchangeRate,
+                  style: const TextStyle(
                     fontSize: 14,
                     color: AppColors.subtitleColor,
                   ),
@@ -298,9 +297,9 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 25),
                     child: ImportantTextContainer(
-                      text:
-                          '''You are receiving a token that is not in your favorites. '''
-                          '''Please verify that the token standard is correct: ${swap.toTokenStandard ?? ''}''',
+                      text: context.l10n.verifyNonFavoriteToken(
+                        swap.toTokenStandard ?? '',
+                      ),
                       isSelectable: true,
                     ),
                   ),
@@ -316,13 +315,11 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
           ),
           Visibility(
             visible: swap.direction == P2pSwapDirection.incoming,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 15),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15),
               child: LoadingInfoText(
-                text:
-                    'Waiting for the counterparty. Please keep Syrius running.',
-                tooltipText:
-                    'Your wallet will not be auto-locked while the swap is in progress.',
+                text: context.l10n.waitingForCounterpartyKeepRunning,
+                tooltipText: context.l10n.walletNotAutoLocked,
               ),
             ),
           ),
@@ -348,7 +345,9 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
           child: Padding(
             padding: const EdgeInsets.only(bottom: 25),
             child: ImportantTextContainer(
-              text: 'The swap will expire in ${d.toString().split('.').first}',
+              text: context.l10n.swapExpiresIn(
+                d.toString().split('.').first,
+              ),
             ),
           ),
         );
@@ -363,8 +362,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
           (HtlcSwap? event) async {
             if (event is HtlcSwap) {
               setState(() {
-                _swapCompletedText =
-                    'Swap completed. You will receive the funds shortly.';
+                _shouldShowFundsReceivedMessage = true;
               });
             }
           },
@@ -377,10 +375,10 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
         );
       },
       builder: (_, CompleteHtlcSwapBloc model, _) => InstructionButton(
-        text: 'Swap',
+        text: context.l10n.swap,
         isEnabled: true,
         isLoading: _isSendingTransaction,
-        loadingText: 'Swapping',
+        loadingText: context.l10n.swapping,
         onPressed: () {
           setState(() {
             _isSendingTransaction = true;
@@ -404,10 +402,10 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
             onTap: () => setState(() {
               _shouldShowIncorrectAmountInstructions = true;
             }),
-            child: const Center(
+            child: Center(
               child: Text(
-                "I'm receiving the wrong token or amount.",
-                style: TextStyle(
+                context.l10n.receivingWrongTokenOrAmount,
+                style: const TextStyle(
                   fontSize: 14,
                   color: AppColors.subtitleColor,
                 ),
@@ -427,7 +425,12 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
 
   Widget _getIncorrectAmountInstructions(int expirationTime) {
     return Text(
-      'If the token or the amount you are receiving is not what you have agreed upon, wait until your deposit expires to reclaim your funds.\nYour deposit will expire at ${FormatUtils.formatDate(expirationTime * 1000, dateFormat: kDefaultDateTimeFormat)}.',
+      context.l10n.waitToReclaimIncorrectDeposit(
+        FormatUtils.formatDate(
+          expirationTime * 1000,
+          dateFormat: kDefaultDateTimeFormat,
+        ),
+      ),
       textAlign: TextAlign.center,
       style: const TextStyle(
         fontSize: 14,
@@ -488,8 +491,8 @@ class _UnsuccessfulState extends State<_Unsuccessful> {
         ),
         Text(
           isReclaimable || widget._swap.state == P2pSwapState.unsuccessful
-              ? 'The swap was unsuccessful.'
-              : 'The swap was unsuccessful.\nPlease wait for your deposit to expire to reclaim your funds.',
+              ? context.l10n.swapUnsuccessful
+              : context.l10n.swapUnsuccessfulWaitForExpiration,
           style: context.textTheme.titleMedium,
           textAlign: TextAlign.center,
         ),
@@ -499,11 +502,11 @@ class _UnsuccessfulState extends State<_Unsuccessful> {
             padding: const EdgeInsets.all(16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+              children: <Widget>[
                 Text(
                   widget._swap.state == P2pSwapState.reclaimable
-                      ? 'Deposited amount'
-                      : 'Deposited amount (reclaimed)',
+                      ? context.l10n.depositedAmount
+                      : context.l10n.depositedAmountReclaimed,
                 ),
                 _AmountInfo(swap: widget._swap),
               ],
@@ -522,8 +525,8 @@ class _UnsuccessfulState extends State<_Unsuccessful> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      const Text(
-                        'Deposit expires in',
+                      Text(
+                        context.l10n.depositExpiresIn,
                       ),
                       Text(
                         d.toString().split('.').first,
@@ -553,10 +556,10 @@ class _UnsuccessfulState extends State<_Unsuccessful> {
         );
       },
       builder: (_, ReclaimHtlcSwapFundsBloc model, _) => InstructionButton(
-        text: 'Reclaim funds',
+        text: context.l10n.reclaimFunds,
         isEnabled: true,
         isLoading: _isSendingTransaction,
-        loadingText: 'Reclaiming. This will take a moment.',
+        loadingText: context.l10n.reclaimingFundsPleaseWait,
         onPressed: () {
           setState(() {
             _isSendingTransaction = true;

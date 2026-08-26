@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/constants/app_sizes.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/modular_widgets/p2p_swap_widgets/detail_row.dart';
@@ -36,7 +37,7 @@ class _HtlcSwapDetailsWidgetState extends State<HtlcSwapDetailsWidget> {
           ),
           onPressed: () => setState(() => _isExpanded = !_isExpanded),
           label: Text(
-            _isExpanded ? 'Hide details' : 'Show details',
+            _isExpanded ? context.l10n.hideDetails : context.l10n.showDetails,
             style: const TextStyle(
               fontSize: 14,
               color: AppColors.subtitleColor,
@@ -83,22 +84,22 @@ class _HtlcSwapDetailsWidgetState extends State<HtlcSwapDetailsWidget> {
 
     final List<Widget> children = <Widget>[
       DetailRow(
-        label: 'Your address',
+        label: context.l10n.yourAddress,
         value: swap.selfAddress,
         valueToShow: ZenonAddressUtils.getLabel(swap.selfAddress),
       ),
       DetailRow(
-        label: 'Counterparty address',
+        label: context.l10n.counterpartyAddress,
         value: swap.counterpartyAddress,
         valueToShow: ZenonAddressUtils.getLabel(swap.counterpartyAddress),
       ),
       DetailRow(
-        label: 'Your deposit ID',
+        label: context.l10n.yourDepositId,
         value: yourDepositId,
         valueToShow: Hash.parse(yourDepositId).toShortString(),
       ),
       DetailRow(
-        label: 'Hashlock',
+        label: context.l10n.hashlock,
         value: swap.hashLock,
         valueToShow: Hash.parse(swap.hashLock).toShortString(),
       ),
@@ -107,7 +108,7 @@ class _HtlcSwapDetailsWidgetState extends State<HtlcSwapDetailsWidget> {
     if (counterpartyDepositId != null) {
       children.add(
         DetailRow(
-          label: 'Counterparty deposit ID',
+          label: context.l10n.counterpartyDepositId,
           value: counterpartyDepositId,
           valueToShow: Hash.parse(counterpartyDepositId).toShortString(),
         ),
@@ -116,7 +117,7 @@ class _HtlcSwapDetailsWidgetState extends State<HtlcSwapDetailsWidget> {
     if (swap.preimage != null) {
       children.add(
         DetailRow(
-          label: 'Swap secret',
+          label: context.l10n.swapSecret,
           value: swap.preimage!,
           valueToShow: Hash.parse(swap.preimage!).toShortString(),
         ),
