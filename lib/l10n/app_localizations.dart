@@ -598,6 +598,12 @@ abstract class AppLocalizations {
   /// **'Error while trying to mint {symbol}'**
   String errorMintingToken(Object symbol);
 
+  /// No description provided for @errorReclaimingSwapFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Error while reclaiming swap funds'**
+  String get errorReclaimingSwapFunds;
+
   /// No description provided for @errorRemovingTokenFromFavorites.
   ///
   /// In en, this message translates to:
@@ -1624,6 +1630,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The swap will expire in {duration}'**
   String swapExpiresIn(String duration);
+
+  /// No description provided for @swapReclaimBlockCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Successfully created block for reclaiming swap funds.'**
+  String get swapReclaimBlockCreated;
 
   /// No description provided for @swapSecret.
   ///

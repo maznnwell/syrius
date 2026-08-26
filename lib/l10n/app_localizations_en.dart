@@ -312,6 +312,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get errorReclaimingSwapFunds => 'Error while reclaiming swap funds';
+
+  @override
   String errorRemovingTokenFromFavorites(Object name) {
     return 'Error removing $name token from favorites';
   }
@@ -920,6 +923,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String swapExpiresIn(String duration) {
     return 'The swap will expire in $duration';
   }
+
+  @override
+  String get swapReclaimBlockCreated =>
+      'Successfully created block for reclaiming swap funds.';
 
   @override
   String get swapSecret => 'Swap secret';

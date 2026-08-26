@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
+import 'package:provider/single_child_widget.dart';
 import 'package:stacked/stacked.dart';
+import 'package:zenon_syrius_wallet_flutter/blocs/notifications_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/complete_htlc_swap_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/reclaim_htlc_swap_funds_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
+import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
@@ -40,11 +42,18 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<P2pSwapDetailsBloc>(
-      create: (_) => P2pSwapDetailsBloc(
-        htlcSwapsService: htlcSwapsService!,
-        swapId: widget.swapId,
-      )..add(const P2pSwapDetailsRequested()),
+    return MultiBlocProvider(
+      providers: <SingleChildWidget>[
+        BlocProvider<P2pSwapDetailsBloc>(
+          create: (_) => P2pSwapDetailsBloc(
+            htlcSwapsService: htlcSwapsService!,
+            swapId: widget.swapId,
+          )..add(const P2pSwapDetailsRequested()),
+        ),
+        BlocProvider<SendTransactionBloc>(
+          create: (_) => SendTransactionBloc(),
+        ),
+      ],
       child: BlocBuilder<P2pSwapDetailsBloc, P2pSwapDetailsState>(
         builder: (_, P2pSwapDetailsState state) {
           return switch (state) {
@@ -450,30 +459,23 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
   }
 }
 
-class _Unsuccessful extends StatefulWidget {
+class _Unsuccessful extends StatelessWidget {
   const _Unsuccessful({required this._swap});
 
   final HtlcSwap _swap;
 
   @override
-  State<_Unsuccessful> createState() => _UnsuccessfulState();
-}
-
-class _UnsuccessfulState extends State<_Unsuccessful> {
-  bool _isSendingTransaction = false;
-
-  @override
   Widget build(BuildContext context) {
-    final int? expiration = widget._swap.direction == P2pSwapDirection.outgoing
-        ? widget._swap.initialHtlcExpirationTime
-        : widget._swap.counterHtlcExpirationTime;
+    final int? expiration = _swap.direction == P2pSwapDirection.outgoing
+        ? _swap.initialHtlcExpirationTime
+        : _swap.counterHtlcExpirationTime;
     final Duration remainingDuration = Duration(
       seconds: (expiration ?? 0) - DateTimeUtils.unixTimeNow,
     );
 
     final bool isReclaimable =
         remainingDuration.inSeconds <= 0 &&
-        widget._swap.state == P2pSwapState.reclaimable;
+        _swap.state == P2pSwapState.reclaimable;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -490,7 +492,7 @@ class _UnsuccessfulState extends State<_Unsuccessful> {
           ),
         ),
         Text(
-          isReclaimable || widget._swap.state == P2pSwapState.unsuccessful
+          isReclaimable || _swap.state == P2pSwapState.unsuccessful
               ? context.l10n.swapUnsuccessful
               : context.l10n.swapUnsuccessfulWaitForExpiration,
           style: context.textTheme.titleMedium,
@@ -504,11 +506,11 @@ class _UnsuccessfulState extends State<_Unsuccessful> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  widget._swap.state == P2pSwapState.reclaimable
+                  _swap.state == P2pSwapState.reclaimable
                       ? context.l10n.depositedAmount
                       : context.l10n.depositedAmountReclaimed,
                 ),
-                _AmountInfo(swap: widget._swap),
+                _AmountInfo(swap: _swap),
               ],
             ),
           ),
@@ -537,44 +539,75 @@ class _UnsuccessfulState extends State<_Unsuccessful> {
               );
             },
           ),
-        if (isReclaimable) _getReclaimButton(widget._swap),
-        HtlcSwapDetailsWidget(swap: widget._swap),
+        if (isReclaimable) _ReclaimButton(swap: _swap),
+        HtlcSwapDetailsWidget(swap: _swap),
       ],
     );
   }
+}
 
-  Widget _getReclaimButton(HtlcSwap swap) {
-    return ViewModelBuilder<ReclaimHtlcSwapFundsBloc>.reactive(
-      onViewModelReady: (ReclaimHtlcSwapFundsBloc model) {
-        model.stream.listen(
-          null,
-          onError: (error) {
-            setState(() {
-              _isSendingTransaction = false;
-            });
-          },
-        );
-      },
-      builder: (_, ReclaimHtlcSwapFundsBloc model, _) => InstructionButton(
+class _ReclaimButton extends StatelessWidget {
+  const _ReclaimButton({required this._swap});
+
+  final HtlcSwap _swap;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<SendTransactionBloc, SendTransactionState>(
+      listener: _onTransactionStateChanged,
+      builder: (_, SendTransactionState state) => InstructionButton(
         text: context.l10n.reclaimFunds,
         isEnabled: true,
-        isLoading: _isSendingTransaction,
+        isLoading: state.status == SendTransactionStatus.loading,
         loadingText: context.l10n.reclaimingFundsPleaseWait,
-        onPressed: () {
-          setState(() {
-            _isSendingTransaction = true;
-          });
-          unawaited(
-            model.reclaimFunds(
-              htlcId: swap.direction == P2pSwapDirection.outgoing
-                  ? Hash.parse(swap.initialHtlcId)
-                  : Hash.parse(swap.counterHtlcId!),
-              selfAddress: Address.parse(swap.selfAddress),
-            ),
-          );
-        },
+        onPressed: () => _onReclaimPressed(context),
       ),
-      viewModelBuilder: ReclaimHtlcSwapFundsBloc.new,
+    );
+  }
+
+  void _onTransactionStateChanged(
+    BuildContext context,
+    SendTransactionState state,
+  ) {
+    if (state.status == SendTransactionStatus.success) {
+      _sendConfirmationNotification(context, state.data!);
+    } else if (state.status == SendTransactionStatus.failure) {
+      unawaited(
+        NotificationUtils.sendNotificationError(
+          state.error!,
+          context.l10n.errorReclaimingSwapFunds,
+        ),
+      );
+    }
+  }
+
+  void _onReclaimPressed(BuildContext context) {
+    final String htlcId = _swap.direction == P2pSwapDirection.outgoing
+        ? _swap.initialHtlcId
+        : _swap.counterHtlcId!;
+
+    context.read<SendTransactionBloc>().add(
+      SendTransactionInitiateFromBlock(
+        block: zenon!.embedded.htlc.reclaim(Hash.parse(htlcId)),
+        fromAddress: _swap.selfAddress,
+        reasonForGeneratingPlasma: context.l10n.reclaimFunds,
+      ),
+    );
+  }
+
+  void _sendConfirmationNotification(
+    BuildContext context,
+    AccountBlockTemplate block,
+  ) {
+    unawaited(
+      sl.get<NotificationsBloc>().addNotification(
+        WalletNotification(
+          title: context.l10n.swapReclaimBlockCreated,
+          timestamp: DateTime.now().millisecondsSinceEpoch,
+          details: context.l10n.hashValue(block.hash.toString()),
+          type: NotificationType.paymentSent,
+        ),
+      ),
     );
   }
 }

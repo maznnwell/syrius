@@ -83,6 +83,7 @@
   "errorWhileCancellingStake": "Error while cancelling stake",
   "errorGeneratingPlasma": "Error while generating Plasma",
   "errorMintingToken": "Error while trying to mint {symbol}",
+  "errorReclaimingSwapFunds": "Error while reclaiming swap funds",
   "errorRemovingTokenFromFavorites": "Error removing {name} token from favorites",
   "errorTransferringTokenOwnership": "Error while trying to transfer token ownership",
   "errorWhileDepositing": "Error while depositing {kQsrCoinSymbol}",
@@ -270,6 +271,7 @@
       }
     }
   },
+  "swapReclaimBlockCreated": "Successfully created block for reclaiming swap funds.",
   "swapSecret": "Swap secret",
   "swapUnsuccessful": "The swap was unsuccessful.",
   "swapUnsuccessfulWaitForExpiration": "The swap was unsuccessful.\nPlease wait for your deposit to expire to reclaim your funds.",
