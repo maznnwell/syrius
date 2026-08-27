@@ -8,10 +8,8 @@ import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/initial_htl
 import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/join_htlc_swap_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/base_modal.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
-import 'package:zenon_syrius_wallet_flutter/utils/clipboard_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/date_time_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
@@ -107,64 +105,50 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
   }
 
   Widget _getSearchView() {
-    return Column(
-      children: <Widget>[
-        const SizedBox(
-          height: 20,
-        ),
-        Form(
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          child: InputField(
-            onChanged: (String value) {
-              setState(() {});
-            },
-            validator: InputValidators.checkHash,
-            controller: _depositIdController,
-            suffixIcon: RawMaterialButton(
-              shape: const CircleBorder(),
-              onPressed: () => ClipboardUtils.pasteToClipboard(
-                callback: (String value) {
-                  _depositIdController.text = value;
-                  setState(() {});
-                },
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: _depositIdController,
+      builder: (_, TextEditingValue value, _) {
+        final String? depositIdError = InputValidators.checkHash(value.text);
+        final bool isDepositIdValid =
+            value.text.isNotEmpty && depositIdError == null;
+
+        return Column(
+          spacing: kVerticalGap16.height!,
+          children: <Widget>[
+            TextField(
+              decoration: InputDecoration(
+                errorText: value.text.isNotEmpty ? depositIdError : null,
+                hintText: context.l10n.depositIdProvidedByCounterparty,
+                suffixIcon: FieldSuffixButtons(
+                  controller: _depositIdController,
+                ),
               ),
-              child: const Icon(
-                Icons.content_paste,
-                color: AppColors.darkHintTextColor,
-                size: 15,
+              controller: _depositIdController,
+            ),
+            Visibility(
+              visible: _initialHtlcError != null,
+              child: Column(
+                children: <Widget>[
+                  ImportantTextContainer(
+                    text: _initialHtlcError ?? '',
+                    showBorder: true,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                ],
               ),
             ),
-            suffixIconConstraints: const BoxConstraints(
-              maxWidth: 45,
-              maxHeight: 20,
-            ),
-            hintText: context.l10n.depositIdProvidedByCounterparty,
-            contentLeftPadding: 10,
-          ),
-        ),
-        const SizedBox(
-          height: 25,
-        ),
-        Visibility(
-          visible: _initialHtlcError != null,
-          child: Column(
-            children: <Widget>[
-              ImportantTextContainer(
-                text: _initialHtlcError ?? '',
-                showBorder: true,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-            ],
-          ),
-        ),
-        _getInitialHtlcViewModel(),
-      ],
+            _getInitialHtlcViewModel(isDepositIdValid: isDepositIdValid),
+          ],
+        );
+      },
     );
   }
 
-  ViewModelBuilder<InitialHtlcForSwapBloc> _getInitialHtlcViewModel() {
+  ViewModelBuilder<InitialHtlcForSwapBloc> _getInitialHtlcViewModel({
+    required bool isDepositIdValid,
+  }) {
     return ViewModelBuilder<InitialHtlcForSwapBloc>.reactive(
       onViewModelReady: (InitialHtlcForSwapBloc model) {
         model.stream.listen(
@@ -190,17 +174,20 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
         );
       },
       builder: (_, InitialHtlcForSwapBloc model, _) =>
-          _getContinueButton(model),
+          _getContinueButton(model, isDepositIdValid),
       viewModelBuilder: InitialHtlcForSwapBloc.new,
     );
   }
 
-  Widget _getContinueButton(InitialHtlcForSwapBloc model) {
+  Widget _getContinueButton(
+    InitialHtlcForSwapBloc model,
+    bool isDepositIdValid,
+  ) {
     return InstructionButton(
       text: context.l10n.continueText,
       loadingText: context.l10n.searching,
       instructionText: context.l10n.inputDepositId,
-      isEnabled: _isHashValid(),
+      isEnabled: isDepositIdValid,
       isLoading: _isLoading,
       onPressed: () => _onContinueButtonPressed(model),
     );
@@ -401,18 +388,20 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
     setState(() {
       _isLoading = true;
     });
-    unawaited(model.joinHtlcSwap(
-      initialHtlc: _initialHltc!,
-      fromToken: _selectedToken,
-      toToken: tokenToReceive,
-      fromAmount: _amountController.text.extractDecimals(
-        _selectedToken.decimals,
+    unawaited(
+      model.joinHtlcSwap(
+        initialHtlc: _initialHltc!,
+        fromToken: _selectedToken,
+        toToken: tokenToReceive,
+        fromAmount: _amountController.text.extractDecimals(
+          _selectedToken.decimals,
+        ),
+        swapType: P2pSwapType.native,
+        fromChain: P2pSwapChain.nom,
+        toChain: P2pSwapChain.nom,
+        counterHtlcExpirationTime: _safeExpirationTime!,
       ),
-      swapType: P2pSwapType.native,
-      fromChain: P2pSwapChain.nom,
-      toChain: P2pSwapChain.nom,
-      counterHtlcExpirationTime: _safeExpirationTime!,
-    ));
+    );
   }
 
   int? _calculateSafeExpirationTime(int initialHtlcExpiration) {
@@ -439,7 +428,4 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
   }
 
   bool _isInputValid() => _isAmountValid;
-
-  bool _isHashValid() =>
-      InputValidators.checkHash(_depositIdController.text) == null;
 }
