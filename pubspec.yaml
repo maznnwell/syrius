@@ -117,6 +117,5 @@ flutter:
   assets:
     - assets/
     - assets/images/
-    - assets/i18n/
     - assets/lottie/
     - assets/svg/
