@@ -17,7 +17,7 @@ import 'package:zenon_syrius_wallet_flutter/widgets/modular_widgets/p2p_swap_wid
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/instruction_button.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/error_widget.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/exchange_rate_widget.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/important_text_container.dart';
+import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/swap_warning.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_info_text.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_widget.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
@@ -265,11 +265,10 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
                   visible: !isTrustedToken(swap.toTokenStandard ?? ''),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 25),
-                    child: ImportantTextContainer(
+                    child: SwapWarning(
                       text: context.l10n.verifyNonFavoriteToken(
                         swap.toTokenStandard ?? '',
                       ),
-                      isSelectable: true,
                     ),
                   ),
                 ),
@@ -313,7 +312,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
           visible: timeToCompleteSwap <= warningThreshold,
           child: Padding(
             padding: const EdgeInsets.only(bottom: 25),
-            child: ImportantTextContainer(
+            child: SwapWarning(
               text: context.l10n.swapExpiresIn(
                 d.toString().split('.').first,
               ),

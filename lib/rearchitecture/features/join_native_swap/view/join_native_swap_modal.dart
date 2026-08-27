@@ -23,9 +23,9 @@ import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/bullet_poin
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/instruction_button.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/error_widget.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/exchange_rate_widget.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/important_text_container.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/input_fields.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_widget.dart';
+import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/swap_warning.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 /// Modal containing the form used to join a native P2P swap.
@@ -188,9 +188,8 @@ class _ViewState extends State<_View> {
 
         return Column(
           children: <Widget>[
-            ImportantTextContainer(
+            SwapWarning(
               text: exception.toString(),
-              showBorder: true,
             ),
             kVerticalGap16,
           ],
@@ -338,11 +337,10 @@ class _ViewState extends State<_View> {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 20),
-                  child: ImportantTextContainer(
+                  child: SwapWarning(
                     text: context.l10n.verifyNonFavoriteToken(
                       tokenToReceive.tokenStandard.toString(),
                     ),
-                    isSelectable: true,
                   ),
                 ),
               ),
@@ -350,9 +348,8 @@ class _ViewState extends State<_View> {
             ],
           )
         else
-          ImportantTextContainer(
+          SwapWarning(
             text: context.l10n.cannotJoinSwapExpiresTooSoon,
-            showBorder: true,
           ),
       ],
     );

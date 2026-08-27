@@ -6,7 +6,7 @@ import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/recover_htl
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/instruction_button.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/important_text_container.dart';
+import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/swap_warning.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/input_fields.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/base_modal.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
@@ -169,9 +169,8 @@ class _RecoverDepositModalState extends State<RecoverDepositModal> {
           visible: _errorText != null,
           child: Column(
             children: <Widget>[
-              ImportantTextContainer(
+              SwapWarning(
                 text: _errorText ?? '',
-                showBorder: true,
               ),
               const SizedBox(
                 height: 20,
