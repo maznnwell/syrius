@@ -78,7 +78,7 @@ class _View extends StatelessWidget {
         ),
         kVerticalGap25,
         P2pSwapOptionsButton(
-          title: context.l10n.p2pSwapJoin,
+          title: context.l10n.joinSwap,
           subtitle: context.l10n.p2pSwapJoinDescription,
           onClick: () => isGeneratingPlasma
               ? _showGeneratingPlasmaToast(context)

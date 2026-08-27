@@ -12,6 +12,7 @@
   "balance": "Balance",
   "beneficiaryAddress": "Beneficiary address",
   "cancel": "Cancel",
+  "cannotJoinSwapExpiresTooSoon": "Cannot join swap. The swap will expire too soon for a safe swap.",
   "cancelPlasmaConfirmation": "Are you sure you want to cancel the Plasma fusion?",
   "checkPillarStatus": " to check the Pillar status",
   "checkSentinelStatus": " to check the Sentinel status",
@@ -31,6 +32,16 @@
   "copyDepositId": "Copy deposit ID",
   "counterpartyAddress": "Counterparty address",
   "counterpartyDepositId": "Counterparty deposit ID",
+  "counterpartyTimeToCompleteSwap": "The counterparty will have <highlight>~{hours} hour</highlight> to complete the swap.",
+  "@counterpartyTimeToCompleteSwap": {
+    "description": "Explains how many hours the counterparty has to complete a swap.",
+    "placeholders": {
+      "hours": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
   "create": "Create",
   "createAnotherToken": "Create another Token",
   "createPillarDescription": "Start the process of deploying a Pillar Node in the network",
@@ -57,6 +68,7 @@
   "deposit": "Deposit",
   "depositExpiresIn": "Deposit expires in",
   "depositId": "Deposit ID",
+  "depositIdProvidedByCounterparty": "Deposit ID provided by the counterparty",
   "deposited": "{kQsrCoinSymbol} deposited",
   "depositedAmount": "Deposited amount",
   "depositedAmountReclaimed": "Deposited amount (reclaimed)",
@@ -106,7 +118,10 @@
   "hashlock": "Hashlock",
   "hashValue": "Hash: {value}",
   "hideDetails": "Hide details",
+  "inputAmountToSend": "Input an amount to send",
+  "inputDepositId": "Input the deposit ID",
   "issueToken": "Issue Token",
+  "joinSwap": "Join swap",
   "latestTransactionsDescription": "This card displays the latest transactions (including ZTS tokens) of your selected address",
   "latestTransactionsTitle": "Latest Transactions",
   "latestTransactionsTransferDescription": "This card displays the latest transactions (including ZTS tokens) involving your wallet addresses",
@@ -118,6 +133,16 @@
   "max": "Max",
   "maxSupply": "Max supply",
   "minAgo": "min ago",
+  "minutesLeftToJoinSwap": "You have <highlight>{minutes} minutes</highlight> left to join the swap.",
+  "@minutesLeftToJoinSwap": {
+    "description": "Explains how many minutes remain to join a swap.",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
   "mint": "Mint",
   "mintable": "Mintable",
   "mintableToken": "Mintable token",
@@ -139,7 +164,6 @@
   "p2pSwapFillDetails": "Fill in the swap details",
   "p2pSwapGeneratingPlasma": "Please wait while Plasma is generated",
   "p2pSwapHours": "{hours} hours",
-  "p2pSwapJoin": "Join swap",
   "p2pSwapJoinDescription": "Join a native swap started by a counterparty.",
   "p2pSwapMachineOnly": "The swap must be completed on this machine.",
   "p2pSwapOptionsDescription": "Starting and joining P2P swaps can be done from this card.",
@@ -156,7 +180,6 @@
     }
   },
   "p2pSwapRecoverDeposit": "Recover deposit",
-  "p2pSwapSendingTransaction": "Sending transaction",
   "p2pSwapStart": "Start swap",
   "p2pSwapStartDescription": "Start a native swap with a counterparty.",
   "p2pSwapTutorial": "View swap tutorial",
@@ -207,7 +230,9 @@
   "recipient": "Recipient",
   "recipientAddress": "Recipient Address",
   "reclaimFunds": "Reclaim funds",
+  "reclaimFundsIfCounterpartyFails": "You can reclaim your funds if the counterparty fails to complete the swap.",
   "reclaimingFundsPleaseWait": "Reclaiming. This will take a moment.",
+  "receiveSwappedFundsToAddress": "You will receive the swapped funds to this address.",
   "register": "Register",
   "registerAnotherPillar": "Register another Pillar",
   "registerPillar": "Register Pillar",
@@ -219,6 +244,7 @@
   "sAgo": "s ago",
   "saveQr": "Save QR",
   "searchTokenHint": "Search by name, symbol, owner, or token standard",
+  "searching": "Searching",
   "send": "Send",
   "sendTransaction": "send transaction",
   "sentinel": "Sentinel",
@@ -226,6 +252,7 @@
   "senderAddressDescription": "The address from which the transaction will be sent",
   "sent": "Sent",
   "sentDetails": "Sent {amount} {symbol} from {sender} to {recipient}",
+  "sendingTransaction": "Sending transaction",
   "sentinelAddress": "Sentinel Address",
   "sentinelCollectDescription": "This card displays your current Sentinel rewards that are ready to be collected. If there are any rewards available, you will be able to collect them. In order to receive rewards, the Sentinel Node needs to be not only registered in the network, but also deployed (use znn-controller for this operation) and it must have >90% daily uptime",
   "sentinelCollectTitle": "Sentinel Collect",

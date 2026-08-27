@@ -211,7 +211,7 @@ class _ViewState extends State<_View> {
     return InstructionButton(
       text: context.l10n.p2pSwapStart,
       instructionText: context.l10n.p2pSwapFillDetails,
-      loadingText: context.l10n.p2pSwapSendingTransaction,
+      loadingText: context.l10n.sendingTransaction,
       isEnabled: isInputValid,
       isLoading: isLoading,
       onPressed: () => _onStartButtonPressed(context),

@@ -172,6 +172,12 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get cancel;
 
+  /// No description provided for @cannotJoinSwapExpiresTooSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot join swap. The swap will expire too soon for a safe swap.'**
+  String get cannotJoinSwapExpiresTooSoon;
+
   /// No description provided for @cancelPlasmaConfirmation.
   ///
   /// In en, this message translates to:
@@ -285,6 +291,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Counterparty deposit ID'**
   String get counterpartyDepositId;
+
+  /// Explains how many hours the counterparty has to complete a swap.
+  ///
+  /// In en, this message translates to:
+  /// **'The counterparty will have <highlight>~{hours} hour</highlight> to complete the swap.'**
+  String counterpartyTimeToCompleteSwap(int hours);
 
   /// No description provided for @create.
   ///
@@ -441,6 +453,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deposit ID'**
   String get depositId;
+
+  /// No description provided for @depositIdProvidedByCounterparty.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit ID provided by the counterparty'**
+  String get depositIdProvidedByCounterparty;
 
   /// No description provided for @deposited.
   ///
@@ -736,11 +754,29 @@ abstract class AppLocalizations {
   /// **'Hide details'**
   String get hideDetails;
 
+  /// No description provided for @inputAmountToSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Input an amount to send'**
+  String get inputAmountToSend;
+
+  /// No description provided for @inputDepositId.
+  ///
+  /// In en, this message translates to:
+  /// **'Input the deposit ID'**
+  String get inputDepositId;
+
   /// No description provided for @issueToken.
   ///
   /// In en, this message translates to:
   /// **'Issue Token'**
   String get issueToken;
+
+  /// No description provided for @joinSwap.
+  ///
+  /// In en, this message translates to:
+  /// **'Join swap'**
+  String get joinSwap;
 
   /// No description provided for @latestTransactionsDescription.
   ///
@@ -807,6 +843,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'min ago'**
   String get minAgo;
+
+  /// Explains how many minutes remain to join a swap.
+  ///
+  /// In en, this message translates to:
+  /// **'You have <highlight>{minutes} minutes</highlight> left to join the swap.'**
+  String minutesLeftToJoinSwap(int minutes);
 
   /// No description provided for @mint.
   ///
@@ -934,12 +976,6 @@ abstract class AppLocalizations {
   /// **'{hours} hours'**
   String p2pSwapHours(Object hours);
 
-  /// No description provided for @p2pSwapJoin.
-  ///
-  /// In en, this message translates to:
-  /// **'Join swap'**
-  String get p2pSwapJoin;
-
   /// No description provided for @p2pSwapJoinDescription.
   ///
   /// In en, this message translates to:
@@ -981,12 +1017,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recover deposit'**
   String get p2pSwapRecoverDeposit;
-
-  /// No description provided for @p2pSwapSendingTransaction.
-  ///
-  /// In en, this message translates to:
-  /// **'Sending transaction'**
-  String get p2pSwapSendingTransaction;
 
   /// No description provided for @p2pSwapStart.
   ///
@@ -1288,11 +1318,23 @@ abstract class AppLocalizations {
   /// **'Reclaim funds'**
   String get reclaimFunds;
 
+  /// No description provided for @reclaimFundsIfCounterpartyFails.
+  ///
+  /// In en, this message translates to:
+  /// **'You can reclaim your funds if the counterparty fails to complete the swap.'**
+  String get reclaimFundsIfCounterpartyFails;
+
   /// No description provided for @reclaimingFundsPleaseWait.
   ///
   /// In en, this message translates to:
   /// **'Reclaiming. This will take a moment.'**
   String get reclaimingFundsPleaseWait;
+
+  /// No description provided for @receiveSwappedFundsToAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'You will receive the swapped funds to this address.'**
+  String get receiveSwappedFundsToAddress;
 
   /// No description provided for @register.
   ///
@@ -1360,6 +1402,12 @@ abstract class AppLocalizations {
   /// **'Search by name, symbol, owner, or token standard'**
   String get searchTokenHint;
 
+  /// No description provided for @searching.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching'**
+  String get searching;
+
   /// No description provided for @send.
   ///
   /// In en, this message translates to:
@@ -1406,6 +1454,12 @@ abstract class AppLocalizations {
     Object sender,
     Object symbol,
   );
+
+  /// No description provided for @sendingTransaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending transaction'**
+  String get sendingTransaction;
 
   /// No description provided for @sentinelAddress.
   ///

@@ -53,6 +53,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancel => 'Cancel';
 
   @override
+  String get cannotJoinSwapExpiresTooSoon =>
+      'Cannot join swap. The swap will expire too soon for a safe swap.';
+
+  @override
   String get cancelPlasmaConfirmation =>
       'Are you sure you want to cancel the Plasma fusion?';
 
@@ -114,6 +118,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get counterpartyDepositId => 'Counterparty deposit ID';
+
+  @override
+  String counterpartyTimeToCompleteSwap(int hours) {
+    return 'The counterparty will have <highlight>~$hours hour</highlight> to complete the swap.';
+  }
 
   @override
   String get create => 'Create';
@@ -211,6 +220,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get depositId => 'Deposit ID';
+
+  @override
+  String get depositIdProvidedByCounterparty =>
+      'Deposit ID provided by the counterparty';
 
   @override
   String deposited(Object kQsrCoinSymbol) {
@@ -394,7 +407,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hideDetails => 'Hide details';
 
   @override
+  String get inputAmountToSend => 'Input an amount to send';
+
+  @override
+  String get inputDepositId => 'Input the deposit ID';
+
+  @override
   String get issueToken => 'Issue Token';
+
+  @override
+  String get joinSwap => 'Join swap';
 
   @override
   String get latestTransactionsDescription =>
@@ -434,6 +456,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get minAgo => 'min ago';
+
+  @override
+  String minutesLeftToJoinSwap(int minutes) {
+    return 'You have <highlight>$minutes minutes</highlight> left to join the swap.';
+  }
 
   @override
   String get mint => 'Mint';
@@ -507,9 +534,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get p2pSwapJoin => 'Join swap';
-
-  @override
   String get p2pSwapJoinDescription =>
       'Join a native swap started by a counterparty.';
 
@@ -534,9 +558,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get p2pSwapRecoverDeposit => 'Recover deposit';
-
-  @override
-  String get p2pSwapSendingTransaction => 'Sending transaction';
 
   @override
   String get p2pSwapStart => 'Start swap';
@@ -713,8 +734,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reclaimFunds => 'Reclaim funds';
 
   @override
+  String get reclaimFundsIfCounterpartyFails =>
+      'You can reclaim your funds if the counterparty fails to complete the swap.';
+
+  @override
   String get reclaimingFundsPleaseWait =>
       'Reclaiming. This will take a moment.';
+
+  @override
+  String get receiveSwappedFundsToAddress =>
+      'You will receive the swapped funds to this address.';
 
   @override
   String get register => 'Register';
@@ -755,6 +784,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Search by name, symbol, owner, or token standard';
 
   @override
+  String get searching => 'Searching';
+
+  @override
   String get send => 'Send';
 
   @override
@@ -782,6 +814,9 @@ class AppLocalizationsEn extends AppLocalizations {
   ) {
     return 'Sent $amount $symbol from $sender to $recipient';
   }
+
+  @override
+  String get sendingTransaction => 'Sending transaction';
 
   @override
   String get sentinelAddress => 'Sentinel Address';
