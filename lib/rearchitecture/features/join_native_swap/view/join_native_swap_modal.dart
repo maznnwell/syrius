@@ -59,7 +59,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
   @override
   void initState() {
     super.initState();
-    sl.get<BalanceBloc>().getBalanceForAllAddresses();
+    unawaited(sl.get<BalanceBloc>().getBalanceForAllAddresses());
     _safeExpirationSubscription = Stream.periodic(const Duration(seconds: 5))
         .listen((_) {
           if (_initialHltc != null) {
@@ -74,7 +74,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
   @override
   void dispose() {
     _amountController.dispose();
-    _safeExpirationSubscription?.cancel();
+    unawaited(_safeExpirationSubscription?.cancel());
     super.dispose();
   }
 
@@ -189,7 +189,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
           },
         );
       },
-      builder: (_, InitialHtlcForSwapBloc model, __) =>
+      builder: (_, InitialHtlcForSwapBloc model, _) =>
           _getContinueButton(model),
       viewModelBuilder: InitialHtlcForSwapBloc.new,
     );
@@ -211,7 +211,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
       _isLoading = true;
       _initialHtlcError = null;
     });
-    model.getInitialHtlc(Hash.parse(_depositIdController.text));
+    unawaited(model.getInitialHtlc(Hash.parse(_depositIdController.text)));
   }
 
   Widget _getContent(Token tokenToReceive) {
@@ -251,7 +251,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
           ],
         ),
         const SizedBox(height: 20),
-        Divider(color: Colors.white.withOpacity(0.1)),
+        Divider(color: Colors.white.withValues(alpha: 0.1)),
         const SizedBox(height: 20),
         LabeledInputContainer(
           labelText: context.l10n.youAreSending,
@@ -318,7 +318,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
           ),
         ),
         const SizedBox(height: 20),
-        Divider(color: Colors.white.withOpacity(0.1)),
+        Divider(color: Colors.white.withValues(alpha: 0.1)),
         if (_safeExpirationTime != null) const SizedBox(height: 20),
         if (_safeExpirationTime != null)
           BulletPointCard(
@@ -377,7 +377,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
           },
         );
       },
-      builder: (_, JoinHtlcSwapBloc model, __) =>
+      builder: (_, JoinHtlcSwapBloc model, _) =>
           _getJoinSwapButton(model, tokenToReceive),
       viewModelBuilder: JoinHtlcSwapBloc.new,
     );
@@ -401,7 +401,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
     setState(() {
       _isLoading = true;
     });
-    model.joinHtlcSwap(
+    unawaited(model.joinHtlcSwap(
       initialHtlc: _initialHltc!,
       fromToken: _selectedToken,
       toToken: tokenToReceive,
@@ -412,7 +412,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
       fromChain: P2pSwapChain.nom,
       toChain: P2pSwapChain.nom,
       counterHtlcExpirationTime: _safeExpirationTime!,
-    );
+    ));
   }
 
   int? _calculateSafeExpirationTime(int initialHtlcExpiration) {
