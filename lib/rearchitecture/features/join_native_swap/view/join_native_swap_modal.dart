@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:stacked/stacked.dart';
@@ -7,6 +8,7 @@ import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/initial_htl
 import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/join_htlc_swap_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/base_modal.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/clipboard_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
@@ -23,7 +25,6 @@ import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/exchange_ra
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/important_text_container.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/input_fields.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_widget.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/base_modal.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class JoinNativeSwapModal extends StatefulWidget {
