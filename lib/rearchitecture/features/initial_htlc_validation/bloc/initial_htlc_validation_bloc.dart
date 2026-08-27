@@ -1,23 +1,54 @@
 import 'dart:async';
 
-import 'package:zenon_syrius_wallet_flutter/blocs/base_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/main.dart';
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:zenon_syrius_wallet_flutter/model/block_data.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/initial_htlc_validation/utils/htlc_info_extension.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/exceptions/exceptions.dart';
+import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/account_block_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/date_time_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/format_utils.dart';
-import 'package:zenon_syrius_wallet_flutter/utils/global.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
+part 'initial_htlc_validation_event.dart';
+
+part 'initial_htlc_validation_state.dart';
+
+/// Fetches account blocks created after a Unix timestamp.
+typedef AccountBlocksAfterTimeFetcher =
+    Future<List<AccountBlock>> Function(
+      Address address,
+      int time,
+    );
+
 /// Fetches and validates an initial HTLC before joining a swap.
-class InitialHtlcValidationBloc extends BaseBloc<HtlcInfo> {
-  /// Fetches the HTLC identified by [id] and emits it when it is valid.
-  Future<void> getInitialHtlc(Hash id) async {
+class InitialHtlcValidationBloc
+    extends Bloc<InitialHtlcValidationEvent, InitialHtlcValidationState> {
+  /// Creates an [InitialHtlcValidationBloc].
+  InitialHtlcValidationBloc({
+    required this._accountBlocksAfterTimeFetcher,
+    required this._htlcSwapsService,
+    required this._walletAddresses,
+    required this._zenon,
+  }) : super(const InitialHtlcValidationInitial()) {
+    on<InitialHtlcValidationRequested>(_onValidationRequested);
+  }
+
+  final AccountBlocksAfterTimeFetcher _accountBlocksAfterTimeFetcher;
+  final HtlcSwapsService _htlcSwapsService;
+  final Set<String> _walletAddresses;
+  final Zenon _zenon;
+
+  FutureOr<void> _onValidationRequested(
+    InitialHtlcValidationRequested event,
+    Emitter<InitialHtlcValidationState> emit,
+  ) async {
     try {
-      final HtlcInfo htlc = await zenon!.embedded.htlc.getById(id);
+      emit(const InitialHtlcValidationLoading());
+
+      final HtlcInfo htlc = await _zenon.embedded.htlc.getById(event.id);
 
       _validateParticipants(htlc);
       _validateUnusedDeposit(htlc);
@@ -25,28 +56,32 @@ class InitialHtlcValidationBloc extends BaseBloc<HtlcInfo> {
       await _validateCreationDuration(htlc);
       await _validateUniqueHashLock(htlc);
 
-      addEvent(htlc);
+      emit(InitialHtlcValidationDone(htlc: htlc));
+    } on SyriusException catch (error, stackTrace) {
+      addError(error, stackTrace);
+      emit(InitialHtlcValidationFailure(exception: error));
     } on Object catch (error, stackTrace) {
       addError(error, stackTrace);
+      emit(InitialHtlcValidationFailure(exception: FailureException()));
     }
   }
 
   void _validateParticipants(HtlcInfo htlc) {
-    if (!kDefaultAddressList.contains(htlc.hashLocked.toString())) {
+    if (!_walletAddresses.contains(htlc.hashLocked.toString())) {
       throw SyriusException('This deposit is not intended for you.');
     }
-    if (kDefaultAddressList.contains(htlc.timeLocked.toString())) {
+    if (_walletAddresses.contains(htlc.timeLocked.toString())) {
       throw SyriusException('Cannot join a swap that you have started.');
     }
   }
 
   void _validateUnusedDeposit(HtlcInfo htlc) {
-    if (htlcSwapsService!.getSwapByHtlcId(htlc.id.toString()) != null) {
+    if (_htlcSwapsService.getSwapByHtlcId(htlc.id.toString()) != null) {
       throw SyriusException(
         'This deposit is already used in another swap.',
       );
     }
-    if (htlcSwapsService!.getSwapByHashLock(htlc.hashLockHex) != null) {
+    if (_htlcSwapsService.getSwapByHashLock(htlc.hashLockHex) != null) {
       throw SyriusException(
         "The deposit's hashlock is already used in another swap.",
       );
@@ -73,7 +108,7 @@ class InitialHtlcValidationBloc extends BaseBloc<HtlcInfo> {
   }
 
   Future<void> _validateCreationDuration(HtlcInfo htlc) async {
-    final AccountBlock? creationBlock = await zenon!.ledger
+    final AccountBlock? creationBlock = await _zenon.ledger
         .getAccountBlockByHash(htlc.id);
     final int? creationTime =
         creationBlock?.confirmationDetail?.momentumTimestamp;
@@ -96,11 +131,10 @@ class InitialHtlcValidationBloc extends BaseBloc<HtlcInfo> {
   }
 
   Future<void> _validateUniqueHashLock(HtlcInfo htlc) async {
-    final List<AccountBlock> htlcBlocks =
-        await AccountBlockUtils.getAccountBlocksAfterTime(
-          htlcAddress,
-          htlc.expirationTime - kMaxAllowedInitialHtlcDuration.inSeconds,
-        );
+    final List<AccountBlock> htlcBlocks = await _accountBlocksAfterTimeFetcher(
+      htlcAddress,
+      htlc.expirationTime - kMaxAllowedInitialHtlcDuration.inSeconds,
+    );
     final bool hasDuplicate = htlcBlocks.any(
       (AccountBlock block) => _isConflictingHtlcBlock(block, htlc),
     );

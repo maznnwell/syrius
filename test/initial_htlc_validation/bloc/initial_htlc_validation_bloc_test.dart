@@ -1,0 +1,150 @@
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
+import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/date_time_utils.dart';
+import 'package:znn_sdk_dart/znn_sdk_dart.dart';
+
+class MockZenon extends Mock implements Zenon {}
+
+class MockEmbedded extends Mock implements EmbeddedApi {}
+
+class MockHtlcApi extends Mock implements HtlcApi {}
+
+class MockLedger extends Mock implements LedgerApi {}
+
+class MockHtlcSwapsService extends Mock implements HtlcSwapsService {}
+
+class MockAccountBlock extends Mock implements AccountBlock {}
+
+class MockConfirmationDetail extends Mock
+    implements AccountBlockConfirmationDetail {}
+
+void main() {
+  group('InitialHtlcValidationBloc', () {
+    final Hash htlcId = Hash.digest(<int>[1, 2, 3]);
+    final Address walletAddress = emptyAddress;
+    final Address counterpartyAddress = htlcAddress;
+
+    late MockZenon zenon;
+    late MockEmbedded embedded;
+    late MockHtlcApi htlcApi;
+    late MockLedger ledger;
+    late MockHtlcSwapsService htlcSwapsService;
+    late MockAccountBlock creationBlock;
+    late MockConfirmationDetail creationConfirmation;
+    late HtlcInfo htlc;
+    late InitialHtlcValidationBloc bloc;
+
+    setUp(() {
+      final int now = DateTimeUtils.unixTimeNow;
+      final int expirationTime = now + const Duration(hours: 8).inSeconds;
+      zenon = MockZenon();
+      embedded = MockEmbedded();
+      htlcApi = MockHtlcApi();
+      ledger = MockLedger();
+      htlcSwapsService = MockHtlcSwapsService();
+      creationBlock = MockAccountBlock();
+      creationConfirmation = MockConfirmationDetail();
+      htlc = HtlcInfo(
+        id: htlcId,
+        timeLocked: counterpartyAddress,
+        hashLocked: walletAddress,
+        tokenStandard: znnZts,
+        amount: BigInt.one,
+        expirationTime: expirationTime,
+        hashType: htlcHashTypeSha3,
+        keyMaxSize: htlcPreimageMaxLength,
+        hashLock: <int>[4, 5, 6],
+      );
+
+      when(() => zenon.embedded).thenReturn(embedded);
+      when(() => embedded.htlc).thenReturn(htlcApi);
+      when(() => zenon.ledger).thenReturn(ledger);
+      when(() => htlcApi.getById(htlcId)).thenAnswer((_) async => htlc);
+      when(
+        () => htlcSwapsService.getSwapByHtlcId(htlcId.toString()),
+      ).thenReturn(null);
+      when(
+        () => htlcSwapsService.getSwapByHashLock(htlc.hashLockHex),
+      ).thenReturn(null);
+      when(
+        () => ledger.getAccountBlockByHash(htlcId),
+      ).thenAnswer((_) async => creationBlock);
+      when(
+        () => creationBlock.confirmationDetail,
+      ).thenReturn(creationConfirmation);
+      when(
+        () => creationConfirmation.momentumTimestamp,
+      ).thenReturn(now);
+      bloc = InitialHtlcValidationBloc(
+        accountBlocksAfterTimeFetcher: (_, _) async => <AccountBlock>[],
+        htlcSwapsService: htlcSwapsService,
+        walletAddresses: <String>{walletAddress.toString()},
+        zenon: zenon,
+      );
+    });
+
+    test('initial state is correct', () {
+      expect(bloc.state, const InitialHtlcValidationInitial());
+    });
+
+    blocTest<InitialHtlcValidationBloc, InitialHtlcValidationState>(
+      'emits [loading, done] when the HTLC is valid',
+      build: () => bloc,
+      act: (InitialHtlcValidationBloc bloc) => bloc.add(
+        InitialHtlcValidationRequested(id: htlcId),
+      ),
+      expect: () => <InitialHtlcValidationState>[
+        const InitialHtlcValidationLoading(),
+        InitialHtlcValidationDone(htlc: htlc),
+      ],
+      verify: (_) {
+        verify(() => htlcApi.getById(htlcId)).called(1);
+        verify(() => ledger.getAccountBlockByHash(htlcId)).called(1);
+      },
+    );
+
+    blocTest<InitialHtlcValidationBloc, InitialHtlcValidationState>(
+      'emits [loading, failure] when the HTLC is not intended for the wallet',
+      build: () => InitialHtlcValidationBloc(
+        accountBlocksAfterTimeFetcher: (_, _) async => <AccountBlock>[],
+        htlcSwapsService: htlcSwapsService,
+        walletAddresses: <String>{},
+        zenon: zenon,
+      ),
+      act: (InitialHtlcValidationBloc bloc) => bloc.add(
+        InitialHtlcValidationRequested(id: htlcId),
+      ),
+      expect: () => <Matcher>[
+        isA<InitialHtlcValidationLoading>(),
+        isA<InitialHtlcValidationFailure>().having(
+          (InitialHtlcValidationFailure state) => state.exception.message,
+          'message',
+          'This deposit is not intended for you.',
+        ),
+      ],
+    );
+
+    blocTest<InitialHtlcValidationBloc, InitialHtlcValidationState>(
+      'emits [loading, failure] when fetching throws unexpectedly',
+      setUp: () {
+        when(() => htlcApi.getById(htlcId)).thenThrow(Exception('boom'));
+      },
+      build: () => bloc,
+      act: (InitialHtlcValidationBloc bloc) => bloc.add(
+        InitialHtlcValidationRequested(id: htlcId),
+      ),
+      expect: () => <Matcher>[
+        isA<InitialHtlcValidationLoading>(),
+        isA<InitialHtlcValidationFailure>().having(
+          (InitialHtlcValidationFailure state) => state.exception,
+          'exception',
+          isA<FailureException>(),
+        ),
+      ],
+    );
+  });
+}

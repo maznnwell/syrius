@@ -80,7 +80,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
     return BaseModal(
       title: context.l10n.joinSwap,
       child: _initialHltc == null
-          ? _getSearchView()
+          ? _buildSearchView()
           : FutureBuilder<Token?>(
               future: zenon!.embedded.token.getByZts(
                 _initialHltc!.tokenStandard,
@@ -92,7 +92,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
                     child: SyriusErrorWidget(snapshot.error!),
                   );
                 } else if (snapshot.hasData) {
-                  return _getContent(snapshot.data!);
+                  return _buildContent(snapshot.data!);
                 }
                 return const Padding(
                   padding: EdgeInsets.all(50),
@@ -103,7 +103,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
     );
   }
 
-  Widget _getSearchView() {
+  Widget _buildSearchView() {
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: _depositIdController,
       builder: (_, TextEditingValue value, _) {
@@ -138,67 +138,38 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
                 ],
               ),
             ),
-            _getInitialHtlcViewModel(isDepositIdValid: isDepositIdValid),
+            InitialHtlcValidationButton(
+              depositId: value.text,
+              isEnabled: isDepositIdValid,
+              onValidationFailed: _onInitialHtlcValidationFailed,
+              onValidationStarted: _onInitialHtlcValidationStarted,
+              onValidated: _onInitialHtlcValidated,
+            ),
           ],
         );
       },
     );
   }
 
-  ViewModelBuilder<InitialHtlcValidationBloc> _getInitialHtlcViewModel({
-    required bool isDepositIdValid,
-  }) {
-    return ViewModelBuilder<InitialHtlcValidationBloc>.reactive(
-      onViewModelReady: (InitialHtlcValidationBloc model) {
-        model.stream.listen(
-          (HtlcInfo event) {
-            _initialHltc = event;
-            _isLoading = false;
-            _addressController.text = event.hashLocked.toString();
-            _selfAddress = event.hashLocked.toString();
-            _safeExpirationTime = _calculateSafeExpirationTime(
-              event.expirationTime,
-            );
-            _initialHtlcError = null;
-            setState(() {});
-          },
-          onError: (error) {
-            setState(() {
-              _initialHtlcError = error.toString();
-              _isLoading = false;
-            });
-          },
-        );
-      },
-      builder: (_, InitialHtlcValidationBloc model, _) =>
-          _getContinueButton(model, isDepositIdValid),
-      viewModelBuilder: InitialHtlcValidationBloc.new,
-    );
+  void _onInitialHtlcValidationStarted() {
+    setState(() => _initialHtlcError = null);
   }
 
-  Widget _getContinueButton(
-    InitialHtlcValidationBloc model,
-    bool isDepositIdValid,
-  ) {
-    return InstructionButton(
-      text: context.l10n.continueText,
-      loadingText: context.l10n.searching,
-      instructionText: context.l10n.inputDepositId,
-      isEnabled: isDepositIdValid,
-      isLoading: _isLoading,
-      onPressed: () => _onContinueButtonPressed(model),
-    );
+  void _onInitialHtlcValidationFailed(SyriusException exception) {
+    setState(() => _initialHtlcError = exception.toString());
   }
 
-  Future<void> _onContinueButtonPressed(InitialHtlcValidationBloc model) async {
+  void _onInitialHtlcValidated(HtlcInfo htlc) {
     setState(() {
-      _isLoading = true;
+      _initialHltc = htlc;
+      _addressController.text = htlc.hashLocked.toString();
+      _selfAddress = htlc.hashLocked.toString();
+      _safeExpirationTime = _calculateSafeExpirationTime(htlc.expirationTime);
       _initialHtlcError = null;
     });
-    unawaited(model.getInitialHtlc(Hash.parse(_depositIdController.text)));
   }
 
-  Widget _getContent(Token tokenToReceive) {
+  Widget _buildContent(Token tokenToReceive) {
     final int minutesLeftToJoin =
         (((_initialHltc!.expirationTime -
                         kMinSafeTimeToFindPreimage.inSeconds -
@@ -297,7 +268,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
                   color: AppColors.subtitleColor,
                 ),
               ),
-              _getExchangeRateWidget(tokenToReceive),
+              _buildExchangeRateWidget(tokenToReceive),
             ],
           ),
         ),
@@ -330,7 +301,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
                   ),
                 ),
               ),
-              _getJoinSwapViewModel(tokenToReceive),
+              _buildJoinSwapViewModel(tokenToReceive),
             ],
           )
         else
@@ -342,7 +313,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
     );
   }
 
-  ViewModelBuilder<JoinHtlcSwapBloc> _getJoinSwapViewModel(
+  ViewModelBuilder<JoinHtlcSwapBloc> _buildJoinSwapViewModel(
     Token tokenToReceive,
   ) {
     return ViewModelBuilder<JoinHtlcSwapBloc>.reactive(
@@ -362,12 +333,12 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
         );
       },
       builder: (_, JoinHtlcSwapBloc model, _) =>
-          _getJoinSwapButton(model, tokenToReceive),
+          _buildJoinSwapButton(model, tokenToReceive),
       viewModelBuilder: JoinHtlcSwapBloc.new,
     );
   }
 
-  Widget _getJoinSwapButton(JoinHtlcSwapBloc model, Token tokenToReceive) {
+  Widget _buildJoinSwapButton(JoinHtlcSwapBloc model, Token tokenToReceive) {
     return InstructionButton(
       text: context.l10n.joinSwap,
       instructionText: context.l10n.inputAmountToSend,
@@ -411,7 +382,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
         : null;
   }
 
-  Widget _getExchangeRateWidget(Token tokenToReceive) {
+  Widget _buildExchangeRateWidget(Token tokenToReceive) {
     return ExchangeRateWidget(
       fromAmount: _amountController.text.extractDecimals(
         _selectedToken.decimals,
