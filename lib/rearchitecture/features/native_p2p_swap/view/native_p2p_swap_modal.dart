@@ -14,7 +14,6 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dar
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/modular_widgets/p2p_swap_widgets/htlc_card.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/elevated_button.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/instruction_button.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/error_widget.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/exchange_rate_widget.dart';
@@ -98,27 +97,15 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
 
   Widget _getActiveView(HtlcSwap swap) {
     return Column(
+      spacing: kVerticalGap16.height!,
       children: <Widget>[
-        const SizedBox(
-          height: 20,
-        ),
-        HtlcCard.sending(swap: swap),
-        const SizedBox(
-          height: 15,
-        ),
+        HtlcCard.sending(context: context, swap: swap),
         const Icon(
           AntDesign.arrowdown,
           color: Colors.white,
-          size: 20,
         ),
-        const SizedBox(
-          height: 15,
-        ),
-        HtlcCard.receiving(swap: swap),
-        const SizedBox(
-          height: 25,
-        ),
-        _getBottomSection(swap),
+        HtlcCard.receiving(context: context, swap: swap),
+        _buildBottomSection(swap),
       ],
     );
   }
@@ -224,7 +211,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
     );
   }
 
-  Widget _getBottomSection(HtlcSwap swap) {
+  Widget _buildBottomSection(HtlcSwap swap) {
     if (swap.counterHtlcId == null) {
       return Column(
         children: <Widget>[
@@ -233,30 +220,22 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
             child: Text(
               context.l10n.shareDepositIdWithCounterparty,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16,
-              ),
+              style: context.textTheme.bodyLarge,
             ),
           ),
-          const SizedBox(
-            height: 25,
-          ),
-          SyriusElevatedButton(
-            text: context.l10n.copyDepositId,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF333333),
-            ),
+          kVerticalGap16,
+          TextButton.icon(
+            label: Text(context.l10n.copyDepositId),
             onPressed: () =>
                 ClipboardUtils.copyToClipboard(swap.initialHtlcId, context),
             icon: const Icon(
               Icons.copy,
-              color: Colors.white,
-              size: 18,
             ),
           ),
         ],
       );
     } else {
+      // TODO: to refactor
       return Column(
         children: <Widget>[
           Padding(
@@ -612,8 +591,7 @@ class _Pending extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double height =
-        context.customDialogMaxHeight / 4;
+    final double height = context.customDialogMaxHeight / 4;
 
     return SizedBox(
       height: height,
