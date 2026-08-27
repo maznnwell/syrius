@@ -68,16 +68,15 @@ class _ViewState extends State<_View> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _depositIdController = TextEditingController();
 
-  late String _selfAddress;
-
   HtlcInfo? _initialHltc;
-  String? _initialHtlcError;
   int? _safeExpirationTime;
   StreamSubscription<int>? _safeExpirationSubscription;
 
   Token _selectedToken = kZnnCoin;
   bool _isAmountValid = false;
   bool _isLoading = false;
+
+  String get _selfAddress => _initialHltc!.hashLocked.toString();
 
   @override
   void initState() {
@@ -109,6 +108,8 @@ class _ViewState extends State<_View> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<InitialHtlcValidationBloc, InitialHtlcValidationState>(
+      listenWhen: (_, InitialHtlcValidationState state) =>
+          state is InitialHtlcValidationDone,
       listener: _onInitialHtlcValidationStateChanged,
       child: BaseModal(
         title: context.l10n.joinSwap,
@@ -158,20 +159,7 @@ class _ViewState extends State<_View> {
               ),
               controller: _depositIdController,
             ),
-            Visibility(
-              visible: _initialHtlcError != null,
-              child: Column(
-                children: <Widget>[
-                  ImportantTextContainer(
-                    text: _initialHtlcError ?? '',
-                    showBorder: true,
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                ],
-              ),
-            ),
+            _buildInitialHtlcValidationError(),
             InitialHtlcValidationButton(
               depositId: value.text,
               isEnabled: isDepositIdValid,
@@ -182,29 +170,47 @@ class _ViewState extends State<_View> {
     );
   }
 
+  Widget _buildInitialHtlcValidationError() {
+    return BlocSelector<
+      InitialHtlcValidationBloc,
+      InitialHtlcValidationState,
+      SyriusException?
+    >(
+      selector: (InitialHtlcValidationState state) => switch (state) {
+        InitialHtlcValidationFailure(:final SyriusException exception) =>
+          exception,
+        _ => null,
+      },
+      builder: (_, SyriusException? exception) {
+        if (exception == null) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
+          children: <Widget>[
+            ImportantTextContainer(
+              text: exception.toString(),
+              showBorder: true,
+            ),
+            kVerticalGap16,
+          ],
+        );
+      },
+    );
+  }
+
   void _onInitialHtlcValidationStateChanged(
     BuildContext context,
     InitialHtlcValidationState state,
   ) {
-    switch (state) {
-      case InitialHtlcValidationLoading():
-        setState(() => _initialHtlcError = null);
-      case InitialHtlcValidationDone(:final HtlcInfo htlc):
-        setState(() {
-          _initialHltc = htlc;
-          _addressController.text = htlc.hashLocked.toString();
-          _selfAddress = htlc.hashLocked.toString();
-          _safeExpirationTime = _calculateSafeExpirationTime(
-            htlc.expirationTime,
-          );
-          _initialHtlcError = null;
-        });
-      case InitialHtlcValidationFailure(
-        :final SyriusException exception,
-      ):
-        setState(() => _initialHtlcError = exception.toString());
-      case InitialHtlcValidationInitial():
-        break;
+    if (state case InitialHtlcValidationDone(:final HtlcInfo htlc)) {
+      setState(() {
+        _initialHltc = htlc;
+        _addressController.text = htlc.hashLocked.toString();
+        _safeExpirationTime = _calculateSafeExpirationTime(
+          htlc.expirationTime,
+        );
+      });
     }
   }
 
