@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:zenon_syrius_wallet_flutter/blocs/base_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/model/block_data.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/initial_htlc_for_swap/utils/htlc_info_extension.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/exceptions/exceptions.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/account_block_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/date_time_utils.dart';
@@ -13,7 +13,7 @@ import 'package:zenon_syrius_wallet_flutter/utils/global.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 /// Fetches and validates an initial HTLC before joining a swap.
-class InitialHtlcForSwapBloc extends BaseBloc<HtlcInfo> {
+class InitialHtlcValidationBloc extends BaseBloc<HtlcInfo> {
   /// Fetches the HTLC identified by [id] and emits it when it is valid.
   Future<void> getInitialHtlc(Hash id) async {
     try {

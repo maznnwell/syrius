@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:stacked/stacked.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/dashboard/balance_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/initial_htlc_for_swap/bloc/initial_htlc_for_swap_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/join_htlc_swap_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
@@ -146,11 +145,11 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
     );
   }
 
-  ViewModelBuilder<InitialHtlcForSwapBloc> _getInitialHtlcViewModel({
+  ViewModelBuilder<InitialHtlcValidationBloc> _getInitialHtlcViewModel({
     required bool isDepositIdValid,
   }) {
-    return ViewModelBuilder<InitialHtlcForSwapBloc>.reactive(
-      onViewModelReady: (InitialHtlcForSwapBloc model) {
+    return ViewModelBuilder<InitialHtlcValidationBloc>.reactive(
+      onViewModelReady: (InitialHtlcValidationBloc model) {
         model.stream.listen(
           (HtlcInfo event) {
             _initialHltc = event;
@@ -171,14 +170,14 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
           },
         );
       },
-      builder: (_, InitialHtlcForSwapBloc model, _) =>
+      builder: (_, InitialHtlcValidationBloc model, _) =>
           _getContinueButton(model, isDepositIdValid),
-      viewModelBuilder: InitialHtlcForSwapBloc.new,
+      viewModelBuilder: InitialHtlcValidationBloc.new,
     );
   }
 
   Widget _getContinueButton(
-    InitialHtlcForSwapBloc model,
+    InitialHtlcValidationBloc model,
     bool isDepositIdValid,
   ) {
     return InstructionButton(
@@ -191,7 +190,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
     );
   }
 
-  Future<void> _onContinueButtonPressed(InitialHtlcForSwapBloc model) async {
+  Future<void> _onContinueButtonPressed(InitialHtlcValidationBloc model) async {
     setState(() {
       _isLoading = true;
       _initialHtlcError = null;
