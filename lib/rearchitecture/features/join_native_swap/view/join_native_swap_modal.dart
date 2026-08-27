@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:stacked/stacked.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/dashboard/balance_bloc.dart';
@@ -8,10 +9,12 @@ import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/join_htlc_s
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/account_block_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/date_time_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/global.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/input_validators.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/toast_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/zts_utils.dart';
@@ -25,19 +28,42 @@ import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_field
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_widget.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-class JoinNativeSwapModal extends StatefulWidget {
+/// Modal containing the form used to join a native P2P swap.
+class JoinNativeSwapModal extends StatelessWidget {
+  /// Creates a [JoinNativeSwapModal].
   const JoinNativeSwapModal({
     required this.onJoinedSwap,
     super.key,
   });
 
-  final Function(String) onJoinedSwap;
+  /// Called with the identifier of the successfully joined swap.
+  final ValueChanged<String> onJoinedSwap;
 
   @override
-  State<JoinNativeSwapModal> createState() => _JoinNativeSwapModalState();
+  Widget build(BuildContext context) {
+    return BlocProvider<InitialHtlcValidationBloc>(
+      create: (_) => InitialHtlcValidationBloc(
+        accountBlocksAfterTimeFetcher:
+            AccountBlockUtils.getAccountBlocksAfterTime,
+        htlcSwapsService: htlcSwapsService!,
+        walletAddresses: kDefaultAddressList.whereType<String>().toSet(),
+        zenon: zenon!,
+      ),
+      child: _View(onJoinedSwap: onJoinedSwap),
+    );
+  }
 }
 
-class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
+class _View extends StatefulWidget {
+  const _View({required this.onJoinedSwap});
+
+  final ValueChanged<String> onJoinedSwap;
+
+  @override
+  State<_View> createState() => _ViewState();
+}
+
+class _ViewState extends State<_View> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _depositIdController = TextEditingController();
@@ -47,7 +73,7 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
   HtlcInfo? _initialHltc;
   String? _initialHtlcError;
   int? _safeExpirationTime;
-  StreamSubscription? _safeExpirationSubscription;
+  StreamSubscription<int>? _safeExpirationSubscription;
 
   Token _selectedToken = kZnnCoin;
   bool _isAmountValid = false;
@@ -57,8 +83,11 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
   void initState() {
     super.initState();
     unawaited(sl.get<BalanceBloc>().getBalanceForAllAddresses());
-    _safeExpirationSubscription = Stream.periodic(const Duration(seconds: 5))
-        .listen((_) {
+    _safeExpirationSubscription =
+        Stream<int>.periodic(
+          const Duration(seconds: 5),
+          (int count) => count,
+        ).listen((int _) {
           if (_initialHltc != null) {
             _safeExpirationTime = _calculateSafeExpirationTime(
               _initialHltc!.expirationTime,
@@ -70,36 +99,41 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
 
   @override
   void dispose() {
+    _addressController.dispose();
     _amountController.dispose();
+    _depositIdController.dispose();
     unawaited(_safeExpirationSubscription?.cancel());
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BaseModal(
-      title: context.l10n.joinSwap,
-      child: _initialHltc == null
-          ? _buildSearchView()
-          : FutureBuilder<Token?>(
-              future: zenon!.embedded.token.getByZts(
-                _initialHltc!.tokenStandard,
-              ),
-              builder: (_, AsyncSnapshot<Token?> snapshot) {
-                if (snapshot.hasError) {
-                  return Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: SyriusErrorWidget(snapshot.error!),
+    return BlocListener<InitialHtlcValidationBloc, InitialHtlcValidationState>(
+      listener: _onInitialHtlcValidationStateChanged,
+      child: BaseModal(
+        title: context.l10n.joinSwap,
+        child: _initialHltc == null
+            ? _buildSearchView()
+            : FutureBuilder<Token?>(
+                future: zenon!.embedded.token.getByZts(
+                  _initialHltc!.tokenStandard,
+                ),
+                builder: (_, AsyncSnapshot<Token?> snapshot) {
+                  if (snapshot.hasError) {
+                    return Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: SyriusErrorWidget(snapshot.error!),
+                    );
+                  } else if (snapshot.hasData) {
+                    return _buildContent(snapshot.data!);
+                  }
+                  return const Padding(
+                    padding: EdgeInsets.all(50),
+                    child: SyriusLoadingWidget(),
                   );
-                } else if (snapshot.hasData) {
-                  return _buildContent(snapshot.data!);
-                }
-                return const Padding(
-                  padding: EdgeInsets.all(50),
-                  child: SyriusLoadingWidget(),
-                );
-              },
-            ),
+                },
+              ),
+      ),
     );
   }
 
@@ -141,9 +175,6 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
             InitialHtlcValidationButton(
               depositId: value.text,
               isEnabled: isDepositIdValid,
-              onValidationFailed: _onInitialHtlcValidationFailed,
-              onValidationStarted: _onInitialHtlcValidationStarted,
-              onValidated: _onInitialHtlcValidated,
             ),
           ],
         );
@@ -151,22 +182,30 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
     );
   }
 
-  void _onInitialHtlcValidationStarted() {
-    setState(() => _initialHtlcError = null);
-  }
-
-  void _onInitialHtlcValidationFailed(SyriusException exception) {
-    setState(() => _initialHtlcError = exception.toString());
-  }
-
-  void _onInitialHtlcValidated(HtlcInfo htlc) {
-    setState(() {
-      _initialHltc = htlc;
-      _addressController.text = htlc.hashLocked.toString();
-      _selfAddress = htlc.hashLocked.toString();
-      _safeExpirationTime = _calculateSafeExpirationTime(htlc.expirationTime);
-      _initialHtlcError = null;
-    });
+  void _onInitialHtlcValidationStateChanged(
+    BuildContext context,
+    InitialHtlcValidationState state,
+  ) {
+    switch (state) {
+      case InitialHtlcValidationLoading():
+        setState(() => _initialHtlcError = null);
+      case InitialHtlcValidationDone(:final HtlcInfo htlc):
+        setState(() {
+          _initialHltc = htlc;
+          _addressController.text = htlc.hashLocked.toString();
+          _selfAddress = htlc.hashLocked.toString();
+          _safeExpirationTime = _calculateSafeExpirationTime(
+            htlc.expirationTime,
+          );
+          _initialHtlcError = null;
+        });
+      case InitialHtlcValidationFailure(
+        :final SyriusException exception,
+      ):
+        setState(() => _initialHtlcError = exception.toString());
+      case InitialHtlcValidationInitial():
+        break;
+    }
   }
 
   Widget _buildContent(Token tokenToReceive) {
@@ -319,12 +358,15 @@ class _JoinNativeSwapModalState extends State<JoinNativeSwapModal> {
     return ViewModelBuilder<JoinHtlcSwapBloc>.reactive(
       onViewModelReady: (JoinHtlcSwapBloc model) {
         model.stream.listen(
-          (HtlcSwap? event) async {
-            if (event is HtlcSwap) {
+          (HtlcSwap? event) {
+            if (mounted && event is HtlcSwap) {
               widget.onJoinedSwap.call(event.id);
             }
           },
-          onError: (error) {
+          onError: (Object error) {
+            if (!mounted) {
+              return;
+            }
             setState(() {
               _isLoading = false;
             });
