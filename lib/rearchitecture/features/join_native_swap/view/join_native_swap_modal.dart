@@ -33,12 +33,12 @@ class JoinNativeSwapModal extends StatelessWidget {
         BlocProvider<InitialHtlcValidationBloc>(
           create: (_) => InitialHtlcValidationBloc(
             accountBlocksAfterTimeFetcher:
-            AccountBlockUtils.getAccountBlocksAfterTime,
+                AccountBlockUtils.getAccountBlocksAfterTime,
             htlcSwapsService: htlcSwapsService!,
             walletAddresses: kDefaultAddressList.whereType<String>().toSet(),
             zenon: zenon!,
           ),
-        )
+        ),
       ],
       child: _View(),
     );
@@ -54,9 +54,11 @@ class _View extends StatelessWidget {
       title: context.l10n.joinSwap,
       child: BlocBuilder<InitialHtlcValidationBloc, InitialHtlcValidationState>(
         builder: (_, InitialHtlcValidationState state) => switch (state) {
-          InitialHtlcValidationDone(:final HtlcInfo htlc) => JoinNativeSwapForm(
-            initialHtlc: htlc,
-          ),
+          InitialHtlcValidationDone(
+            :final HtlcInfo htlc,
+            :final Token token,
+          ) =>
+            JoinNativeSwapForm(initialHtlc: htlc, token: token),
           _ => const InitialHtlcValidationForm(),
         },
       ),

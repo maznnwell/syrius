@@ -57,7 +57,14 @@ class InitialHtlcValidationBloc
       await _validateCreationDuration(htlc);
       await _validateUniqueHashLock(htlc);
 
-      emit(InitialHtlcValidationDone(htlc: htlc));
+      final Token? token = await _zenon.embedded.token.getByZts(
+        htlc.tokenStandard,
+      );
+      if (token == null) {
+        throw SyriusException('Unable to retrieve token information.');
+      }
+
+      emit(InitialHtlcValidationDone(htlc: htlc, token: token));
     } on SyriusException catch (error, stackTrace) {
       addError(error, stackTrace);
       emit(InitialHtlcValidationFailure(exception: error));

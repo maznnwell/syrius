@@ -29,11 +29,15 @@ class JoinNativeSwapForm extends StatefulWidget {
   /// Creates a [JoinNativeSwapForm].
   const JoinNativeSwapForm({
     required this.initialHtlc,
+    required this.token,
     super.key,
   });
 
   /// The fetched and validated initial HTLC.
   final HtlcInfo initialHtlc;
+
+  /// Token locked in the initial HTLC.
+  final Token token;
 
   @override
   State<JoinNativeSwapForm> createState() => _JoinNativeSwapFormState();
@@ -80,29 +84,9 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<Token?>(
-      future: zenon!.embedded.token.getByZts(
-        widget.initialHtlc.tokenStandard,
-      ),
-      builder: (_, AsyncSnapshot<Token?> snapshot) {
-        if (snapshot.hasError) {
-          return Padding(
-            padding: const EdgeInsets.all(20),
-            child: SyriusErrorWidget(snapshot.error!),
-          );
-        } else if (snapshot.hasData) {
-          return _buildContent(snapshot.data!);
-        }
-        return const Padding(
-          padding: EdgeInsets.all(50),
-          child: SyriusLoadingWidget(),
-        );
-      },
-    );
-  }
+  Widget build(BuildContext context) => _buildContent();
 
-  Widget _buildContent(Token tokenToReceive) {
+  Widget _buildContent() {
     final int minutesLeftToJoin =
         (((widget.initialHtlc.expirationTime -
                         kMinSafeTimeToFindPreimage.inSeconds -
@@ -176,7 +160,7 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
           HtlcCard.fromHtlcInfo(
             title: context.l10n.youAreReceiving,
             htlc: widget.initialHtlc,
-            token: tokenToReceive,
+            token: widget.token,
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -190,7 +174,7 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
                     color: AppColors.subtitleColor,
                   ),
                 ),
-                _buildExchangeRateWidget(tokenToReceive),
+                _buildExchangeRateWidget(),
               ],
             ),
           ),
@@ -210,19 +194,18 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
               children: <Widget>[
                 Visibility(
                   visible: !isTrustedToken(
-                    tokenToReceive.tokenStandard.toString(),
+                    widget.token.tokenStandard.toString(),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 20),
                     child: SwapWarning(
                       text: context.l10n.verifyNonFavoriteToken(
-                        tokenToReceive.tokenStandard.toString(),
+                        widget.token.tokenStandard.toString(),
                       ),
                     ),
                   ),
                 ),
                 _buildJoinSwapButton(
-                  tokenToReceive,
                   isLoading: state is JoinNativeSwapLoading,
                 ),
               ],
@@ -236,23 +219,23 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
     );
   }
 
-  Widget _buildJoinSwapButton(Token tokenToReceive, {required bool isLoading}) {
+  Widget _buildJoinSwapButton({required bool isLoading}) {
     return InstructionButton(
       text: context.l10n.joinSwap,
       instructionText: context.l10n.inputAmountToSend,
       loadingText: context.l10n.sendingTransaction,
       isEnabled: _isInputValid(),
       isLoading: isLoading,
-      onPressed: () => _onJoinButtonPressed(tokenToReceive),
+      onPressed: _onJoinButtonPressed,
     );
   }
 
-  void _onJoinButtonPressed(Token tokenToReceive) {
+  void _onJoinButtonPressed() {
     context.read<JoinNativeSwapBloc>().add(
       JoinNativeSwapRequested(
         initialHtlc: widget.initialHtlc,
         fromToken: _selectedToken,
-        toToken: tokenToReceive,
+        toToken: widget.token,
         fromAmount: _amountController.text.extractDecimals(
           _selectedToken.decimals,
         ),
@@ -285,7 +268,7 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
         : null;
   }
 
-  Widget _buildExchangeRateWidget(Token tokenToReceive) {
+  Widget _buildExchangeRateWidget() {
     return ExchangeRateWidget(
       fromAmount: _amountController.text.extractDecimals(
         _selectedToken.decimals,
@@ -293,8 +276,8 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
       fromDecimals: _selectedToken.decimals,
       fromSymbol: _selectedToken.symbol,
       toAmount: widget.initialHtlc.amount,
-      toDecimals: tokenToReceive.decimals,
-      toSymbol: tokenToReceive.symbol,
+      toDecimals: widget.token.decimals,
+      toSymbol: widget.token.symbol,
     );
   }
 

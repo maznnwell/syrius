@@ -5,6 +5,7 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dar
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/date_time_utils.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/zts_utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class MockZenon extends Mock implements Zenon {}
@@ -12,6 +13,8 @@ class MockZenon extends Mock implements Zenon {}
 class MockEmbedded extends Mock implements EmbeddedApi {}
 
 class MockHtlcApi extends Mock implements HtlcApi {}
+
+class MockTokenApi extends Mock implements TokenApi {}
 
 class MockLedger extends Mock implements LedgerApi {}
 
@@ -31,6 +34,7 @@ void main() {
     late MockZenon zenon;
     late MockEmbedded embedded;
     late MockHtlcApi htlcApi;
+    late MockTokenApi tokenApi;
     late MockLedger ledger;
     late MockHtlcSwapsService htlcSwapsService;
     late MockAccountBlock creationBlock;
@@ -44,6 +48,7 @@ void main() {
       zenon = MockZenon();
       embedded = MockEmbedded();
       htlcApi = MockHtlcApi();
+      tokenApi = MockTokenApi();
       ledger = MockLedger();
       htlcSwapsService = MockHtlcSwapsService();
       creationBlock = MockAccountBlock();
@@ -62,8 +67,10 @@ void main() {
 
       when(() => zenon.embedded).thenReturn(embedded);
       when(() => embedded.htlc).thenReturn(htlcApi);
+      when(() => embedded.token).thenReturn(tokenApi);
       when(() => zenon.ledger).thenReturn(ledger);
       when(() => htlcApi.getById(htlcId)).thenAnswer((_) async => htlc);
+      when(() => tokenApi.getByZts(znnZts)).thenAnswer((_) async => kZnnCoin);
       when(
         () => htlcSwapsService.getSwapByHtlcId(htlcId.toString()),
       ).thenReturn(null);
@@ -99,12 +106,32 @@ void main() {
       ),
       expect: () => <InitialHtlcValidationState>[
         const InitialHtlcValidationLoading(),
-        InitialHtlcValidationDone(htlc: htlc),
+        InitialHtlcValidationDone(htlc: htlc, token: kZnnCoin),
       ],
       verify: (_) {
         verify(() => htlcApi.getById(htlcId)).called(1);
         verify(() => ledger.getAccountBlockByHash(htlcId)).called(1);
+        verify(() => tokenApi.getByZts(znnZts)).called(1);
       },
+    );
+
+    blocTest<InitialHtlcValidationBloc, InitialHtlcValidationState>(
+      'emits [loading, failure] when token information is unavailable',
+      setUp: () {
+        when(() => tokenApi.getByZts(znnZts)).thenAnswer((_) async => null);
+      },
+      build: () => bloc,
+      act: (InitialHtlcValidationBloc bloc) => bloc.add(
+        InitialHtlcValidationRequested(id: htlcId),
+      ),
+      expect: () => <Matcher>[
+        isA<InitialHtlcValidationLoading>(),
+        isA<InitialHtlcValidationFailure>().having(
+          (InitialHtlcValidationFailure state) => state.exception.message,
+          'message',
+          'Unable to retrieve token information.',
+        ),
+      ],
     );
 
     blocTest<InitialHtlcValidationBloc, InitialHtlcValidationState>(
@@ -126,6 +153,9 @@ void main() {
           'This deposit is not intended for you.',
         ),
       ],
+      verify: (_) {
+        verifyNever(() => tokenApi.getByZts(znnZts));
+      },
     );
 
     blocTest<InitialHtlcValidationBloc, InitialHtlcValidationState>(

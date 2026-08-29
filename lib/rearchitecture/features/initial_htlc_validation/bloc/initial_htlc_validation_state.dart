@@ -21,18 +21,25 @@ final class InitialHtlcValidationLoading extends InitialHtlcValidationState {
   const InitialHtlcValidationLoading();
 }
 
-/// Success state containing the validated initial HTLC.
+/// Success state containing the validated initial HTLC and its token.
 final class InitialHtlcValidationDone extends InitialHtlcValidationState {
   /// Creates an [InitialHtlcValidationDone] state.
-  const InitialHtlcValidationDone({required this._htlc});
+  const InitialHtlcValidationDone({
+    required this._htlc,
+    required this._token,
+  });
 
   final HtlcInfo _htlc;
+  final Token _token;
 
   /// The fetched and validated initial HTLC.
   HtlcInfo get htlc => _htlc;
 
+  /// Token locked in the initial HTLC.
+  Token get token => _token;
+
   @override
-  List<Object> get props => <Object>[_htlc];
+  List<Object> get props => <Object>[_htlc, _token];
 }
 
 /// Failure state emitted when the initial HTLC is invalid or cannot be fetched.
