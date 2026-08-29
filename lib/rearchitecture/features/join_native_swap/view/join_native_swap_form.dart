@@ -124,25 +124,13 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
       builder: (_, JoinNativeSwapState state) => Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: kVerticalGap16.height!,
         children: <Widget>[
-          const SizedBox(height: 20),
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: LabeledInputContainer(
-                  labelText: context.l10n.yourAddress,
-                  helpText: context.l10n.receiveSwappedFundsToAddress,
-                  inputWidget: DisabledAddressField(
-                    _addressController,
-                    contentLeftPadding: 10,
-                  ),
-                ),
-              ),
-            ],
+          DisabledAddressField(
+            _addressController,
+            labelText: context.l10n.receiveSwappedFundsToAddress,
           ),
-          const SizedBox(height: 20),
           Divider(color: Colors.white.withValues(alpha: 0.1)),
-          const SizedBox(height: 20),
           LabeledInputContainer(
             labelText: context.l10n.youAreSending,
             inputWidget: Flexible(
@@ -181,19 +169,15 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
               ),
             ),
           ),
-          kVerticalSpacing,
           const Icon(
             AntDesign.arrowdown,
             color: Colors.white,
-            size: 20,
           ),
-          kVerticalSpacing,
           HtlcCard.fromHtlcInfo(
             title: context.l10n.youAreReceiving,
             htlc: widget.initialHtlc,
             token: tokenToReceive,
           ),
-          const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Row(
@@ -210,7 +194,6 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
               ],
             ),
           ),
-          const SizedBox(height: 20),
           Divider(color: Colors.white.withValues(alpha: 0.1)),
           if (_safeExpirationTime != null) const SizedBox(height: 20),
           if (_safeExpirationTime != null)
