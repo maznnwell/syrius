@@ -55,10 +55,15 @@ class _View extends StatelessWidget {
       child: BlocBuilder<InitialHtlcValidationBloc, InitialHtlcValidationState>(
         builder: (_, InitialHtlcValidationState state) => switch (state) {
           InitialHtlcValidationDone(
+            :final AccountInfo accountInfo,
             :final HtlcInfo htlc,
             :final Token token,
           ) =>
-            JoinNativeSwapForm(initialHtlc: htlc, token: token),
+            JoinNativeSwapForm(
+              accountInfo: accountInfo,
+              initialHtlc: htlc,
+              token: token,
+            ),
           _ => const InitialHtlcValidationForm(),
         },
       ),

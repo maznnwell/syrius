@@ -21,16 +21,21 @@ final class InitialHtlcValidationLoading extends InitialHtlcValidationState {
   const InitialHtlcValidationLoading();
 }
 
-/// Success state containing the validated initial HTLC and its token.
+/// Success state containing the validated HTLC and data required to join it.
 final class InitialHtlcValidationDone extends InitialHtlcValidationState {
   /// Creates an [InitialHtlcValidationDone] state.
   const InitialHtlcValidationDone({
+    required this._accountInfo,
     required this._htlc,
     required this._token,
   });
 
+  final AccountInfo _accountInfo;
   final HtlcInfo _htlc;
   final Token _token;
+
+  /// Current account information for the address joining the swap.
+  AccountInfo get accountInfo => _accountInfo;
 
   /// The fetched and validated initial HTLC.
   HtlcInfo get htlc => _htlc;
@@ -39,7 +44,7 @@ final class InitialHtlcValidationDone extends InitialHtlcValidationState {
   Token get token => _token;
 
   @override
-  List<Object> get props => <Object>[_htlc, _token];
+  List<Object> get props => <Object>[_accountInfo, _htlc, _token];
 }
 
 /// Failure state emitted when the initial HTLC is invalid or cannot be fetched.

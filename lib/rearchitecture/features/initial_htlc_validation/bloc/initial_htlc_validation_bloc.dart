@@ -63,8 +63,16 @@ class InitialHtlcValidationBloc
       if (token == null) {
         throw SyriusException('Unable to retrieve token information.');
       }
+      final AccountInfo accountInfo = await _zenon.ledger
+          .getAccountInfoByAddress(htlc.hashLocked);
 
-      emit(InitialHtlcValidationDone(htlc: htlc, token: token));
+      emit(
+        InitialHtlcValidationDone(
+          accountInfo: accountInfo,
+          htlc: htlc,
+          token: token,
+        ),
+      );
     } on SyriusException catch (error, stackTrace) {
       addError(error, stackTrace);
       emit(InitialHtlcValidationFailure(exception: error));

@@ -39,6 +39,7 @@ void main() {
     late MockHtlcSwapsService htlcSwapsService;
     late MockAccountBlock creationBlock;
     late MockConfirmationDetail creationConfirmation;
+    late AccountInfo accountInfo;
     late HtlcInfo htlc;
     late InitialHtlcValidationBloc bloc;
 
@@ -53,6 +54,11 @@ void main() {
       htlcSwapsService = MockHtlcSwapsService();
       creationBlock = MockAccountBlock();
       creationConfirmation = MockConfirmationDetail();
+      accountInfo = AccountInfo(
+        address: walletAddress.toString(),
+        blockCount: 0,
+        balanceInfoList: <BalanceInfoListItem>[],
+      );
       htlc = HtlcInfo(
         id: htlcId,
         timeLocked: counterpartyAddress,
@@ -81,6 +87,9 @@ void main() {
         () => ledger.getAccountBlockByHash(htlcId),
       ).thenAnswer((_) async => creationBlock);
       when(
+        () => ledger.getAccountInfoByAddress(walletAddress),
+      ).thenAnswer((_) async => accountInfo);
+      when(
         () => creationBlock.confirmationDetail,
       ).thenReturn(creationConfirmation);
       when(
@@ -106,12 +115,19 @@ void main() {
       ),
       expect: () => <InitialHtlcValidationState>[
         const InitialHtlcValidationLoading(),
-        InitialHtlcValidationDone(htlc: htlc, token: kZnnCoin),
+        InitialHtlcValidationDone(
+          accountInfo: accountInfo,
+          htlc: htlc,
+          token: kZnnCoin,
+        ),
       ],
       verify: (_) {
         verify(() => htlcApi.getById(htlcId)).called(1);
         verify(() => ledger.getAccountBlockByHash(htlcId)).called(1);
         verify(() => tokenApi.getByZts(znnZts)).called(1);
+        verify(
+          () => ledger.getAccountInfoByAddress(walletAddress),
+        ).called(1);
       },
     );
 
@@ -130,6 +146,30 @@ void main() {
           (InitialHtlcValidationFailure state) => state.exception.message,
           'message',
           'Unable to retrieve token information.',
+        ),
+      ],
+      verify: (_) {
+        verifyNever(() => ledger.getAccountInfoByAddress(walletAddress));
+      },
+    );
+
+    blocTest<InitialHtlcValidationBloc, InitialHtlcValidationState>(
+      'emits [loading, failure] when fetching account information fails',
+      setUp: () {
+        when(
+          () => ledger.getAccountInfoByAddress(walletAddress),
+        ).thenThrow(Exception('boom'));
+      },
+      build: () => bloc,
+      act: (InitialHtlcValidationBloc bloc) => bloc.add(
+        InitialHtlcValidationRequested(id: htlcId),
+      ),
+      expect: () => <Matcher>[
+        isA<InitialHtlcValidationLoading>(),
+        isA<InitialHtlcValidationFailure>().having(
+          (InitialHtlcValidationFailure state) => state.exception,
+          'exception',
+          isA<FailureException>(),
         ),
       ],
     );
