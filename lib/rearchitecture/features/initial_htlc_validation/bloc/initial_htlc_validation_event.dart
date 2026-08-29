@@ -22,3 +22,9 @@ final class InitialHtlcValidationRequested extends InitialHtlcValidationEvent {
   @override
   List<Object> get props => <Object>[_id];
 }
+
+/// Refreshes the bloc state
+final class InitialHtlcValidationRefreshed extends InitialHtlcValidationEvent {
+  /// Creates an [InitialHtlcValidationRefreshed] event.
+  const InitialHtlcValidationRefreshed();
+}

@@ -43,6 +43,11 @@ class _InitialHtlcValidationFormState extends State<InitialHtlcValidationForm> {
                 hintText: context.l10n.depositIdProvidedByCounterparty,
                 suffixIcon: FieldSuffixButtons(
                   controller: _depositIdController,
+                  onClear: () {
+                    context.read<InitialHtlcValidationBloc>().add(
+                      const InitialHtlcValidationRefreshed(),
+                    );
+                  },
                 ),
               ),
               controller: _depositIdController,

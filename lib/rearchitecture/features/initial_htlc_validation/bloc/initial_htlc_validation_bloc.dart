@@ -34,6 +34,7 @@ class InitialHtlcValidationBloc
     required this._zenon,
   }) : super(const InitialHtlcValidationInitial()) {
     on<InitialHtlcValidationRequested>(_onValidationRequested);
+    on<InitialHtlcValidationRefreshed>(_onValidationRefreshed);
   }
 
   final AccountBlocksAfterTimeFetcher _accountBlocksAfterTimeFetcher;
@@ -170,5 +171,12 @@ class InitialHtlcValidationBloc
     }
 
     return FormatUtils.encodeHexString(encodedHashLock) == htlc.hashLockHex;
+  }
+
+  FutureOr<void> _onValidationRefreshed(
+    InitialHtlcValidationRefreshed event,
+    Emitter<InitialHtlcValidationState> emit,
+  ) {
+    emit(const InitialHtlcValidationInitial());
   }
 }
