@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:stacked/stacked.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/dashboard/balance_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/join_htlc_swap_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/join_native_swap/bloc/join_native_swap_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap_details/p2p_swap_details.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
@@ -52,7 +52,6 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
 
   Token _selectedToken = kZnnCoin;
   bool _isAmountValid = false;
-  bool _isLoading = false;
 
   String get _selfAddress => widget.initialHtlc.hashLocked.toString();
 
@@ -124,179 +123,154 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
         );
     final String reclaimBullet = context.l10n.reclaimFundsIfCounterpartyFails;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        const SizedBox(height: 20),
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: LabeledInputContainer(
-                labelText: context.l10n.yourAddress,
-                helpText: context.l10n.receiveSwappedFundsToAddress,
-                inputWidget: DisabledAddressField(
-                  _addressController,
-                  contentLeftPadding: 10,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-        Divider(color: Colors.white.withValues(alpha: 0.1)),
-        const SizedBox(height: 20),
-        LabeledInputContainer(
-          labelText: context.l10n.youAreSending,
-          inputWidget: Flexible(
-            child: StreamBuilder<Map<String, AccountInfo>?>(
-              stream: sl.get<BalanceBloc>().stream,
-              builder: (_, AsyncSnapshot<Map<String, AccountInfo>?> snapshot) {
-                if (snapshot.hasError) {
-                  return SyriusErrorWidget(snapshot.error!);
-                }
-                if (snapshot.connectionState == ConnectionState.active) {
-                  if (snapshot.hasData) {
-                    return AmountInputField(
-                      controller: _amountController,
-                      accountInfo: snapshot.data![_selfAddress]!,
-                      valuePadding: 10,
-                      textColor: Theme.of(context).colorScheme.inverseSurface,
-                      initialToken: _selectedToken,
-                      hintText: '0.0',
-                      onChanged: (Token token, bool isValid) {
-                        setState(() {
-                          _selectedToken = token;
-                          _isAmountValid = isValid;
-                        });
-                      },
-                    );
-                  } else {
-                    return const SyriusLoadingWidget();
-                  }
-                } else {
-                  return const SyriusLoadingWidget();
-                }
-              },
-            ),
-          ),
-        ),
-        kVerticalSpacing,
-        const Icon(
-          AntDesign.arrowdown,
-          color: Colors.white,
-          size: 20,
-        ),
-        kVerticalSpacing,
-        HtlcCard.fromHtlcInfo(
-          title: context.l10n.youAreReceiving,
-          htlc: widget.initialHtlc,
-          token: tokenToReceive,
-        ),
-        const SizedBox(height: 20),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return BlocConsumer<JoinNativeSwapBloc, JoinNativeSwapState>(
+      listener: _onJoinNativeSwapStateChanged,
+      builder: (_, JoinNativeSwapState state) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          const SizedBox(height: 20),
+          Row(
             children: <Widget>[
-              Text(
-                context.l10n.exchangeRate,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.subtitleColor,
-                ),
-              ),
-              _buildExchangeRateWidget(tokenToReceive),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20),
-        Divider(color: Colors.white.withValues(alpha: 0.1)),
-        if (_safeExpirationTime != null) const SizedBox(height: 20),
-        if (_safeExpirationTime != null)
-          BulletPointCard(
-            bulletPoints: <String>[
-              joinDeadlineBullet,
-              counterpartyDeadlineBullet,
-              reclaimBullet,
-            ],
-          ),
-        const SizedBox(height: 20),
-        if (_safeExpirationTime != null)
-          Column(
-            children: <Widget>[
-              Visibility(
-                visible: !isTrustedToken(
-                  tokenToReceive.tokenStandard.toString(),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: SwapWarning(
-                    text: context.l10n.verifyNonFavoriteToken(
-                      tokenToReceive.tokenStandard.toString(),
-                    ),
+              Expanded(
+                child: LabeledInputContainer(
+                  labelText: context.l10n.yourAddress,
+                  helpText: context.l10n.receiveSwappedFundsToAddress,
+                  inputWidget: DisabledAddressField(
+                    _addressController,
+                    contentLeftPadding: 10,
                   ),
                 ),
               ),
-              _buildJoinSwapViewModel(tokenToReceive),
             ],
-          )
-        else
-          SwapWarning(
-            text: context.l10n.cannotJoinSwapExpiresTooSoon,
           ),
-      ],
+          const SizedBox(height: 20),
+          Divider(color: Colors.white.withValues(alpha: 0.1)),
+          const SizedBox(height: 20),
+          LabeledInputContainer(
+            labelText: context.l10n.youAreSending,
+            inputWidget: Flexible(
+              child: StreamBuilder<Map<String, AccountInfo>?>(
+                stream: sl.get<BalanceBloc>().stream,
+                builder:
+                    (_, AsyncSnapshot<Map<String, AccountInfo>?> snapshot) {
+                      if (snapshot.hasError) {
+                        return SyriusErrorWidget(snapshot.error!);
+                      }
+                      if (snapshot.connectionState == ConnectionState.active) {
+                        if (snapshot.hasData) {
+                          return AmountInputField(
+                            controller: _amountController,
+                            accountInfo: snapshot.data![_selfAddress]!,
+                            valuePadding: 10,
+                            textColor: Theme.of(
+                              context,
+                            ).colorScheme.inverseSurface,
+                            initialToken: _selectedToken,
+                            hintText: '0.0',
+                            onChanged: (Token token, bool isValid) {
+                              setState(() {
+                                _selectedToken = token;
+                                _isAmountValid = isValid;
+                              });
+                            },
+                          );
+                        } else {
+                          return const SyriusLoadingWidget();
+                        }
+                      } else {
+                        return const SyriusLoadingWidget();
+                      }
+                    },
+              ),
+            ),
+          ),
+          kVerticalSpacing,
+          const Icon(
+            AntDesign.arrowdown,
+            color: Colors.white,
+            size: 20,
+          ),
+          kVerticalSpacing,
+          HtlcCard.fromHtlcInfo(
+            title: context.l10n.youAreReceiving,
+            htlc: widget.initialHtlc,
+            token: tokenToReceive,
+          ),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  context.l10n.exchangeRate,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.subtitleColor,
+                  ),
+                ),
+                _buildExchangeRateWidget(tokenToReceive),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          Divider(color: Colors.white.withValues(alpha: 0.1)),
+          if (_safeExpirationTime != null) const SizedBox(height: 20),
+          if (_safeExpirationTime != null)
+            BulletPointCard(
+              bulletPoints: <String>[
+                joinDeadlineBullet,
+                counterpartyDeadlineBullet,
+                reclaimBullet,
+              ],
+            ),
+          const SizedBox(height: 20),
+          if (_safeExpirationTime != null)
+            Column(
+              children: <Widget>[
+                Visibility(
+                  visible: !isTrustedToken(
+                    tokenToReceive.tokenStandard.toString(),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
+                    child: SwapWarning(
+                      text: context.l10n.verifyNonFavoriteToken(
+                        tokenToReceive.tokenStandard.toString(),
+                      ),
+                    ),
+                  ),
+                ),
+                _buildJoinSwapButton(
+                  tokenToReceive,
+                  isLoading: state is JoinNativeSwapLoading,
+                ),
+              ],
+            )
+          else
+            SwapWarning(
+              text: context.l10n.cannotJoinSwapExpiresTooSoon,
+            ),
+        ],
+      ),
     );
   }
 
-  ViewModelBuilder<JoinHtlcSwapBloc> _buildJoinSwapViewModel(
-    Token tokenToReceive,
-  ) {
-    return ViewModelBuilder<JoinHtlcSwapBloc>.reactive(
-      onViewModelReady: (JoinHtlcSwapBloc model) {
-        model.stream.listen(
-          (HtlcSwap? event) {
-            if (mounted && event is HtlcSwap) {
-              widget.onJoinedSwap.call(event.id);
-            }
-          },
-          onError: (Object error) {
-            if (!mounted) {
-              return;
-            }
-            setState(() {
-              _isLoading = false;
-            });
-            ToastUtils.showToast(context, error.toString());
-          },
-        );
-      },
-      builder: (_, JoinHtlcSwapBloc model, _) =>
-          _buildJoinSwapButton(model, tokenToReceive),
-      viewModelBuilder: JoinHtlcSwapBloc.new,
-    );
-  }
-
-  Widget _buildJoinSwapButton(JoinHtlcSwapBloc model, Token tokenToReceive) {
+  Widget _buildJoinSwapButton(Token tokenToReceive, {required bool isLoading}) {
     return InstructionButton(
       text: context.l10n.joinSwap,
       instructionText: context.l10n.inputAmountToSend,
       loadingText: context.l10n.sendingTransaction,
       isEnabled: _isInputValid(),
-      isLoading: _isLoading,
-      onPressed: () => _onJoinButtonPressed(model, tokenToReceive),
+      isLoading: isLoading,
+      onPressed: () => _onJoinButtonPressed(tokenToReceive),
     );
   }
 
-  Future<void> _onJoinButtonPressed(
-    JoinHtlcSwapBloc model,
-    Token tokenToReceive,
-  ) async {
-    setState(() {
-      _isLoading = true;
-    });
-    unawaited(
-      model.joinHtlcSwap(
+  void _onJoinButtonPressed(Token tokenToReceive) {
+    context.read<JoinNativeSwapBloc>().add(
+      JoinNativeSwapRequested(
         initialHtlc: widget.initialHtlc,
         fromToken: _selectedToken,
         toToken: tokenToReceive,
@@ -309,6 +283,17 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
         counterHtlcExpirationTime: _safeExpirationTime!,
       ),
     );
+  }
+
+  void _onJoinNativeSwapStateChanged(
+    BuildContext context,
+    JoinNativeSwapState state,
+  ) {
+    if (state is JoinNativeSwapDone) {
+      widget.onJoinedSwap(state.swap.id);
+    } else if (state is JoinNativeSwapFailure) {
+      ToastUtils.showToast(context, state.exception.toString());
+    }
   }
 
   int? _calculateSafeExpirationTime(int initialHtlcExpiration) {
