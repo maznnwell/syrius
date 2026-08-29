@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/join_native_swap/bloc/join_native_swap_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap_details/p2p_swap_details.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/join_native_swap/widgets/join_swap_button.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
@@ -15,7 +15,6 @@ import 'package:zenon_syrius_wallet_flutter/utils/toast_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/zts_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/modular_widgets/p2p_swap_widgets/htlc_card.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/bullet_point_card.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/instruction_button.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/exchange_rate_widget.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/input_fields.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/swap_warning.dart';
@@ -210,9 +209,13 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
                           ),
                         ),
                       ),
-                      _buildJoinSwapButton(
+                      JoinSwapButton(
+                        counterHtlcExpirationTime: _safeExpirationTime!,
+                        fromAmount: amount,
+                        fromToken: _token,
+                        initialHtlc: widget.initialHtlc,
                         isEnabled: isAmountValid,
-                        isLoading: isSwapLoading,
+                        toToken: widget.token,
                       ),
                     ],
                   )
@@ -225,37 +228,6 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
           },
         );
       },
-    );
-  }
-
-  Widget _buildJoinSwapButton({
-    required bool isEnabled,
-    required bool isLoading,
-  }) {
-    return InstructionButton(
-      text: context.l10n.joinSwap,
-      instructionText: context.l10n.inputAmountToSend,
-      loadingText: context.l10n.sendingTransaction,
-      isEnabled: isEnabled,
-      isLoading: isLoading,
-      onPressed: _onJoinButtonPressed,
-    );
-  }
-
-  void _onJoinButtonPressed() {
-    context.read<JoinNativeSwapBloc>().add(
-      JoinNativeSwapRequested(
-        initialHtlc: widget.initialHtlc,
-        fromToken: _token,
-        toToken: widget.token,
-        fromAmount: _amountController.text.extractDecimals(
-          _token.decimals,
-        ),
-        swapType: P2pSwapType.native,
-        fromChain: P2pSwapChain.nom,
-        toChain: P2pSwapChain.nom,
-        counterHtlcExpirationTime: _safeExpirationTime!,
-      ),
     );
   }
 
