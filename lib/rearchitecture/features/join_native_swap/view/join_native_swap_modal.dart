@@ -15,12 +15,8 @@ import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 class JoinNativeSwapModal extends StatelessWidget {
   /// Creates a [JoinNativeSwapModal].
   const JoinNativeSwapModal({
-    required this.onJoinedSwap,
     super.key,
   });
-
-  /// Called with the identifier of the successfully joined swap.
-  final ValueChanged<String> onJoinedSwap;
 
   @override
   Widget build(BuildContext context) {
@@ -44,15 +40,13 @@ class JoinNativeSwapModal extends StatelessWidget {
           ),
         )
       ],
-      child: _View(onJoinedSwap: onJoinedSwap),
+      child: _View(),
     );
   }
 }
 
 class _View extends StatelessWidget {
-  const _View({required this.onJoinedSwap});
-
-  final ValueChanged<String> onJoinedSwap;
+  const _View();
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +56,6 @@ class _View extends StatelessWidget {
         builder: (_, InitialHtlcValidationState state) => switch (state) {
           InitialHtlcValidationDone(:final HtlcInfo htlc) => JoinNativeSwapForm(
             initialHtlc: htlc,
-            onJoinedSwap: onJoinedSwap,
           ),
           _ => const InitialHtlcValidationForm(),
         },

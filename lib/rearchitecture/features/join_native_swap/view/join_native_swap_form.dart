@@ -29,15 +29,11 @@ class JoinNativeSwapForm extends StatefulWidget {
   /// Creates a [JoinNativeSwapForm].
   const JoinNativeSwapForm({
     required this.initialHtlc,
-    required this.onJoinedSwap,
     super.key,
   });
 
   /// The fetched and validated initial HTLC.
   final HtlcInfo initialHtlc;
-
-  /// Called with the identifier of the successfully joined swap.
-  final ValueChanged<String> onJoinedSwap;
 
   @override
   State<JoinNativeSwapForm> createState() => _JoinNativeSwapFormState();
@@ -290,7 +286,7 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
     JoinNativeSwapState state,
   ) {
     if (state is JoinNativeSwapDone) {
-      widget.onJoinedSwap(state.swap.id);
+      Navigator.pop(context);
     } else if (state is JoinNativeSwapFailure) {
       ToastUtils.showToast(context, state.exception.toString());
     }

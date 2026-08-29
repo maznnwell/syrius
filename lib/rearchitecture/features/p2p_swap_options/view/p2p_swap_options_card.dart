@@ -137,9 +137,7 @@ class _View extends StatelessWidget {
 
     final String? swapId = await showCustomDialog<String>(
       context: context,
-      content: JoinNativeSwapModal(
-        onJoinedSwap: (String swapId) => Navigator.pop(context, swapId),
-      ),
+      content: const JoinNativeSwapModal(),
     );
 
     if (swapId == null || !context.mounted) {
