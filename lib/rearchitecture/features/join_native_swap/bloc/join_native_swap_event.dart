@@ -20,7 +20,6 @@ final class JoinNativeSwapRequested extends JoinNativeSwapEvent {
     required this.swapType,
     required this.fromChain,
     required this.toChain,
-    required this.counterHtlcExpirationTime,
   });
 
   /// Initial HTLC created by the counterparty.
@@ -44,9 +43,6 @@ final class JoinNativeSwapRequested extends JoinNativeSwapEvent {
   /// Chain on which the initial HTLC was created.
   final P2pSwapChain toChain;
 
-  /// Expiration time of the counter HTLC.
-  final int counterHtlcExpirationTime;
-
   @override
   List<Object?> get props => <Object?>[
     initialHtlc,
@@ -56,6 +52,5 @@ final class JoinNativeSwapRequested extends JoinNativeSwapEvent {
     swapType,
     fromChain,
     toChain,
-    counterHtlcExpirationTime,
   ];
 }

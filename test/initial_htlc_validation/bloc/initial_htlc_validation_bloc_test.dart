@@ -57,7 +57,7 @@ void main() {
       accountInfo = AccountInfo(
         address: walletAddress.toString(),
         blockCount: 0,
-        balanceInfoList: <BalanceInfoListItem>[],
+        balanceInfoList: const <BalanceInfoListItem>[],
       );
       htlc = HtlcInfo(
         id: htlcId,

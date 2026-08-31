@@ -21,6 +21,7 @@ export 'fuse_plasma/fuse_plasma.dart';
 export 'fused_plasma/fused_plasma.dart';
 export 'initial_htlc_validation/initial_htlc_validation.dart';
 export 'join_native_swap/join_native_swap.dart';
+export 'join_swap_availability/join_swap_availability.dart';
 export 'latest_transactions/latest_transactions.dart';
 export 'mint_token/mint_token.dart';
 export 'multiple_balance/multiple_balance.dart';

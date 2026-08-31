@@ -16,7 +16,6 @@ void main() {
   testWidgets('dispatches a join request to the provided bloc', (
     WidgetTester tester,
   ) async {
-    const int counterHtlcExpirationTime = 2000;
     final Hash htlcId = Hash.digest(<int>[1, 2, 3]);
     final HtlcInfo initialHtlc = HtlcInfo(
       id: htlcId,
@@ -40,7 +39,6 @@ void main() {
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: JoinSwapButton(
-              counterHtlcExpirationTime: counterHtlcExpirationTime,
               fromAmount: '1',
               fromToken: kZnnCoin,
               initialHtlc: initialHtlc,
@@ -64,7 +62,6 @@ void main() {
           swapType: P2pSwapType.native,
           fromChain: P2pSwapChain.nom,
           toChain: P2pSwapChain.nom,
-          counterHtlcExpirationTime: counterHtlcExpirationTime,
         ),
       ),
     ).called(1);

@@ -28,7 +28,8 @@ void main() {
   });
 
   group('JoinNativeSwapBloc', () {
-    const int counterHtlcExpirationTime = 2000;
+    const int now = 1000;
+    const int counterHtlcExpirationTime = now + Duration.secondsPerHour;
     final BigInt fromAmount = BigInt.from(10);
     final Hash initialHtlcId = Hash.digest(<int>[1, 2, 3]);
     final Address selfAddress = emptyAddress;
@@ -53,7 +54,18 @@ void main() {
       swapType: P2pSwapType.native,
       fromChain: P2pSwapChain.nom,
       toChain: P2pSwapChain.nom,
-      counterHtlcExpirationTime: counterHtlcExpirationTime,
+    );
+
+    HtlcInfo buildInitialHtlc(int expirationTime) => HtlcInfo(
+      id: initialHtlcId,
+      timeLocked: counterpartyAddress,
+      hashLocked: selfAddress,
+      tokenStandard: kQsrCoin.tokenStandard,
+      amount: BigInt.from(20),
+      expirationTime: expirationTime,
+      hashType: htlcHashTypeSha3,
+      keyMaxSize: htlcPreimageMaxLength,
+      hashLock: <int>[4, 5, 6],
     );
 
     setUp(() {
@@ -63,16 +75,8 @@ void main() {
       accountBlockUtils = MockAccountBlockUtils();
       htlcSwapsService = MockHtlcSwapsService();
       zenonAddressUtils = MockZenonAddressUtils();
-      initialHtlc = HtlcInfo(
-        id: initialHtlcId,
-        timeLocked: counterpartyAddress,
-        hashLocked: selfAddress,
-        tokenStandard: kQsrCoin.tokenStandard,
-        amount: BigInt.from(20),
-        expirationTime: 3000,
-        hashType: htlcHashTypeSha3,
-        keyMaxSize: htlcPreimageMaxLength,
-        hashLock: <int>[4, 5, 6],
+      initialHtlc = buildInitialHtlc(
+        now + kInitialHtlcDuration.inSeconds,
       );
       transactionParams = AccountBlockTemplate(blockType: 1);
       response = AccountBlockTemplate(blockType: 1)
@@ -110,6 +114,7 @@ void main() {
         htlcSwapsService: htlcSwapsService,
         zenon: zenon,
         zenonAddressUtils: zenonAddressUtils,
+        unixTimeProvider: () => now,
       );
     });
 
@@ -169,6 +174,40 @@ void main() {
         isA<JoinNativeSwapLoading>(),
         isA<JoinNativeSwapDone>(),
       ],
+    );
+
+    blocTest<JoinNativeSwapBloc, JoinNativeSwapState>(
+      'rejects a join request after the safe cutoff',
+      setUp: () {
+        initialHtlc = buildInitialHtlc(
+          now +
+              kMinSafeTimeToFindPreimage.inSeconds +
+              kCounterHtlcDuration.inSeconds -
+              1,
+        );
+      },
+      build: () => bloc,
+      act: (JoinNativeSwapBloc bloc) => bloc.add(buildEvent()),
+      expect: () => <Matcher>[
+        isA<JoinNativeSwapFailure>().having(
+          (JoinNativeSwapFailure state) => state.exception.message,
+          'message',
+          'This deposit will expire too soon for a safe swap.',
+        ),
+      ],
+      verify: (_) {
+        verifyNever(
+          () => htlcApi.create(
+            kZnnCoin,
+            fromAmount,
+            counterpartyAddress,
+            counterHtlcExpirationTime,
+            htlcHashTypeSha3,
+            htlcPreimageMaxLength,
+            initialHtlc.hashLock,
+          ),
+        );
+      },
     );
 
     blocTest<JoinNativeSwapBloc, JoinNativeSwapState>(

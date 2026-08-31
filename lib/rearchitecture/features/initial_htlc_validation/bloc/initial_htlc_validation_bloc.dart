@@ -53,7 +53,7 @@ class InitialHtlcValidationBloc
 
       _validateParticipants(htlc);
       _validateUnusedDeposit(htlc);
-      _validateExpiration(htlc.expirationTime);
+      _validateExpiration(htlc);
       await _validateCreationDuration(htlc);
       await _validateUniqueHashLock(htlc);
 
@@ -104,17 +104,15 @@ class InitialHtlcValidationBloc
     }
   }
 
-  void _validateExpiration(int expirationTime) {
-    final Duration minimumRequiredDuration =
-        kMinSafeTimeToFindPreimage + kCounterHtlcDuration;
-
-    final Duration remainingDuration = Duration(
-      seconds: expirationTime - DateTimeUtils.unixTimeNow,
+  void _validateExpiration(HtlcInfo htlc) {
+    final int now = DateTimeUtils.unixTimeNow;
+    final Duration remainingDuration = htlc.remainingDurationAt(
+      now,
     );
     if (remainingDuration.inSeconds <= 0) {
       throw SyriusException('This deposit has expired.');
     }
-    if (remainingDuration < minimumRequiredDuration) {
+    if (!htlc.canBeSafelyJoinedAt(now)) {
       throw SyriusException(
         'This deposit will expire too soon for a safe swap.',
       );

@@ -40,7 +40,7 @@ class JoinNativeSwapModal extends StatelessWidget {
           ),
         ),
       ],
-      child: _View(),
+      child: const _View(),
     );
   }
 }

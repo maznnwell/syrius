@@ -11,7 +11,6 @@ import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 class JoinSwapButton extends StatelessWidget {
   /// Creates a [JoinSwapButton].
   const JoinSwapButton({
-    required this._counterHtlcExpirationTime,
     required this._fromAmount,
     required this._fromToken,
     required this._initialHtlc,
@@ -20,7 +19,6 @@ class JoinSwapButton extends StatelessWidget {
     super.key,
   });
 
-  final int _counterHtlcExpirationTime;
   final String _fromAmount;
   final Token _fromToken;
   final HtlcInfo _initialHtlc;
@@ -46,7 +44,6 @@ class JoinSwapButton extends StatelessWidget {
               swapType: P2pSwapType.native,
               fromChain: P2pSwapChain.nom,
               toChain: P2pSwapChain.nom,
-              counterHtlcExpirationTime: _counterHtlcExpirationTime,
             ),
           ),
         );

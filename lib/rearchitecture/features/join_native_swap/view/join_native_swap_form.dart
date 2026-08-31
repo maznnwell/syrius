@@ -1,14 +1,12 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/join_native_swap/bloc/join_native_swap_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/join_native_swap/widgets/join_swap_button.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/join_swap_availability/join_swap_availability.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
-import 'package:zenon_syrius_wallet_flutter/utils/date_time_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/input_validators.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/toast_utils.dart';
@@ -48,28 +46,12 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
   final TextEditingController _amountController = TextEditingController();
   final ValueNotifier<Token> _tokenNotifier = .new(kZnnCoin);
 
-  int? _safeExpirationTime;
-  StreamSubscription<int>? _safeExpirationSubscription;
-
   Token get _token => _tokenNotifier.value;
 
   @override
   void initState() {
     super.initState();
     _addressController.text = widget.initialHtlc.hashLocked.toString();
-    _safeExpirationTime = _calculateSafeExpirationTime(
-      widget.initialHtlc.expirationTime,
-    );
-    _safeExpirationSubscription =
-        Stream<int>.periodic(
-          const Duration(seconds: 5),
-          (int count) => count,
-        ).listen((int _) {
-          _safeExpirationTime = _calculateSafeExpirationTime(
-            widget.initialHtlc.expirationTime,
-          );
-          setState(() {});
-        });
   }
 
   @override
@@ -77,24 +59,20 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
     _addressController.dispose();
     _amountController.dispose();
     _tokenNotifier.dispose();
-    unawaited(_safeExpirationSubscription?.cancel());
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => _buildContent();
+  Widget build(BuildContext context) {
+    return BlocProvider<JoinSwapAvailabilityCubit>(
+      create: (_) => JoinSwapAvailabilityCubit(
+        initialHtlc: widget.initialHtlc,
+      ),
+      child: _buildContent(),
+    );
+  }
 
   Widget _buildContent() {
-    final int minutesLeftToJoin =
-        (((widget.initialHtlc.expirationTime -
-                        kMinSafeTimeToFindPreimage.inSeconds -
-                        kCounterHtlcDuration.inSeconds) -
-                    DateTimeUtils.unixTimeNow) /
-                60)
-            .ceil();
-    final String joinDeadlineBullet = context.l10n.minutesLeftToJoinSwap(
-      minutesLeftToJoin,
-    );
     final String counterpartyDeadlineBullet = context.l10n
         .counterpartyTimeToCompleteSwap(
           kCounterHtlcDuration.inHours,
@@ -183,50 +161,69 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
                   ),
                 ),
                 Divider(color: Colors.white.withValues(alpha: 0.1)),
-                if (_safeExpirationTime != null) const SizedBox(height: 20),
-                if (_safeExpirationTime != null)
-                  BulletPointCard(
-                    bulletPoints: <String>[
-                      joinDeadlineBullet,
-                      counterpartyDeadlineBullet,
-                      reclaimBullet,
-                    ],
-                  ),
-                const SizedBox(height: 20),
-                if (_safeExpirationTime != null)
-                  Column(
-                    children: <Widget>[
-                      Visibility(
-                        visible: !isTrustedToken(
-                          widget.token.tokenStandard.toString(),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 20),
-                          child: SwapWarning(
-                            text: context.l10n.verifyNonFavoriteToken(
-                              widget.token.tokenStandard.toString(),
-                            ),
-                          ),
-                        ),
-                      ),
-                      JoinSwapButton(
-                        counterHtlcExpirationTime: _safeExpirationTime!,
-                        fromAmount: amount,
-                        fromToken: _token,
-                        initialHtlc: widget.initialHtlc,
-                        isEnabled: isAmountValid,
-                        toToken: widget.token,
-                      ),
-                    ],
-                  )
-                else
-                  SwapWarning(
-                    text: context.l10n.cannotJoinSwapExpiresTooSoon,
-                  ),
+                _buildAvailabilitySection(
+                  amount: amount,
+                  counterpartyDeadlineBullet: counterpartyDeadlineBullet,
+                  isAmountValid: isAmountValid,
+                  reclaimBullet: reclaimBullet,
+                ),
               ],
             );
           },
         );
+      },
+    );
+  }
+
+  Widget _buildAvailabilitySection({
+    required String amount,
+    required String counterpartyDeadlineBullet,
+    required bool isAmountValid,
+    required String reclaimBullet,
+  }) {
+    return BlocBuilder<JoinSwapAvailabilityCubit, JoinSwapAvailabilityState>(
+      builder: (_, JoinSwapAvailabilityState state) => switch (state) {
+        JoinSwapAvailable(:final int minutesLeftToJoin) => Column(
+          children: <Widget>[
+            const SizedBox(height: 20),
+            BulletPointCard(
+              bulletPoints: <String>[
+                context.l10n.minutesLeftToJoinSwap(minutesLeftToJoin),
+                counterpartyDeadlineBullet,
+                reclaimBullet,
+              ],
+            ),
+            const SizedBox(height: 20),
+            Visibility(
+              visible: !isTrustedToken(
+                widget.token.tokenStandard.toString(),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: SwapWarning(
+                  text: context.l10n.verifyNonFavoriteToken(
+                    widget.token.tokenStandard.toString(),
+                  ),
+                ),
+              ),
+            ),
+            JoinSwapButton(
+              fromAmount: amount,
+              fromToken: _token,
+              initialHtlc: widget.initialHtlc,
+              isEnabled: isAmountValid,
+              toToken: widget.token,
+            ),
+          ],
+        ),
+        JoinSwapUnavailable() => Column(
+          children: <Widget>[
+            const SizedBox(height: 20),
+            SwapWarning(
+              text: context.l10n.cannotJoinSwapExpiresTooSoon,
+            ),
+          ],
+        ),
       },
     );
   }
@@ -240,16 +237,6 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
     } else if (state is JoinNativeSwapFailure) {
       ToastUtils.showToast(context, state.exception.toString());
     }
-  }
-
-  int? _calculateSafeExpirationTime(int initialHtlcExpiration) {
-    final Duration minNeededRemainingTime =
-        kMinSafeTimeToFindPreimage + kCounterHtlcDuration;
-    final int now = DateTimeUtils.unixTimeNow;
-    final Duration remaining = Duration(seconds: initialHtlcExpiration - now);
-    return remaining >= minNeededRemainingTime
-        ? now + kCounterHtlcDuration.inSeconds
-        : null;
   }
 
   Widget _buildExchangeRateWidget() {
