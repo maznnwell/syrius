@@ -112,8 +112,10 @@ class _HtlcCardState extends State<HtlcCard> {
         ? loading
         : _buildWidgetBody();
 
-    return SizedBox(
-      height: 72,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        minHeight: 72,
+      ),
       child: Card.filled(
         color: AppColors.znnColor.withAlpha((255 * 0.2).round()),
         clipBehavior: Clip.hardEdge,
@@ -130,7 +132,7 @@ class _HtlcCardState extends State<HtlcCard> {
       mouseCursor: SystemMouseCursors.click,
       onTap: () => setState(() => _areDetailsExpanded = !_areDetailsExpanded),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.center,
