@@ -182,6 +182,7 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
     return BlocBuilder<JoinSwapAvailabilityCubit, JoinSwapAvailabilityState>(
       builder: (_, JoinSwapAvailabilityState state) => switch (state) {
         JoinSwapAvailable(:final int minutesLeftToJoin) => Column(
+          spacing: kVerticalGap16.height!,
           children: <Widget>[
             BulletPointCard(
               bulletPoints: <String>[
@@ -190,18 +191,11 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
                 reclaimBullet,
               ],
             ),
-            const SizedBox(height: 20),
-            Visibility(
-              visible: !isTrustedToken(
+            if (!isTrustedToken(
+              widget.token.tokenStandard.toString(),
+            )) SwapWarning(
+              text: context.l10n.verifyNonFavoriteToken(
                 widget.token.tokenStandard.toString(),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: SwapWarning(
-                  text: context.l10n.verifyNonFavoriteToken(
-                    widget.token.tokenStandard.toString(),
-                  ),
-                ),
               ),
             ),
             JoinSwapButton(
@@ -215,7 +209,6 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
         ),
         JoinSwapUnavailable() => Column(
           children: <Widget>[
-            const SizedBox(height: 20),
             SwapWarning(
               text: context.l10n.cannotJoinSwapExpiresTooSoon,
             ),
