@@ -245,7 +245,7 @@ class _ViewState extends State<_View> {
     if (result != null) {
       return result;
     } else {
-      // TODO(maznnwell): loss check to see if two addresses are from the same
+      // TODO(maznnwell): loose check to see if two addresses are from the same
       //  seed, but also probably impossible to check properly
       return kDefaultAddressList.contains(address)
           ? context.l10n.p2pSwapOwnAddressError
