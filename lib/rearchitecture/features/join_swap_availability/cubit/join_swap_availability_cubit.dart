@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/initial_htlc_validation/initial_htlc_validation.dart';
-import 'package:zenon_syrius_wallet_flutter/utils/date_time_utils.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 part 'join_swap_availability_state.dart';
@@ -14,13 +14,13 @@ class JoinSwapAvailabilityCubit extends Cubit<JoinSwapAvailabilityState> {
   JoinSwapAvailabilityCubit({
     required HtlcInfo initialHtlc,
     this._refreshInterval = const Duration(seconds: 5),
-    int Function()? unixTimeProvider,
+    DateTime Function()? dateTime,
   }) : _initialHtlc = initialHtlc,
-       _unixTimeProvider = unixTimeProvider ?? _currentUnixTime,
+       _dateTime = dateTime ?? _currentDateTime,
        super(
          _stateAt(
            initialHtlc,
-           (unixTimeProvider ?? _currentUnixTime)(),
+           (dateTime ?? _currentDateTime)(),
          ),
        ) {
     if (state is JoinSwapAvailable) {
@@ -29,23 +29,24 @@ class JoinSwapAvailabilityCubit extends Cubit<JoinSwapAvailabilityState> {
   }
 
   final HtlcInfo _initialHtlc;
-  final int Function() _unixTimeProvider;
+  final DateTime Function() _dateTime;
   final Duration _refreshInterval;
 
   Timer? _autoRefresher;
 
-  static int _currentUnixTime() => DateTimeUtils.unixTimeNow;
+  static DateTime _currentDateTime() => DateTime.now();
 
   static JoinSwapAvailabilityState _stateAt(
     HtlcInfo initialHtlc,
-    int unixTime,
+    DateTime dateTime,
   ) {
-    if (!initialHtlc.canBeSafelyJoinedAt(unixTime)) {
+    final int unixTimestamp = dateTime.unixTimestamp;
+    if (!initialHtlc.canBeSafelyJoinedAt(unixTimestamp)) {
       return const JoinSwapUnavailable();
     }
 
     return JoinSwapAvailable(
-      minutesLeftToJoin: initialHtlc.minutesLeftToJoinAt(unixTime),
+      minutesLeftToJoin: initialHtlc.minutesLeftToJoinAt(unixTimestamp),
     );
   }
 
@@ -57,7 +58,7 @@ class JoinSwapAvailabilityCubit extends Cubit<JoinSwapAvailabilityState> {
 
     final JoinSwapAvailabilityState nextState = _stateAt(
       _initialHtlc,
-      _unixTimeProvider(),
+      _dateTime(),
     );
     if (nextState is JoinSwapUnavailable) {
       _autoRefresher?.cancel();

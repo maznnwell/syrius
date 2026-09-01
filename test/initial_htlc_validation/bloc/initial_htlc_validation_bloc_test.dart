@@ -4,7 +4,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
-import 'package:zenon_syrius_wallet_flutter/utils/date_time_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/zts_utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -44,7 +43,7 @@ void main() {
     late InitialHtlcValidationBloc bloc;
 
     setUp(() {
-      final int now = DateTimeUtils.unixTimeNow;
+      final int now = DateTime.now().unixTimestamp;
       final int expirationTime = now + const Duration(hours: 8).inSeconds;
       zenon = MockZenon();
       embedded = MockEmbedded();

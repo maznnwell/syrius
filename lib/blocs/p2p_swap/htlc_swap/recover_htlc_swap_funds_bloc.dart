@@ -1,7 +1,7 @@
 import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/reclaim_htlc_swap_funds_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
-import 'package:zenon_syrius_wallet_flutter/utils/date_time_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/format_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/global.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
@@ -15,7 +15,7 @@ class RecoverHtlcSwapFundsBloc extends ReclaimHtlcSwapFundsBloc {
         throw 'The deposit does not belong to you.';
       }
 
-      if (htlc.expirationTime - DateTimeUtils.unixTimeNow > 0) {
+      if (htlc.expirationTime - DateTime.now().unixTimestamp > 0) {
         throw 'The deposit is locked until ${FormatUtils.formatDate(htlc.expirationTime * 1000, dateFormat: kDefaultDateTimeFormat)}.';
       }
 

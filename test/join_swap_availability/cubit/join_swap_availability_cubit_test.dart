@@ -5,7 +5,7 @@ import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 void main() {
-  const int latestSafeJoinTime = 100000;
+  const int latestSafeJoinTimestamp = 100000;
   final HtlcInfo initialHtlc = HtlcInfo(
     id: Hash.digest(<int>[1, 2, 3]),
     timeLocked: htlcAddress,
@@ -13,25 +13,28 @@ void main() {
     tokenStandard: znnZts,
     amount: BigInt.one,
     expirationTime:
-        latestSafeJoinTime +
+        latestSafeJoinTimestamp +
         kMinSafeTimeToFindPreimage.inSeconds +
         kCounterHtlcDuration.inSeconds,
     hashType: htlcHashTypeSha3,
     keyMaxSize: htlcPreimageMaxLength,
     hashLock: <int>[4, 5, 6],
   );
-  late int unixTime;
+  late DateTime dateTime;
 
   setUp(() {
-    unixTime = latestSafeJoinTime;
+    dateTime = DateTime.fromMillisecondsSinceEpoch(
+      latestSafeJoinTimestamp * Duration.millisecondsPerSecond,
+      isUtc: true,
+    );
   });
 
   test('initial state is available before the cutoff', () async {
-    unixTime = latestSafeJoinTime - 1;
+    dateTime = dateTime.subtract(const Duration(seconds: 1));
     final JoinSwapAvailabilityCubit cubit = JoinSwapAvailabilityCubit(
       initialHtlc: initialHtlc,
       refreshInterval: const Duration(days: 1),
-      unixTimeProvider: () => unixTime,
+      dateTime: () => dateTime,
     );
 
     expect(
@@ -45,7 +48,7 @@ void main() {
     final JoinSwapAvailabilityCubit cubit = JoinSwapAvailabilityCubit(
       initialHtlc: initialHtlc,
       refreshInterval: const Duration(days: 1),
-      unixTimeProvider: () => unixTime,
+      dateTime: () => dateTime,
     );
 
     expect(
@@ -60,10 +63,10 @@ void main() {
     build: () => JoinSwapAvailabilityCubit(
       initialHtlc: initialHtlc,
       refreshInterval: const Duration(days: 1),
-      unixTimeProvider: () => unixTime,
+      dateTime: () => dateTime,
     ),
     act: (JoinSwapAvailabilityCubit cubit) {
-      unixTime = latestSafeJoinTime + 1;
+      dateTime = dateTime.add(const Duration(seconds: 1));
       cubit.checkAvailability();
     },
     expect: () => <JoinSwapAvailabilityState>[

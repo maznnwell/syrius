@@ -8,6 +8,7 @@ import 'package:zenon_syrius_wallet_flutter/blocs/auto_unlock_htlc_worker.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/model/block_data.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/date_time_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -281,7 +282,7 @@ class HtlcSwapsHandler {
     final List<HtlcSwap> swaps = htlcSwapsService!.getSwapsByState(
       <P2pSwapState>[P2pSwapState.pending, P2pSwapState.active],
     );
-    final int now = DateTimeUtils.unixTimeNow;
+    final int now = DateTime.now().unixTimestamp;
     for (final HtlcSwap swap in swaps) {
       if (swap.initialHtlcExpirationTime < now ||
           (swap.counterHtlcExpirationTime != null &&

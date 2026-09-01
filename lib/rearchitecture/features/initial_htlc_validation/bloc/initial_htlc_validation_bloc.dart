@@ -4,16 +4,14 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:zenon_syrius_wallet_flutter/model/block_data.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/initial_htlc_validation/utils/htlc_info_extension.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/exceptions/exceptions.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/account_block_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
-import 'package:zenon_syrius_wallet_flutter/utils/date_time_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/format_utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 part 'initial_htlc_validation_event.dart';
-
 part 'initial_htlc_validation_state.dart';
 
 /// Fetches account blocks created after a Unix timestamp.
@@ -105,7 +103,7 @@ class InitialHtlcValidationBloc
   }
 
   void _validateExpiration(HtlcInfo htlc) {
-    final int now = DateTimeUtils.unixTimeNow;
+    final int now = DateTime.now().unixTimestamp;
     final Duration remainingDuration = htlc.remainingDurationAt(
       now,
     );

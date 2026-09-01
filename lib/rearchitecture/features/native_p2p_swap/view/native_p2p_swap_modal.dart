@@ -300,7 +300,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
     const Duration warningThreshold = Duration(minutes: 10);
     final Duration timeToCompleteSwap =
         Duration(
-          seconds: swap.counterHtlcExpirationTime! - DateTimeUtils.unixTimeNow,
+          seconds: swap.counterHtlcExpirationTime! - DateTime.now().unixTimestamp,
         ) -
         kMinSafeTimeToCompleteSwap;
     return TweenAnimationBuilder<Duration>(
@@ -429,7 +429,7 @@ class _Unsuccessful extends StatelessWidget {
         ? _swap.initialHtlcExpirationTime
         : _swap.counterHtlcExpirationTime;
     final Duration remainingDuration = Duration(
-      seconds: (expiration ?? 0) - DateTimeUtils.unixTimeNow,
+      seconds: (expiration ?? 0) - DateTime.now().unixTimestamp,
     );
 
     final bool isReclaimable =
