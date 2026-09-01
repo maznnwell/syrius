@@ -6,11 +6,11 @@ import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive_ce.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:layout/layout.dart';
-import 'package:local_notifier/local_notifier.dart';
 import 'package:logging/logging.dart';
 import 'package:nested/nested.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -48,9 +48,39 @@ HtlcSwapsService? htlcSwapsService;
 IWeb3WalletService? web3WalletService;
 
 final GetIt sl = GetIt.instance;
+final FlutterLocalNotificationsPlugin desktopNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 final GlobalKey<NavigatorState> globalNavigatorKey =
     GlobalKey<NavigatorState>();
+
+Future<void> initializeDesktopNotifications() async {
+  if (!isDesktopPlatform()) {
+    return;
+  }
+
+  const InitializationSettings initializationSettings = InitializationSettings(
+    macOS: DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+    ),
+    linux: LinuxInitializationSettings(
+      defaultActionName: 'Open notification',
+    ),
+    windows: WindowsInitializationSettings(
+      appName: 's y r i u s',
+      appUserModelId: 'Network.Zenon.Syrius',
+      // Randomly generated
+      guid: 'a796cf2f-0772-4ad3-b140-d44f0144fbc6',
+      iconPath: 'assets/images/tray_app_icon.png',
+    ),
+  );
+
+  await desktopNotificationsPlugin.initialize(
+    settings: initializationSettings,
+  );
+}
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -110,10 +140,7 @@ main() async {
     maxAttempts: 0x7FFFFFFFFFFFFFFF,
   );
 
-  // Setup local_notifier
-  await localNotifier.setup(
-    appName: 's y r i u s',
-  );
+  await initializeDesktopNotifications();
 
   // Setup tray manager
   await _setupTrayManager();

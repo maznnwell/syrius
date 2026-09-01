@@ -9,7 +9,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_ce/hive_ce.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:layout/layout.dart';
-import 'package:local_notifier/local_notifier.dart';
 import 'package:logging/logging.dart';
 import 'package:nested/nested.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -101,10 +100,7 @@ main() async {
     maxAttempts: 0x7FFFFFFFFFFFFFFF,
   );
 
-  // Setup local_notifier
-  await localNotifier.setup(
-    appName: 's y r i u s',
-  );
+  await initializeDesktopNotifications();
 
   // Setup tray manager
   await _setupTrayManager();
