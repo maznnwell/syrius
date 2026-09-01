@@ -179,9 +179,7 @@ class HtlcSwapsHandler {
             swap.copyWith(
               counterHtlcId: pairedBlock.hash.toString(),
               toAmount: pairedBlock.amount,
-              toTokenStandard: pairedBlock.token!.tokenStandard.toString(),
-              toDecimals: pairedBlock.token!.decimals,
-              toSymbol: pairedBlock.token!.symbol,
+              toToken: pairedBlock.token!,
               counterHtlcExpirationTime: blockData.params['expirationTime']
                   .toInt(),
             ),

@@ -17,9 +17,9 @@ import 'package:zenon_syrius_wallet_flutter/widgets/modular_widgets/p2p_swap_wid
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/instruction_button.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/error_widget.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/exchange_rate_widget.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/swap_warning.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_info_text.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_widget.dart';
+import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/swap_warning.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class NativeP2pSwapModal extends StatefulWidget {
@@ -58,7 +58,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
           return switch (state) {
             P2pSwapDetailsPopulated(:final HtlcSwap swap) => BaseModal(
               title: _getTitle(swap),
-              child: _getContent(swap),
+              child: _buildContent(swap),
             ),
             P2pSwapDetailsFailure(:final SyriusException exception) =>
               BaseModal(
@@ -79,14 +79,14 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
     return swap.state == P2pSwapState.active ? context.l10n.activeSwap : null;
   }
 
-  Widget _getContent(HtlcSwap swap) {
+  Widget _buildContent(HtlcSwap swap) {
     switch (swap.state) {
       case P2pSwapState.pending:
         return const _Pending();
       case P2pSwapState.active:
-        return _getActiveView(swap);
+        return _buildActiveView(swap);
       case P2pSwapState.completed:
-        return _getCompletedView(swap);
+        return _buildCompletedView(swap);
       case P2pSwapState.reclaimable:
       case P2pSwapState.unsuccessful:
         return _Unsuccessful(swap: swap);
@@ -95,7 +95,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
     }
   }
 
-  Widget _getActiveView(HtlcSwap swap) {
+  Widget _buildActiveView(HtlcSwap swap) {
     return Column(
       spacing: kVerticalGap16.height!,
       children: <Widget>[
@@ -110,7 +110,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
     );
   }
 
-  Widget _getCompletedView(HtlcSwap swap) {
+  Widget _buildCompletedView(HtlcSwap swap) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -161,7 +161,8 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
                       ),
                     ),
                     _AmountInfo(
-                      swap: swap,
+                      amount: swap.fromAmount,
+                      token: swap.fromToken,
                     ),
                   ],
                 ),
@@ -179,7 +180,8 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
                       ),
                     ),
                     _AmountInfo(
-                      swap: swap,
+                      amount: swap.toAmount,
+                      token: swap.toToken,
                     ),
                   ],
                 ),
@@ -196,7 +198,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
                         color: AppColors.subtitleColor,
                       ),
                     ),
-                    _getExchangeRateWidget(swap),
+                    _buildExchangeRateWidget(swap),
                   ],
                 ),
               ],
@@ -250,7 +252,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
                     color: AppColors.subtitleColor,
                   ),
                 ),
-                _getExchangeRateWidget(swap),
+                _buildExchangeRateWidget(swap),
               ],
             ),
           ),
@@ -262,22 +264,24 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
             child: Column(
               children: <Widget>[
                 Visibility(
-                  visible: !isTrustedToken(swap.toTokenStandard ?? ''),
+                  visible:
+                      swap.toToken != null &&
+                      !isTrustedToken(swap.toToken!.tokenStandard.toString()),
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 25),
                     child: SwapWarning(
                       text: context.l10n.verifyNonFavoriteToken(
-                        swap.toTokenStandard ?? '',
+                        swap.toToken?.tokenStandard.toString() ?? '',
                       ),
                     ),
                   ),
                 ),
-                _getExpirationWarningForOutgoingSwap(swap),
-                _getSwapButtonViewModel(swap),
+                _buildExpirationWarningForOutgoingSwap(swap),
+                _buildSwapButtonViewModel(swap),
                 const SizedBox(
                   height: 25,
                 ),
-                _getIncorrectAmountButton(swap),
+                _buildIncorrectAmountButton(swap),
               ],
             ),
           ),
@@ -296,11 +300,12 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
     }
   }
 
-  Widget _getExpirationWarningForOutgoingSwap(HtlcSwap swap) {
+  Widget _buildExpirationWarningForOutgoingSwap(HtlcSwap swap) {
     const Duration warningThreshold = Duration(minutes: 10);
     final Duration timeToCompleteSwap =
         Duration(
-          seconds: swap.counterHtlcExpirationTime! - DateTime.now().unixTimestamp,
+          seconds:
+              swap.counterHtlcExpirationTime! - DateTime.now().unixTimestamp,
         ) -
         kMinSafeTimeToCompleteSwap;
     return TweenAnimationBuilder<Duration>(
@@ -323,7 +328,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
     );
   }
 
-  Widget _getSwapButtonViewModel(HtlcSwap swap) {
+  Widget _buildSwapButtonViewModel(HtlcSwap swap) {
     return ViewModelBuilder<CompleteHtlcSwapBloc>.reactive(
       onViewModelReady: (CompleteHtlcSwapBloc model) {
         model.stream.listen(
@@ -358,7 +363,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
     );
   }
 
-  Widget _getIncorrectAmountButton(HtlcSwap swap) {
+  Widget _buildIncorrectAmountButton(HtlcSwap swap) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: SizedBox(
@@ -380,7 +385,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
               ),
             ),
           ),
-          secondChild: _getIncorrectAmountInstructions(
+          secondChild: _buildIncorrectAmountInstructions(
             swap.initialHtlcExpirationTime,
           ),
           crossFadeState: _shouldShowIncorrectAmountInstructions
@@ -391,7 +396,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
     );
   }
 
-  Widget _getIncorrectAmountInstructions(int expirationTime) {
+  Widget _buildIncorrectAmountInstructions(int expirationTime) {
     return Text(
       context.l10n.waitToReclaimIncorrectDeposit(
         FormatUtils.formatDate(
@@ -406,14 +411,18 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
     );
   }
 
-  Widget _getExchangeRateWidget(HtlcSwap swap) {
+  Widget _buildExchangeRateWidget(HtlcSwap swap) {
+    final BigInt? toAmount = swap.toAmount;
+    final Token? toToken = swap.toToken;
+    if (toAmount == null || toToken == null) {
+      return const SizedBox.shrink();
+    }
+
     return ExchangeRateWidget(
       fromAmount: swap.fromAmount,
-      fromDecimals: swap.fromDecimals,
-      fromSymbol: swap.fromSymbol,
-      toAmount: swap.toAmount!,
-      toDecimals: swap.toDecimals!,
-      toSymbol: swap.toSymbol!,
+      fromToken: swap.fromToken,
+      toAmount: toAmount,
+      toToken: toToken,
     );
   }
 }
@@ -469,7 +478,10 @@ class _Unsuccessful extends StatelessWidget {
                       ? context.l10n.depositedAmount
                       : context.l10n.depositedAmountReclaimed,
                 ),
-                _AmountInfo(swap: _swap),
+                _AmountInfo(
+                  amount: _swap.fromAmount,
+                  token: _swap.fromToken,
+                ),
               ],
             ),
           ),
@@ -572,16 +584,23 @@ class _ReclaimButton extends StatelessWidget {
 }
 
 class _AmountInfo extends StatelessWidget {
-  const _AmountInfo({required this._swap});
+  const _AmountInfo({
+    required this._amount,
+    required this._token,
+  });
 
-  final HtlcSwap _swap;
+  final BigInt? _amount;
+  final Token? _token;
 
   @override
   Widget build(BuildContext context) {
-    final String amount = _swap.fromAmount.addDecimals(_swap.fromDecimals);
-    final String symbol = _swap.fromSymbol;
+    final BigInt? amount = _amount;
+    final Token? token = _token;
+    if (amount == null || token == null) {
+      return const Text('-');
+    }
 
-    return Text('$amount $symbol');
+    return Text('${amount.addDecimals(token.decimals)} ${token.symbol}');
   }
 }
 

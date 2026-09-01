@@ -21,9 +21,7 @@ HtlcSwap _$HtlcSwapFromJson(Map<String, dynamic> json) => HtlcSwap(
   selfAddress: json['selfAddress'] as String,
   counterpartyAddress: json['counterpartyAddress'] as String,
   fromAmount: BigInt.parse(json['fromAmount'] as String),
-  fromTokenStandard: json['fromTokenStandard'] as String,
-  fromSymbol: json['fromSymbol'] as String,
-  fromDecimals: (json['fromDecimals'] as num).toInt(),
+  fromToken: Token.fromJson(json['fromToken'] as Map<String, dynamic>),
   fromChain: $enumDecode(_$P2pSwapChainEnumMap, json['fromChain']),
   toChain: $enumDecode(_$P2pSwapChainEnumMap, json['toChain']),
   startTime: (json['startTime'] as num).toInt(),
@@ -31,9 +29,9 @@ HtlcSwap _$HtlcSwapFromJson(Map<String, dynamic> json) => HtlcSwap(
   toAmount: json['toAmount'] == null
       ? null
       : BigInt.parse(json['toAmount'] as String),
-  toTokenStandard: json['toTokenStandard'] as String?,
-  toSymbol: json['toSymbol'] as String?,
-  toDecimals: (json['toDecimals'] as num?)?.toInt(),
+  toToken: json['toToken'] == null
+      ? null
+      : Token.fromJson(json['toToken'] as Map<String, dynamic>),
   counterHtlcId: json['counterHtlcId'] as String?,
   counterHtlcExpirationTime: (json['counterHtlcExpirationTime'] as num?)
       ?.toInt(),
@@ -53,17 +51,13 @@ Map<String, dynamic> _$HtlcSwapToJson(HtlcSwap instance) => <String, dynamic>{
   'selfAddress': instance.selfAddress,
   'counterpartyAddress': instance.counterpartyAddress,
   'fromAmount': instance.fromAmount.toString(),
-  'fromTokenStandard': instance.fromTokenStandard,
-  'fromSymbol': instance.fromSymbol,
-  'fromDecimals': instance.fromDecimals,
+  'fromToken': instance.fromToken.toJson(),
   'fromChain': _$P2pSwapChainEnumMap[instance.fromChain]!,
   'toChain': _$P2pSwapChainEnumMap[instance.toChain]!,
   'startTime': instance.startTime,
   'state': _$P2pSwapStateEnumMap[instance.state]!,
   'toAmount': instance.toAmount?.toString(),
-  'toTokenStandard': instance.toTokenStandard,
-  'toSymbol': instance.toSymbol,
-  'toDecimals': instance.toDecimals,
+  'toToken': instance.toToken?.toJson(),
   'counterHtlcId': instance.counterHtlcId,
   'counterHtlcExpirationTime': instance.counterHtlcExpirationTime,
   'preimage': instance.preimage,

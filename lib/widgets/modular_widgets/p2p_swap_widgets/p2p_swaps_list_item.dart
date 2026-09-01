@@ -8,7 +8,6 @@ import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_wid
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class P2pSwapsListItem extends StatefulWidget {
-
   const P2pSwapsListItem({
     required this.swap,
     required this.onTap,
@@ -57,19 +56,17 @@ class _P2pSwapsListItemState extends State<P2pSwapsListItem> {
               Expanded(
                 flex: 20,
                 child: _getAmountWidget(
-                    widget.swap.fromAmount,
-                    widget.swap.fromDecimals,
-                    widget.swap.fromTokenStandard,
-                    widget.swap.fromSymbol,),
+                  widget.swap.fromAmount,
+                  widget.swap.fromToken,
+                ),
               ),
               Expanded(
                 flex: 20,
                 child: widget.swap.state == P2pSwapState.completed
                     ? _getAmountWidget(
                         widget.swap.toAmount,
-                        widget.swap.toDecimals,
-                        widget.swap.toTokenStandard,
-                        widget.swap.toSymbol,)
+                        widget.swap.toToken,
+                      )
                     : _getTextWidget('-'),
               ),
               Expanded(
@@ -100,11 +97,17 @@ class _P2pSwapsListItemState extends State<P2pSwapsListItem> {
           padding: 2,
         );
       case P2pSwapState.completed:
-        return const Icon(Icons.check_circle_outline,
-            color: AppColors.znnColor, size: size,);
+        return const Icon(
+          Icons.check_circle_outline,
+          color: AppColors.znnColor,
+          size: size,
+        );
       default:
-        return const Icon(Icons.cancel_outlined,
-            color: AppColors.errorColor, size: size,);
+        return const Icon(
+          Icons.cancel_outlined,
+          color: AppColors.errorColor,
+          size: size,
+        );
     }
   }
 
@@ -124,20 +127,24 @@ class _P2pSwapsListItemState extends State<P2pSwapsListItem> {
   }
 
   Widget _getTextWidget(String text) {
-    return Text(text,
-        style: const TextStyle(
-            fontSize: 12, height: 1, color: AppColors.subtitleColor,),
-        overflow: TextOverflow.ellipsis,
-        maxLines: 1,
-        softWrap: false,);
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 12,
+        height: 1,
+        color: AppColors.subtitleColor,
+      ),
+      overflow: TextOverflow.ellipsis,
+      maxLines: 1,
+      softWrap: false,
+    );
   }
 
   Widget _getAmountWidget(
-      BigInt? amount, int? decimals, String? tokenStandard, String? symbol,) {
-    if (amount == null ||
-        decimals == null ||
-        tokenStandard == null ||
-        symbol == null) {
+    BigInt? amount,
+    Token? token,
+  ) {
+    if (amount == null || token == null) {
       return _getTextWidget('-');
     }
     return Row(
@@ -146,11 +153,11 @@ class _P2pSwapsListItemState extends State<P2pSwapsListItem> {
           children: <Widget>[
             Container(
               constraints: const BoxConstraints(maxWidth: 70),
-              child: _getTextWidget(amount.addDecimals(decimals)),
+              child: _getTextWidget(amount.addDecimals(token.decimals)),
             ),
             Container(
               constraints: const BoxConstraints(maxWidth: 50),
-              child: _getTextWidget(' $symbol'),
+              child: _getTextWidget(' ${token.symbol}'),
             ),
           ],
         ),
@@ -163,7 +170,7 @@ class _P2pSwapsListItemState extends State<P2pSwapsListItem> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: ColorUtils.getTokenColor(
-              TokenStandard.parse(tokenStandard),
+              token.tokenStandard,
             ),
           ),
         ),
@@ -233,8 +240,10 @@ class _P2pSwapsListItemState extends State<P2pSwapsListItem> {
         const Duration(days: 1).inMilliseconds) {
       return _formatTimeShort(currentMillis - transactionMillis);
     }
-    return FormatUtils.formatDate(transactionMillis,
-        dateFormat: 'MM/dd/yyyy hh:mm a',);
+    return FormatUtils.formatDate(
+      transactionMillis,
+      dateFormat: 'MM/dd/yyyy hh:mm a',
+    );
   }
 
   String _formatTimeShort(int i) {

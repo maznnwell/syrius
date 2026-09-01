@@ -183,7 +183,6 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
       builder: (_, JoinSwapAvailabilityState state) => switch (state) {
         JoinSwapAvailable(:final int minutesLeftToJoin) => Column(
           children: <Widget>[
-            const SizedBox(height: 20),
             BulletPointCard(
               bulletPoints: <String>[
                 context.l10n.minutesLeftToJoinSwap(minutesLeftToJoin),

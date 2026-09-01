@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 part 'p2p_swap.freezed.dart';
 part 'p2p_swap.g.dart';
@@ -37,6 +38,7 @@ sealed class P2pSwap with _$P2pSwap {
   const P2pSwap._();
 
   @FreezedUnionValue('htlc')
+  @JsonSerializable(explicitToJson: true)
   const factory P2pSwap.htlc({
     required String hashLock,
     required String initialHtlcId,
@@ -50,22 +52,59 @@ sealed class P2pSwap with _$P2pSwap {
     required String selfAddress,
     required String counterpartyAddress,
     required BigInt fromAmount,
-    required String fromTokenStandard,
-    required String fromSymbol,
-    required int fromDecimals,
+    required Token fromToken,
     required P2pSwapChain fromChain,
     required P2pSwapChain toChain,
     required int startTime,
     required P2pSwapState state,
     BigInt? toAmount,
-    String? toTokenStandard,
-    String? toSymbol,
-    int? toDecimals,
+    Token? toToken,
     String? counterHtlcId,
     int? counterHtlcExpirationTime,
     String? preimage,
   }) = HtlcSwap;
 
   factory P2pSwap.fromJson(Map<String, dynamic> json) =>
-      _$P2pSwapFromJson(json);
+      _$P2pSwapFromJson(_normalizeTokenJson(json));
 }
+
+Map<String, dynamic> _normalizeTokenJson(Map<String, dynamic> json) {
+  final Map<String, dynamic> normalizedJson = Map<String, dynamic>.of(json);
+
+  normalizedJson['fromToken'] ??= _legacyTokenJson(
+    tokenStandard: json['fromTokenStandard'] as String,
+    symbol: json['fromSymbol'] as String,
+    decimals: (json['fromDecimals'] as num).toInt(),
+  );
+
+  if (normalizedJson['toToken'] == null &&
+      json['toTokenStandard'] != null &&
+      json['toSymbol'] != null &&
+      json['toDecimals'] != null) {
+    normalizedJson['toToken'] = _legacyTokenJson(
+      tokenStandard: json['toTokenStandard'] as String,
+      symbol: json['toSymbol'] as String,
+      decimals: (json['toDecimals'] as num).toInt(),
+    );
+  }
+
+  return normalizedJson;
+}
+
+Map<String, dynamic> _legacyTokenJson({
+  required String tokenStandard,
+  required String symbol,
+  required int decimals,
+}) => <String, dynamic>{
+  'name': symbol,
+  'symbol': symbol,
+  'domain': '',
+  'totalSupply': '0',
+  'decimals': decimals,
+  'owner': emptyAddress.toString(),
+  'tokenStandard': tokenStandard,
+  'maxSupply': '0',
+  'isBurnable': false,
+  'isMintable': false,
+  'isUtility': false,
+};

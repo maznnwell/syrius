@@ -161,6 +161,8 @@ void main() {
         );
         expect(swap.direction, P2pSwapDirection.outgoing);
         expect(swap.state, P2pSwapState.pending);
+        expect(swap.fromAmount, fromAmount);
+        expect(swap.fromToken, kZnnCoin);
         expect(preimage, hasLength(htlcPreimageDefaultLength));
         expect(swap.hashLock, Hash.digest(preimage).toString());
       },

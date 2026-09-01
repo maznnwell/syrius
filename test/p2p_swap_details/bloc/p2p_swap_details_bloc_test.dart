@@ -2,9 +2,9 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class MockHtlcSwapsService extends Mock implements HtlcSwapsService {}
@@ -40,9 +40,7 @@ void main() {
         selfAddress: 'self-address',
         counterpartyAddress: 'counterparty-address',
         fromAmount: BigInt.one,
-        fromTokenStandard: 'zts1',
-        fromSymbol: 'ZNN',
-        fromDecimals: 8,
+        fromToken: kZnnCoin,
         fromChain: P2pSwapChain.nom,
         toChain: P2pSwapChain.nom,
         startTime: 1,

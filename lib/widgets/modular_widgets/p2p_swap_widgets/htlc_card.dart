@@ -21,9 +21,7 @@ class HtlcCard extends StatefulWidget {
     required this.expirationTime,
     required this.recipient,
     required this.amount,
-    required this.tokenStandard,
-    required this.tokenDecimals,
-    required this.tokenSymbol,
+    this.token,
     super.key,
   });
 
@@ -42,9 +40,7 @@ class HtlcCard extends StatefulWidget {
         : swap.counterHtlcExpirationTime,
     recipient: swap.counterpartyAddress,
     amount: swap.fromAmount,
-    tokenStandard: swap.fromTokenStandard,
-    tokenDecimals: swap.fromDecimals,
-    tokenSymbol: swap.fromSymbol,
+    token: swap.fromToken,
   );
 
   factory HtlcCard.receiving({
@@ -62,9 +58,7 @@ class HtlcCard extends StatefulWidget {
         : swap.initialHtlcExpirationTime,
     recipient: swap.selfAddress,
     amount: swap.toAmount,
-    tokenStandard: swap.toTokenStandard,
-    tokenDecimals: swap.toDecimals,
-    tokenSymbol: swap.toSymbol,
+    token: swap.toToken,
   );
 
   factory HtlcCard.fromHtlcInfo({
@@ -79,9 +73,7 @@ class HtlcCard extends StatefulWidget {
     expirationTime: htlc.expirationTime,
     recipient: htlc.hashLocked.toString(),
     amount: htlc.amount,
-    tokenStandard: token.tokenStandard.toString(),
-    tokenDecimals: token.decimals,
-    tokenSymbol: token.symbol,
+    token: token,
   );
   final String title;
   final String sender;
@@ -90,9 +82,7 @@ class HtlcCard extends StatefulWidget {
   final int? expirationTime;
   final String? recipient;
   final BigInt? amount;
-  final String? tokenStandard;
-  final int? tokenDecimals;
-  final String? tokenSymbol;
+  final Token? token;
 
   @override
   State<HtlcCard> createState() => _HtlcCardState();
@@ -125,8 +115,11 @@ class _HtlcCardState extends State<HtlcCard> {
   }
 
   Widget _buildWidgetBody() {
+    final int decimals = widget.token!.decimals;
+    final String symbol = widget.token!.symbol;
+
     final String title =
-        '${widget.title} ${widget.amount!.addDecimals(widget.tokenDecimals!)} ';
+        '${widget.title} ${widget.amount!.addDecimals(decimals)} ';
 
     return InkWell(
       mouseCursor: SystemMouseCursors.click,
@@ -145,10 +138,10 @@ class _HtlcCardState extends State<HtlcCard> {
                       text: title,
                       children: <InlineSpan>[
                         TextSpan(
-                          text: widget.tokenSymbol,
+                          text: symbol,
                           style: TextStyle(
                             color: ColorUtils.getTokenColor(
-                              TokenStandard.parse(widget.tokenStandard!),
+                              widget.token!.tokenStandard,
                             ),
                           ),
                         ),
@@ -216,9 +209,9 @@ class _HtlcCardState extends State<HtlcCard> {
       ),
       DetailRow(
         label: context.l10n.tokenStandard,
-        value: widget.tokenStandard!,
+        value: widget.token!.tokenStandard.toString(),
         prefixWidget: _buildTokenStandardTooltip(
-          widget.tokenStandard ?? '',
+          widget.token!.tokenStandard.toString(),
         ),
       ),
       DetailRow(

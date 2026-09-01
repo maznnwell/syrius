@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 
 void main() {
   group('P2pSwap', () {
@@ -33,8 +34,45 @@ void main() {
       expect(json['mode'], 'htlc');
       expect(json['fromAmount'], '100');
       expect(json['toAmount'], '200');
+      expect(
+        json['fromToken']['tokenStandard'],
+        kZnnCoin.tokenStandard.toString(),
+      );
+      expect(
+        json['toToken']['tokenStandard'],
+        kQsrCoin.tokenStandard.toString(),
+      );
       expect(decodedSwap, isA<HtlcSwap>());
       expect(decodedSwap, swap);
+    });
+
+    test('decodes legacy flattened token metadata', () {
+      final Map<String, dynamic> json = _buildSwap().toJson()
+        ..remove('fromToken')
+        ..remove('toToken')
+        ..addAll(<String, dynamic>{
+          'fromTokenStandard': kZnnCoin.tokenStandard.toString(),
+          'fromSymbol': 'ZNN',
+          'fromDecimals': 8,
+          'toTokenStandard': kQsrCoin.tokenStandard.toString(),
+          'toSymbol': 'QSR',
+          'toDecimals': 8,
+        });
+
+      final HtlcSwap decodedSwap = P2pSwap.fromJson(json) as HtlcSwap;
+
+      expect(
+        decodedSwap.fromToken.tokenStandard.toString(),
+        kZnnCoin.tokenStandard.toString(),
+      );
+      expect(decodedSwap.fromToken.symbol, 'ZNN');
+      expect(decodedSwap.fromToken.decimals, 8);
+      expect(
+        decodedSwap.toToken?.tokenStandard.toString(),
+        kQsrCoin.tokenStandard.toString(),
+      );
+      expect(decodedSwap.toToken?.symbol, 'QSR');
+      expect(decodedSwap.toToken?.decimals, 8);
     });
   });
 }
@@ -51,15 +89,11 @@ HtlcSwap _buildSwap() => HtlcSwap(
   selfAddress: 'self-address',
   counterpartyAddress: 'counterparty-address',
   fromAmount: BigInt.from(100),
-  fromTokenStandard: 'zts1',
-  fromSymbol: 'ZNN',
-  fromDecimals: 8,
+  fromToken: kZnnCoin,
   fromChain: P2pSwapChain.nom,
   toChain: P2pSwapChain.nom,
   startTime: 100,
   state: P2pSwapState.pending,
   toAmount: BigInt.from(200),
-  toTokenStandard: 'zts2',
-  toSymbol: 'QSR',
-  toDecimals: 8,
+  toToken: kQsrCoin,
 );

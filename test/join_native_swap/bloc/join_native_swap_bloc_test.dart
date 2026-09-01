@@ -164,7 +164,9 @@ void main() {
         expect(swap.counterHtlcId, response.hash.toString());
         expect(swap.counterHtlcExpirationTime, counterHtlcExpirationTime);
         expect(swap.fromAmount, fromAmount);
+        expect(swap.fromToken, kZnnCoin);
         expect(swap.toAmount, initialHtlc.amount);
+        expect(swap.toToken, kQsrCoin);
         expect(
           swap.hashLock,
           FormatUtils.encodeHexString(initialHtlc.hashLock),
