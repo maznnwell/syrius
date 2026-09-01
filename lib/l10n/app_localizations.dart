@@ -484,6 +484,30 @@ abstract class AppLocalizations {
   /// **'All the deposited {kQsrCoinSymbol} will be burned in order to create the Pillar Slot'**
   String depositedCoinWillBurn(Object kQsrCoinSymbol);
 
+  /// No description provided for @deleteHistoryKeepsActiveSwaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete your swap history? Active swaps cannot be deleted.'**
+  String get deleteHistoryKeepsActiveSwaps;
+
+  /// No description provided for @deleteSwap.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete swap'**
+  String get deleteSwap;
+
+  /// No description provided for @deleteSwapCannotBeUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this swap? This action cannot be undone.'**
+  String get deleteSwapCannotBeUndone;
+
+  /// No description provided for @deleteSwapHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete swap history'**
+  String get deleteSwapHistory;
+
   /// No description provided for @disassemble.
   ///
   /// In en, this message translates to:
@@ -808,6 +832,12 @@ abstract class AppLocalizations {
   /// **'{kQsrCoinSymbol} locked'**
   String locked(Object kQsrCoinSymbol);
 
+  /// No description provided for @localTimeDiscrepancyDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'Local time discrepancy detected. Please confirm your operating system\'s time is correct before conducting P2P swaps.'**
+  String get localTimeDiscrepancyDetected;
+
   /// No description provided for @manageReceivingFunds.
   ///
   /// In en, this message translates to:
@@ -922,6 +952,12 @@ abstract class AppLocalizations {
   /// **'No more items'**
   String get noMoreItems;
 
+  /// No description provided for @noP2pSwaps.
+  ///
+  /// In en, this message translates to:
+  /// **'No P2P swaps'**
+  String get noP2pSwaps;
+
   /// No description provided for @noRewardsCollect.
   ///
   /// In en, this message translates to:
@@ -939,6 +975,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Number of decimals: {number}'**
   String numberOfDecimals(Object number);
+
+  /// No description provided for @oldestSwapDeletedWhenFull.
+  ///
+  /// In en, this message translates to:
+  /// **'The oldest swap entry will be deleted when a new swap is started.'**
+  String get oldestSwapDeletedWhenFull;
 
   /// No description provided for @ownZtsToken.
   ///
@@ -1053,6 +1095,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Before continuing'**
   String get p2pSwapWarningTitle;
+
+  /// No description provided for @p2pSwaps.
+  ///
+  /// In en, this message translates to:
+  /// **'P2P Swaps'**
+  String get p2pSwaps;
+
+  /// No description provided for @p2pSwapsConductedWithWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'This card displays a list of P2P swaps that have been conducted with this wallet.'**
+  String get p2pSwapsConductedWithWallet;
 
   /// No description provided for @password.
   ///
@@ -1611,6 +1665,12 @@ abstract class AppLocalizations {
   /// **'Stakes'**
   String get stakesListTitle;
 
+  /// No description provided for @started.
+  ///
+  /// In en, this message translates to:
+  /// **'Started'**
+  String get started;
+
   /// No description provided for @startingSwapPleaseWait.
   ///
   /// In en, this message translates to:
@@ -1634,6 +1694,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Staking Rewards'**
   String get stakingRewardsTitle;
+
+  /// No description provided for @status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get status;
 
   /// No description provided for @successfully.
   ///
@@ -1702,6 +1768,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The swap will expire in {duration}'**
   String swapExpiresIn(String duration);
+
+  /// No description provided for @swapHistoryFull.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap history is full'**
+  String get swapHistoryFull;
 
   /// No description provided for @swapReclaimBlockCreated.
   ///

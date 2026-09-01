@@ -29,6 +29,7 @@ export 'native_p2p_swap/native_p2p_swap.dart';
 export 'node_sync_status/node_sync_status.dart';
 export 'p2p_swap_details/p2p_swap_details.dart';
 export 'p2p_swap_options/p2p_swap_options.dart';
+export 'p2p_swaps/p2p_swaps.dart';
 export 'pending_transactions/pending_transactions.dart';
 export 'pillar_collect/pillar_collect.dart';
 export 'pillar_deposit_qsr/pillar_deposit_qsr.dart';

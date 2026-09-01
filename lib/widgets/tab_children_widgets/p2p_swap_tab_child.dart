@@ -4,29 +4,33 @@ import 'package:flutter/material.dart';
 import 'package:layout/layout.dart';
 import 'package:provider/provider.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/modular_widgets/p2p_swap_widgets/p2p_swaps_card.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart';
 
 class P2pSwapTabChild extends StatefulWidget {
-  const P2pSwapTabChild({
-    required this._onStepperNotificationSeeMorePressed,
-    super.key,
-  });
-  final VoidCallback _onStepperNotificationSeeMorePressed;
+  const P2pSwapTabChild({super.key});
 
   @override
   State createState() => _P2pSwapTabChildState();
 }
 
 class _P2pSwapTabChildState extends State<P2pSwapTabChild> {
+  bool _hasCheckedLocalTime = false;
+
   @override
-  void initState() {
-    super.initState();
-    unawaited(NodeUtils.checkForLocalTimeDiscrepancy(
-      '''Local time discrepancy detected. Please confirm your operating '''
-      '''system's time is correct before conducting P2P swaps.''',
-    ));
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_hasCheckedLocalTime) {
+      return;
+    }
+
+    _hasCheckedLocalTime = true;
+    unawaited(
+      NodeUtils.checkForLocalTimeDiscrepancy(
+        context.l10n.localTimeDiscrepancyDetected,
+      ),
+    );
   }
 
   @override
@@ -58,10 +62,7 @@ class _P2pSwapTabChildState extends State<P2pSwapTabChild> {
             xs: kStaggeredNumOfColumns,
           ),
           child: Consumer<SelectedAddressNotifier>(
-            builder: (_, _, _) => P2pSwapsCard(
-              onStepperNotificationSeeMorePressed:
-                  widget._onStepperNotificationSeeMorePressed,
-            ),
+            builder: (_, _, _) => const P2pSwapsCard(),
           ),
         ),
       ],

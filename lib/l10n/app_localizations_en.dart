@@ -242,6 +242,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get deleteHistoryKeepsActiveSwaps =>
+      'Are you sure you want to delete your swap history? Active swaps cannot be deleted.';
+
+  @override
+  String get deleteSwap => 'Delete swap';
+
+  @override
+  String get deleteSwapCannotBeUndone =>
+      'Are you sure you want to delete this swap? This action cannot be undone.';
+
+  @override
+  String get deleteSwapHistory => 'Delete swap history';
+
+  @override
   String get disassemble => 'DISASSEMBLE';
 
   @override
@@ -438,6 +452,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get localTimeDiscrepancyDetected =>
+      'Local time discrepancy detected. Please confirm your operating system\'s time is correct before conducting P2P swaps.';
+
+  @override
   String get manageReceivingFunds => 'Manage receiving funds';
 
   @override
@@ -502,6 +520,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noMoreItems => 'No more items';
 
   @override
+  String get noP2pSwaps => 'No P2P swaps';
+
+  @override
   String get noRewardsCollect => 'No rewards to collect';
 
   @override
@@ -511,6 +532,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String numberOfDecimals(Object number) {
     return 'Number of decimals: $number';
   }
+
+  @override
+  String get oldestSwapDeletedWhenFull =>
+      'The oldest swap entry will be deleted when a new swap is started.';
 
   @override
   String get ownZtsToken => 'You own this ZTS token';
@@ -579,6 +604,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get p2pSwapWarningTitle => 'Before continuing';
+
+  @override
+  String get p2pSwaps => 'P2P Swaps';
+
+  @override
+  String get p2pSwapsConductedWithWallet =>
+      'This card displays a list of P2P swaps that have been conducted with this wallet.';
 
   @override
   String get password => 'Password';
@@ -905,6 +937,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get stakesListTitle => 'Stakes';
 
   @override
+  String get started => 'Started';
+
+  @override
   String get startingSwapPleaseWait =>
       'Starting swap. This will take a moment.';
 
@@ -918,6 +953,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stakingRewardsTitle => 'Staking Rewards';
+
+  @override
+  String get status => 'Status';
 
   @override
   String get successfully => 'successfully';
@@ -967,6 +1005,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String swapExpiresIn(String duration) {
     return 'The swap will expire in $duration';
   }
+
+  @override
+  String get swapHistoryFull => 'Swap history is full';
 
   @override
   String get swapReclaimBlockCreated =>

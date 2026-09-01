@@ -500,10 +500,7 @@ class _MainAppContainerState extends State<MainAppContainer>
           onStepperNotificationSeeMorePressed: () =>
               _navigateTo(Tabs.notifications),
         ),
-        P2pSwapTabChild(
-          onStepperNotificationSeeMorePressed: () =>
-              _navigateTo(Tabs.notifications),
-        ),
+        const P2pSwapTabChild(),
         if (kWcProjectId.isNotEmpty) const WalletConnectTabChild(),
         AcceleratorTabChild(
           onStepperNotificationSeeMorePressed: () =>

@@ -49,7 +49,7 @@ class P2pSwapsBloc extends Bloc<P2pSwapsEvent, P2pSwapsState> {
 
   List<P2pSwap> _getSwaps() {
     final List<HtlcSwap> swaps = _htlcSwapsService.getAllSwaps()
-    ..sort((HtlcSwap a, HtlcSwap b) => b.startTime.compareTo(a.startTime));
+      ..sort((HtlcSwap a, HtlcSwap b) => b.startTime.compareTo(a.startTime));
     return swaps;
   }
 
