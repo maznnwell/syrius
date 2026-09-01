@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/p2p_swaps_list_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/bloc/p2p_swaps_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/native_p2p_swap/view/native_p2p_swap_modal.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/modular_widgets/p2p_swap_widgets/p2p_swaps_list_item.dart';
@@ -21,14 +24,16 @@ class P2pSwapsCard extends StatefulWidget {
 
 class _P2pSwapsCardState extends State<P2pSwapsCard> {
   final ScrollController _scrollController = ScrollController();
-  final P2pSwapsListBloc _p2pSwapsListBloc = P2pSwapsListBloc();
+  final P2pSwapsBloc _P2pSwapsBloc = P2pSwapsBloc(
+    htlcSwapsService: htlcSwapsService!,
+  );
 
   bool _isListScrolled = false;
 
   @override
   void initState() {
     super.initState();
-    _p2pSwapsListBloc.getDataPeriodically();
+    _P2pSwapsBloc.add(const P2pSwapsRequested());
     _scrollController.addListener(() {
       if (_scrollController.position.pixels > 0 && !_isListScrolled) {
         setState(() {
@@ -45,19 +50,21 @@ class _P2pSwapsCardState extends State<P2pSwapsCard> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _p2pSwapsListBloc.dispose();
+    unawaited(_P2pSwapsBloc.close());
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return CardScaffold<List<P2pSwap>>(
+    return CardScaffold<P2pSwapsState>(
       title: 'P2P Swaps',
-      childStream: _p2pSwapsListBloc.stream,
-      onCompletedStatusCallback: (List<P2pSwap> data) => data.isEmpty
-          ? const SyriusErrorWidget('No P2P swaps')
-          : _getTable(data),
-      onRefreshPressed: _p2pSwapsListBloc.getData,
+      childBuilder: () => BlocBuilder<P2pSwapsBloc, P2pSwapsState>(
+        bloc: _P2pSwapsBloc,
+        builder: (_, P2pSwapsState state) => _buildBody(state),
+      ),
+      onRefreshPressed: () => _P2pSwapsBloc.add(
+        const P2pSwapsRequested(),
+      ),
       description:
           'This card displays a list of P2P swaps that have been conducted '
           'with this wallet.',
@@ -111,12 +118,12 @@ class _P2pSwapsCardState extends State<P2pSwapsCard> {
       if (swap.mode == P2pSwapMode.htlc) {
         await htlcSwapsService!.deleteSwap(swap.id);
       }
-      _p2pSwapsListBloc.getData();
+      _P2pSwapsBloc.add(const P2pSwapsRequested());
     }
   }
 
   Future<void> _onDeleteSwapHistoryTapped() async {
-    final bool? deleteHistoryConfirmed =  await showDialogWithNoAndYesOptions(
+    final bool? deleteHistoryConfirmed = await showDialogWithNoAndYesOptions(
       context: context,
       isBarrierDismissible: true,
       title: 'Delete swap history',
@@ -126,8 +133,20 @@ class _P2pSwapsCardState extends State<P2pSwapsCard> {
 
     if (deleteHistoryConfirmed ?? false) {
       await htlcSwapsService!.deleteInactiveSwaps();
-      _p2pSwapsListBloc.getData();
+      _P2pSwapsBloc.add(const P2pSwapsRequested());
     }
+  }
+
+  Widget _buildBody(P2pSwapsState state) {
+    return switch (state) {
+      P2pSwapsInitial() => const SyriusLoadingWidget(),
+      P2pSwapsLoading() => const SyriusLoadingWidget(),
+      P2pSwapsFailure(:final exception) => SyriusErrorWidget(exception),
+      P2pSwapsPopulated(:final List<P2pSwap> swaps) =>
+        swaps.isEmpty
+            ? const SyriusErrorWidget('No P2P swaps')
+            : _getTable(swaps),
+    };
   }
 
   Widget _getTable(List<P2pSwap> swaps) {
