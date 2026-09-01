@@ -145,14 +145,13 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
                   token: widget.token,
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Text(
-                        context.l10n.exchangeRate,
+                        '${context.l10n.exchangeRate}:',
                         style: const TextStyle(
-                          fontSize: 14,
                           color: AppColors.subtitleColor,
                         ),
                       ),
@@ -160,7 +159,6 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
                     ],
                   ),
                 ),
-                Divider(color: Colors.white.withValues(alpha: 0.1)),
                 _buildAvailabilitySection(
                   amount: amount,
                   counterpartyDeadlineBullet: counterpartyDeadlineBullet,
@@ -244,11 +242,9 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
       fromAmount: _amountController.text.extractDecimals(
         _token.decimals,
       ),
-      fromDecimals: _token.decimals,
-      fromSymbol: _token.symbol,
       toAmount: widget.initialHtlc.amount,
-      toDecimals: widget.token.decimals,
-      toSymbol: widget.token.symbol,
+      fromToken: _token,
+      toToken: widget.token,
     );
   }
 }
