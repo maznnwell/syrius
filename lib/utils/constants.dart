@@ -214,9 +214,8 @@ const List<Tabs> kTabsWithTextTitles = <Tabs>[
 ];
 
 // P2P swap constants
-const int kInitialHtlcDurationInSeconds = 8 * Duration.secondsPerHour;
 const Duration kInitialHtlcDuration = Duration(
-  seconds: kInitialHtlcDurationInSeconds,
+  hours: 8,
 );
 const Duration kCounterHtlcDuration = Duration(hours: 1);
 const Duration kMaxAllowedInitialHtlcDuration = Duration(hours: 24);

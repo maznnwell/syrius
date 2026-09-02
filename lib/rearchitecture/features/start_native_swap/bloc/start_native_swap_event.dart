@@ -21,7 +21,7 @@ final class StartNativeSwapRequested extends StartNativeSwapEvent {
     this.swapType = P2pSwapType.native,
     this.fromChain = P2pSwapChain.nom,
     this.toChain = P2pSwapChain.nom,
-    this.initialHtlcDuration = kInitialHtlcDurationInSeconds,
+    this.initialHtlcDuration = kInitialHtlcDuration,
   });
 
   /// Address funding the HTLC.
@@ -48,8 +48,8 @@ final class StartNativeSwapRequested extends StartNativeSwapEvent {
   /// Chain on which the counterparty pays.
   final P2pSwapChain toChain;
 
-  /// Initial HTLC lifetime in seconds.
-  final int initialHtlcDuration;
+  /// Initial HTLC lifetime.
+  final Duration initialHtlcDuration;
 
   @override
   List<Object?> get props => <Object?>[

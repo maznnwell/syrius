@@ -44,7 +44,7 @@ class StartNativeSwapBloc
       final List<int> preimage = _generatePreimage();
       final Hash hashLock = await _getHashLock(event.hashType, preimage);
       final int expirationTime = await _getExpirationTime(
-        event.initialHtlcDuration,
+        event.initialHtlcDuration.inSeconds,
       );
       final AccountBlockTemplate transactionParams = _zenon.embedded.htlc
           .create(

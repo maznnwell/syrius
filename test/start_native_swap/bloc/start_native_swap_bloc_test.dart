@@ -37,7 +37,7 @@ void main() {
   });
 
   group('StartNativeSwapBloc', () {
-    const int expirationDuration = kInitialHtlcDurationInSeconds;
+    const Duration expirationDuration = kInitialHtlcDuration;
     const int frontierTimestamp = 1000;
     final BigInt fromAmount = BigInt.one;
     final Address selfAddress = emptyAddress;
@@ -88,7 +88,7 @@ void main() {
           kZnnCoin,
           fromAmount,
           counterpartyAddress,
-          frontierTimestamp + expirationDuration,
+          frontierTimestamp + expirationDuration.inSeconds,
           htlcHashTypeSha3,
           htlcPreimageMaxLength,
           any(),
@@ -129,7 +129,7 @@ void main() {
             kZnnCoin,
             fromAmount,
             counterpartyAddress,
-            frontierTimestamp + expirationDuration,
+            frontierTimestamp + expirationDuration.inSeconds,
             htlcHashTypeSha3,
             htlcPreimageMaxLength,
             any(),
@@ -157,7 +157,7 @@ void main() {
         expect(swap.initialHtlcId, response.hash.toString());
         expect(
           swap.initialHtlcExpirationTime,
-          frontierTimestamp + expirationDuration,
+          frontierTimestamp + expirationDuration.inSeconds,
         );
         expect(swap.direction, P2pSwapDirection.outgoing);
         expect(swap.state, P2pSwapState.pending);
