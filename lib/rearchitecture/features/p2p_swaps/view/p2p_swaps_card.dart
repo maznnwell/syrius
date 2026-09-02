@@ -6,8 +6,10 @@ import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart'
     hide InfiniteScrollTable, InfiniteScrollTableCell;
+import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 /// Displays the P2P swaps conducted with this wallet.
 class P2pSwapsCard extends StatelessWidget {
@@ -155,30 +157,134 @@ class _PopulatedState extends State<_Populated> {
   }
 
   List<Widget> _buildRowCells(P2pSwap swap) {
+    final BigInt? toAmount = swap.toAmount;
+    final Token? toToken = swap.toToken;
+
     return <Widget>[
-      InfiniteScrollTableCell(child: SwapStatus(swap: swap)),
+      InfiniteScrollTableCell(child: _Status(swap: swap)),
       InfiniteScrollTableCell(
-        child: SwapAmount(
+        child: _Amount(
           amount: swap.fromAmount,
           token: swap.fromToken,
         ),
       ),
-      if (swap.state == P2pSwapState.completed)
+      if (swap.state == P2pSwapState.completed &&
+          toAmount != null &&
+          toToken != null)
         InfiniteScrollTableCell(
-          child: SwapAmount(
-            amount: swap.fromAmount,
-            token: swap.fromToken,
+          child: _Amount(
+            amount: toAmount,
+            token: toToken,
           ),
         )
       else
         InfiniteScrollTableCell.withText(content: '-'),
       DateCell(timestampMs: swap.startTime * 1000),
       InfiniteScrollTableCell(
-        child: ActionButton(
+        child: _ActionButton(
           swap: swap,
           onDelete: widget._onDeleteSwap,
         ),
       ),
     ];
+  }
+}
+
+class _Status extends StatelessWidget {
+  const _Status({required this._swap});
+
+  final P2pSwap _swap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        _buildStatusIcon(),
+        kHorizontalGap8,
+        Text(_statusText(context)),
+      ],
+    );
+  }
+
+  Widget _buildStatusIcon() {
+    const double size = 16;
+    return switch (_swap.state) {
+      P2pSwapState.pending || P2pSwapState.active => const SyriusLoadingWidget(
+        size: 12,
+        strokeWidth: 2,
+        padding: 2,
+      ),
+      P2pSwapState.completed => const Icon(
+        Icons.check_circle_outline,
+        color: AppColors.znnColor,
+        size: size,
+      ),
+      _ => const Icon(
+        Icons.cancel_outlined,
+        color: AppColors.errorColor,
+        size: size,
+      ),
+    };
+  }
+
+  String _statusText(BuildContext context) {
+    return switch (_swap.state) {
+      P2pSwapState.pending => context.l10n.starting,
+      P2pSwapState.active => context.l10n.active,
+      P2pSwapState.completed => context.l10n.completed,
+      _ => context.l10n.unsuccessful,
+    };
+  }
+}
+
+class _Amount extends StatelessWidget {
+  const _Amount({required this._amount, required this._token});
+
+  final BigInt _amount;
+  final Token _token;
+
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+      text: TextSpan(
+        text: _amount.addDecimals(_token.decimals),
+        children: <InlineSpan>[
+          const TextSpan(text: ' '),
+          TextSpan(
+            text: _token.symbol,
+            style: TextStyle(
+              color: ColorUtils.getTokenColor(_token.tokenStandard),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this._onDelete,
+    required this._swap,
+  });
+
+  final ValueChanged<P2pSwap> _onDelete;
+  final P2pSwap _swap;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget deleteButton = OutlinedButton.icon(
+      onPressed: () => _onDelete(_swap),
+      icon: const Icon(Icons.delete),
+      label: Text(context.l10n.deleteSwap),
+    );
+
+    return SizedBox(
+      height: 36,
+      child: switch (_swap.state) {
+        P2pSwapState.completed => deleteButton,
+        _ => const SizedBox.shrink(),
+      },
+    );
   }
 }
