@@ -11,7 +11,6 @@ export 'custom_slider.dart';
 export 'custom_table.dart';
 export 'dialogs.dart';
 export 'dotted_border_info_widget.dart';
-export 'dropdown/dropdown.dart';
 export 'error_widget.dart';
 export 'formatted_amount_with_tooltip.dart';
 export 'icons/icons.dart';
