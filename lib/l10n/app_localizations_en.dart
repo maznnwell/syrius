@@ -9,6 +9,9 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get active => 'Active';
+
+  @override
   String get activePillars => 'Active Pillars';
 
   @override
@@ -86,6 +89,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get collectStakingRewards => 'Collect staking rewards';
+
+  @override
+  String get completed => 'Completed';
 
   @override
   String get cannotReuseAddressForSentinel =>
@@ -940,6 +946,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get started => 'Started';
 
   @override
+  String get starting => 'Starting';
+
+  @override
   String get startingSwapPleaseWait =>
       'Starting swap. This will take a moment.';
 
@@ -1170,6 +1179,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get undelegate => 'UNDELEGATE';
+
+  @override
+  String get unsuccessful => 'Unsuccessful';
 
   @override
   String get untilRevocationWindowOpens => 'Until revocation window opens';

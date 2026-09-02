@@ -6,9 +6,8 @@ import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
-import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/modular_widgets/p2p_swap_widgets/p2p_swaps_list_item.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart';
+import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart'
+    hide InfiniteScrollTable, InfiniteScrollTableCell;
 
 /// Displays the P2P swaps conducted with this wallet.
 class P2pSwapsCard extends StatelessWidget {
@@ -48,26 +47,18 @@ class _View extends StatelessWidget {
           return switch (state) {
             P2pSwapsInitial() => const SyriusLoadingWidget(),
             P2pSwapsLoading() => const SyriusLoadingWidget(),
-            P2pSwapsFailure(:final exception) => SyriusErrorWidget(exception),
+            P2pSwapsFailure(:final SyriusException exception) =>
+              SyriusErrorWidget(exception),
             P2pSwapsPopulated(:final List<P2pSwap> swaps) => _Populated(
-              isMaxSwapsReached: _swapsService.isMaxSwapsReached,
               onDeleteHistory: () => _onDeleteSwapHistoryTapped(context),
               onDeleteSwap: (P2pSwap swap) =>
                   _onDeleteSwapTapped(context, swap),
-              onSwapTapped: (String swapId) => _onSwapTapped(context, swapId),
               swaps: swaps,
             ),
           };
         },
       ),
     );
-  }
-
-  void _onSwapTapped(BuildContext context, String swapId) {
-    unawaited(showCustomDialog(
-      context: context,
-      content: NativeP2pSwapModal(swapId: swapId),
-    ));
   }
 
   Future<void> _onDeleteSwapTapped(
@@ -110,17 +101,13 @@ class _View extends StatelessWidget {
 
 class _Populated extends StatefulWidget {
   const _Populated({
-    required this._isMaxSwapsReached,
     required this._onDeleteHistory,
     required this._onDeleteSwap,
-    required this._onSwapTapped,
     required this._swaps,
   });
 
-  final bool _isMaxSwapsReached;
   final VoidCallback _onDeleteHistory;
   final ValueChanged<P2pSwap> _onDeleteSwap;
-  final ValueChanged<String> _onSwapTapped;
   final List<P2pSwap> _swaps;
 
   @override
@@ -128,115 +115,70 @@ class _Populated extends StatefulWidget {
 }
 
 class _PopulatedState extends State<_Populated> {
-
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(15),
-      child: Column(
-        spacing: kVerticalGap16.height!,
-        children: <Widget>[
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton.icon(
-              onPressed: widget._onDeleteHistory,
-              icon: const Icon(Icons.delete),
-              label: Text(context.l10n.deleteSwapHistory),
-            ),
+    return Column(
+      children: <Widget>[
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: widget._onDeleteHistory,
+            icon: const Icon(Icons.delete),
+            label: Text(context.l10n.deleteSwapHistory),
           ),
-          if (widget._swaps.isEmpty)
-            Expanded(
-              child: SyriusErrorWidget(context.l10n.noP2pSwaps),
-            )
-          else ...<Widget>[
-            _buildHeader(),
-            Expanded(child: _buildList()),
-          ],
-        ],
-      ),
+        ),
+        Expanded(
+          child: InfiniteScrollTable<P2pSwap>(
+            onItemTap: (int index) {
+              unawaited(
+                showCustomDialog(
+                  context: context,
+                  content: NativeP2pSwapModal(swapId: widget._swaps[index].id),
+                ),
+              );
+            },
+            items: widget._swaps,
+            hasReachedMax: true,
+            generateRowCells: _buildRowCells,
+            onScrollReachedBottom: () {},
+            columns: const <InfiniteScrollTableColumnType>[
+              .status,
+              .from,
+              .to,
+              .started,
+              .blank,
+            ],
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildList() {
-    return ListView.separated(
-      cacheExtent: 1000,
-      itemCount: widget._swaps.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 15),
-      itemBuilder: (_, int index) {
-        final P2pSwap swap = widget._swaps[index];
-        // TODO(maznnwell): each item should have a delete button
-        return P2pSwapsListItem(
-          key: ValueKey<String>(swap.id),
+  List<Widget> _buildRowCells(P2pSwap swap) {
+    return <Widget>[
+      InfiniteScrollTableCell(child: SwapStatus(swap: swap)),
+      InfiniteScrollTableCell(
+        child: SwapAmount(
+          amount: swap.fromAmount,
+          token: swap.fromToken,
+        ),
+      ),
+      if (swap.state == P2pSwapState.completed)
+        InfiniteScrollTableCell(
+          child: SwapAmount(
+            amount: swap.fromAmount,
+            token: swap.fromToken,
+          ),
+        )
+      else
+        InfiniteScrollTableCell.withText(content: '-'),
+      DateCell(timestampMs: swap.startTime * 1000),
+      InfiniteScrollTableCell(
+        child: ActionButton(
           swap: swap,
-          onTap: widget._onSwapTapped,
           onDelete: widget._onDeleteSwap,
-        );
-      },
-    );
-  }
-
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            flex: 20,
-            child: _buildHeaderItem(context.l10n.status),
-          ),
-          Expanded(
-            flex: 20,
-            child: _buildHeaderItem(context.l10n.from),
-          ),
-          Expanded(
-            flex: 20,
-            child: _buildHeaderItem(context.l10n.to),
-          ),
-          Expanded(
-            flex: 20,
-            child: _buildHeaderItem(context.l10n.started),
-          ),
-          Expanded(
-            flex: 20,
-            child: Visibility(
-              visible: widget._isMaxSwapsReached,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  _buildHeaderItem(
-                    context.l10n.swapHistoryFull,
-                    textColor: AppColors.errorColor,
-                    textHeight: 1,
-                  ),
-                  const SizedBox(width: 5),
-                  Tooltip(
-                    message: context.l10n.oldestSwapDeletedWhenFull,
-                    child: const Padding(
-                      padding: EdgeInsets.only(top: 3),
-                      child: Icon(
-                        Icons.info,
-                        color: AppColors.errorColor,
-                        size: 12,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
-    );
-  }
-
-  Widget _buildHeaderItem(
-    String text, {
-    Color? textColor,
-    double? textHeight,
-  }) {
-    return Text(
-      text,
-      style: TextStyle(fontSize: 12, height: textHeight, color: textColor),
-    );
+    ];
   }
 }

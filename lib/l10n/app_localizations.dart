@@ -94,6 +94,12 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
+  /// No description provided for @active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get active;
+
   /// No description provided for @activePillars.
   ///
   /// In en, this message translates to:
@@ -237,6 +243,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Collect staking rewards'**
   String get collectStakingRewards;
+
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
 
   /// No description provided for @cannotReuseAddressForSentinel.
   ///
@@ -1671,6 +1683,12 @@ abstract class AppLocalizations {
   /// **'Started'**
   String get started;
 
+  /// No description provided for @starting.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting'**
+  String get starting;
+
   /// No description provided for @startingSwapPleaseWait.
   ///
   /// In en, this message translates to:
@@ -2042,6 +2060,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'UNDELEGATE'**
   String get undelegate;
+
+  /// No description provided for @unsuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsuccessful'**
+  String get unsuccessful;
 
   /// No description provided for @untilRevocationWindowOpens.
   ///
