@@ -188,10 +188,8 @@
       }
     }
   },
-  "p2pSwapRecoverDeposit": "Recover deposit",
   "p2pSwapStart": "Start swap",
   "p2pSwapStartDescription": "Start a native swap with a counterparty.",
-  "p2pSwapTutorial": "View swap tutorial",
   "p2pSwapWaitForCounterparty": "After starting the swap, wait for the counterparty to join the swap with the agreed upon amount.",
   "p2pSwapWarningDescription": "Please note that the P2P swap is an experimental feature and may result in funds being lost.\n\nUse the feature with caution and consider splitting large swaps into multiple smaller ones.",
   "p2pSwapWarningTitle": "Before continuing",
@@ -244,6 +242,9 @@
   "reclaimFundsIfCounterpartyFails": "You can reclaim your funds if the counterparty fails to complete the swap.",
   "reclaimingFundsPleaseWait": "Reclaiming. This will take a moment.",
   "receiveSwappedFundsToAddress": "You will receive the swapped funds to this address.",
+  "recoverDeposit": "Recover deposit",
+  "recoverDepositedFundsWithDepositId": "If you have lost access to the machine that a swap was started on, the deposited funds can be recovered with the deposit ID.\n\nIf you don't have the deposit ID, please refer to the swap tutorial for instructions on how to recover it using a block explorer.",
+  "recoveryTransactionSentFundsShortly": "Recovery transaction sent. You will receive the funds shortly.",
   "register": "Register",
   "registerAnotherPillar": "Register another Pillar",
   "registerPillar": "Register Pillar",
@@ -378,6 +379,7 @@
       }
     }
   },
+  "viewSwapTutorial": "View swap tutorial",
   "viewPillars": "View Pillars",
   "viewMyTokens": "View my Tokens",
   "viewSentinels": "View Sentinels",

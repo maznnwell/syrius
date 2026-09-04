@@ -90,7 +90,7 @@ class _View extends StatelessWidget {
             onPressed: () => unawaited(
               NavigationUtils.openUrl(kP2pSwapTutorialLink),
             ),
-            label: Text(context.l10n.p2pSwapTutorial),
+            label: Text(context.l10n.viewSwapTutorial),
             icon: const Icon(Icons.open_in_new),
             iconAlignment: IconAlignment.end,
           ),
@@ -101,7 +101,7 @@ class _View extends StatelessWidget {
               context: context,
               content: const RecoverDepositModal(),
             ),
-            label: Text(context.l10n.p2pSwapRecoverDeposit),
+            label: Text(context.l10n.recoverDeposit),
             icon: const Icon(Icons.refresh),
             iconAlignment: IconAlignment.end,
           ),

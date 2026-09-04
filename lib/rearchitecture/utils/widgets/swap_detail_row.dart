@@ -3,8 +3,8 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/constants/app_s
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/copy_to_clipboard_button.dart';
 
-class DetailRow extends StatelessWidget {
-  const DetailRow({
+class SwapDetailRow extends StatelessWidget {
+  const SwapDetailRow({
     required this._label,
     required this._value,
     this._valueToShow,

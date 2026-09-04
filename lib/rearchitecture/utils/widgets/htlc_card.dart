@@ -8,7 +8,6 @@ import 'package:zenon_syrius_wallet_flutter/utils/color_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/format_utils.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/modular_widgets/p2p_swap_widgets/detail_row.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_info_text.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -202,29 +201,29 @@ class _HtlcCardState extends State<HtlcCard> {
 
     final List<Widget> children = <Widget>[
       _buildExpirationRow(widget.expirationTime!),
-      DetailRow(
+      SwapDetailRow(
         label: context.l10n.depositId,
         value: htlcId.toString(),
         valueToShow: htlcId.toShortString(),
       ),
-      DetailRow(
+      SwapDetailRow(
         label: context.l10n.tokenStandard,
         value: widget.token!.tokenStandard.toString(),
         prefixWidget: _buildTokenStandardTooltip(
           widget.token!.tokenStandard.toString(),
         ),
       ),
-      DetailRow(
+      SwapDetailRow(
         label: context.l10n.sender,
         value: widget.sender,
         valueToShow: ZenonAddressUtils.getLabel(widget.sender),
       ),
-      DetailRow(
+      SwapDetailRow(
         label: context.l10n.recipient,
         value: widget.recipient!,
         valueToShow: ZenonAddressUtils.getLabel(widget.recipient!),
       ),
-      DetailRow(
+      SwapDetailRow(
         label: context.l10n.hashlock,
         value: hashLock.toString(),
         valueToShow: hashLock.toShortString(),
@@ -265,7 +264,7 @@ class _HtlcCardState extends State<HtlcCard> {
       seconds: expirationTime - DateTime.now().unixTimestamp,
     );
 
-    final Widget expired = DetailRow(
+    final Widget expired = SwapDetailRow(
       label: context.l10n.expiresIn,
       value: context.l10n.expired,
       canBeCopied: false,
@@ -278,7 +277,7 @@ class _HtlcCardState extends State<HtlcCard> {
       duration: duration,
       tween: .new(begin: duration, end: Duration.zero),
       builder: (_, Duration d, _) {
-        final Widget status = DetailRow(
+        final Widget status = SwapDetailRow(
           label: context.l10n.expiresIn,
           value: d.toString().split('.').first,
           canBeCopied: false,

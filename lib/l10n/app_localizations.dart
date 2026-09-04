@@ -1066,12 +1066,6 @@ abstract class AppLocalizations {
   /// **'You can reclaim your funds in <highlight>{duration}</highlight> if the counterparty fails to join the swap.'**
   String p2pSwapReclaimFunds(String duration);
 
-  /// No description provided for @p2pSwapRecoverDeposit.
-  ///
-  /// In en, this message translates to:
-  /// **'Recover deposit'**
-  String get p2pSwapRecoverDeposit;
-
   /// No description provided for @p2pSwapStart.
   ///
   /// In en, this message translates to:
@@ -1083,12 +1077,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start a native swap with a counterparty.'**
   String get p2pSwapStartDescription;
-
-  /// No description provided for @p2pSwapTutorial.
-  ///
-  /// In en, this message translates to:
-  /// **'View swap tutorial'**
-  String get p2pSwapTutorial;
 
   /// No description provided for @p2pSwapWaitForCounterparty.
   ///
@@ -1401,6 +1389,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You will receive the swapped funds to this address.'**
   String get receiveSwappedFundsToAddress;
+
+  /// No description provided for @recoverDeposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Recover deposit'**
+  String get recoverDeposit;
+
+  /// No description provided for @recoverDepositedFundsWithDepositId.
+  ///
+  /// In en, this message translates to:
+  /// **'If you have lost access to the machine that a swap was started on, the deposited funds can be recovered with the deposit ID.\n\nIf you don\'t have the deposit ID, please refer to the swap tutorial for instructions on how to recover it using a block explorer.'**
+  String get recoverDepositedFundsWithDepositId;
+
+  /// No description provided for @recoveryTransactionSentFundsShortly.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery transaction sent. You will receive the funds shortly.'**
+  String get recoveryTransactionSentFundsShortly;
 
   /// No description provided for @register.
   ///
@@ -2114,6 +2120,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You are receiving a token that is not in your favorites. Please verify that the token standard is correct: {tokenStandard}'**
   String verifyNonFavoriteToken(String tokenStandard);
+
+  /// No description provided for @viewSwapTutorial.
+  ///
+  /// In en, this message translates to:
+  /// **'View swap tutorial'**
+  String get viewSwapTutorial;
 
   /// No description provided for @viewPillars.
   ///

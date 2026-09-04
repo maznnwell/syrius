@@ -13,7 +13,6 @@ import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/modular_widgets/p2p_swap_widgets/htlc_card.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/instruction_button.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/error_widget.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/exchange_rate_widget.dart';

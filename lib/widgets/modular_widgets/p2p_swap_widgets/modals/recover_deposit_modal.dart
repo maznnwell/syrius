@@ -4,11 +4,12 @@ import 'package:stacked/stacked.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/dashboard/balance_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/recover_htlc_swap_funds_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/base_modal.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/instruction_button.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/swap_warning.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/input_fields.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/base_modal.dart';
+import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/swap_warning.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class RecoverDepositModal extends StatefulWidget {
@@ -49,7 +50,7 @@ class _RecoverDepositModalState extends State<RecoverDepositModal> {
   }
 
   String? _getTitle() {
-    return _isPendingFunds ? null : 'Recover deposit';
+    return _isPendingFunds ? null : context.l10n.recoverDeposit;
   }
 
   Widget _getContent() {
@@ -69,16 +70,18 @@ class _RecoverDepositModalState extends State<RecoverDepositModal> {
           color: Colors.transparent,
           child: SvgPicture.asset(
             'assets/svg/ic_completed_symbol.svg',
-            colorFilter:
-                const ColorFilter.mode(AppColors.znnColor, BlendMode.srcIn),
+            colorFilter: const ColorFilter.mode(
+              AppColors.znnColor,
+              BlendMode.srcIn,
+            ),
           ),
         ),
         const SizedBox(
           height: 30,
         ),
-        const Text(
-          'Recovery transaction sent. You will receive the funds shortly.',
-          style: TextStyle(
+        Text(
+          context.l10n.recoveryTransactionSentFundsShortly,
+          style: const TextStyle(
             fontSize: 16,
           ),
         ),
@@ -95,9 +98,9 @@ class _RecoverDepositModalState extends State<RecoverDepositModal> {
         const SizedBox(
           height: 20,
         ),
-        const Text(
-          "If you have lost access to the machine that a swap was started on, the deposited funds can be recovered with the deposit ID.\n\nIf you don't have the deposit ID, please refer to the swap tutorial for instructions on how to recover it using a block explorer.",
-          style: TextStyle(
+        Text(
+          context.l10n.recoverDepositedFundsWithDepositId,
+          style: const TextStyle(
             fontSize: 14,
           ),
         ),
@@ -107,19 +110,19 @@ class _RecoverDepositModalState extends State<RecoverDepositModal> {
         MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
-            child: const Row(
+            child: Row(
               children: <Widget>[
                 Text(
-                  'View swap tutorial',
-                  style: TextStyle(
+                  context.l10n.viewSwapTutorial,
+                  style: const TextStyle(
                     color: AppColors.subtitleColor,
                     fontSize: 14,
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 3,
                 ),
-                Icon(
+                const Icon(
                   Icons.open_in_new,
                   size: 18,
                   color: AppColors.subtitleColor,
@@ -158,7 +161,7 @@ class _RecoverDepositModalState extends State<RecoverDepositModal> {
               maxWidth: 45,
               maxHeight: 20,
             ),
-            hintText: 'Deposit ID',
+            hintText: context.l10n.depositId,
             contentLeftPadding: 10,
           ),
         ),
@@ -203,11 +206,11 @@ class _RecoverDepositModalState extends State<RecoverDepositModal> {
         );
       },
       builder: (_, RecoverHtlcSwapFundsBloc model, __) => InstructionButton(
-        text: 'Recover deposit',
+        text: context.l10n.recoverDeposit,
         isEnabled: _isHashValid(),
         isLoading: _isLoading,
-        loadingText: 'Sending transaction',
-        instructionText: 'Input the deposit ID',
+        loadingText: context.l10n.sendingTransaction,
+        instructionText: context.l10n.inputDepositId,
         onPressed: () {
           setState(() {
             _isLoading = true;

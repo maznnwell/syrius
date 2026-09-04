@@ -588,17 +588,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get p2pSwapRecoverDeposit => 'Recover deposit';
-
-  @override
   String get p2pSwapStart => 'Start swap';
 
   @override
   String get p2pSwapStartDescription =>
       'Start a native swap with a counterparty.';
-
-  @override
-  String get p2pSwapTutorial => 'View swap tutorial';
 
   @override
   String get p2pSwapWaitForCounterparty =>
@@ -782,6 +776,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get receiveSwappedFundsToAddress =>
       'You will receive the swapped funds to this address.';
+
+  @override
+  String get recoverDeposit => 'Recover deposit';
+
+  @override
+  String get recoverDepositedFundsWithDepositId =>
+      'If you have lost access to the machine that a swap was started on, the deposited funds can be recovered with the deposit ID.\n\nIf you don\'t have the deposit ID, please refer to the swap tutorial for instructions on how to recover it using a block explorer.';
+
+  @override
+  String get recoveryTransactionSentFundsShortly =>
+      'Recovery transaction sent. You will receive the funds shortly.';
 
   @override
   String get register => 'Register';
@@ -1208,6 +1213,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String verifyNonFavoriteToken(String tokenStandard) {
     return 'You are receiving a token that is not in your favorites. Please verify that the token standard is correct: $tokenStandard';
   }
+
+  @override
+  String get viewSwapTutorial => 'View swap tutorial';
 
   @override
   String get viewPillars => 'View Pillars';

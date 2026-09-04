@@ -11,7 +11,6 @@ import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/input_validators.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/toast_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/zts_utils.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/modular_widgets/p2p_swap_widgets/htlc_card.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/bullet_point_card.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/exchange_rate_widget.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/input_fields.dart';
