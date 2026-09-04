@@ -85,15 +85,8 @@ class _View extends StatelessWidget {
               : unawaited(_onJoinSwapPressed(context)),
         ),
         kVerticalGap25,
-        Center(
-          child: TextButton.icon(
-            onPressed: () => unawaited(
-              NavigationUtils.openUrl(kP2pSwapTutorialLink),
-            ),
-            label: Text(context.l10n.viewSwapTutorial),
-            icon: const Icon(Icons.open_in_new),
-            iconAlignment: IconAlignment.end,
-          ),
+        const Center(
+          child: ViewSwapTutorialButton(),
         ),
         Center(
           child: TextButton.icon(
