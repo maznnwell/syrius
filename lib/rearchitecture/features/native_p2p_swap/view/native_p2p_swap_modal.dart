@@ -112,52 +112,34 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
   Widget _buildCompletedView(HtlcSwap swap) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
+      spacing: kVerticalGap16.height!,
       children: <Widget>[
-        const SizedBox(
-          height: 10,
-        ),
-        Container(
-          width: 72,
-          height: 72,
-          color: Colors.transparent,
-          child: SvgPicture.asset(
-            'assets/svg/ic_completed_symbol.svg',
-            colorFilter: const ColorFilter.mode(
-              AppColors.znnColor,
-              BlendMode.srcIn,
-            ),
+        SvgPicture.asset(
+          'assets/svg/ic_completed_symbol.svg',
+          colorFilter: const ColorFilter.mode(
+            AppColors.znnColor,
+            BlendMode.srcIn,
           ),
-        ),
-        const SizedBox(
-          height: 30,
+          height: 70,
         ),
         Text(
           _shouldShowFundsReceivedMessage
               ? context.l10n.swapCompletedFundsSoon
               : context.l10n.swapCompleted,
-          style: const TextStyle(
-            fontSize: 16,
-          ),
+          style: context.textTheme.titleMedium,
         ),
-        const SizedBox(height: 25),
-        Container(
-          decoration: const BoxDecoration(
-            color: Color(0xff282828),
-            borderRadius: BorderRadius.all(Radius.circular(8)),
-          ),
+        Card.filled(
+          color: AppColors.znnColor.withAlpha((255 * 0.2).round()),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
+              spacing: kVerticalGap16.height!,
               children: <Widget>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
                       context.l10n.from,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.subtitleColor,
-                      ),
                     ),
                     _AmountInfo(
                       amount: swap.fromAmount,
@@ -165,18 +147,11 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 15,
-                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Text(
                       context.l10n.to,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.subtitleColor,
-                      ),
                     ),
                     _AmountInfo(
                       amount: swap.toAmount,
@@ -184,28 +159,10 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 15,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text(
-                      context.l10n.exchangeRate,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: AppColors.subtitleColor,
-                      ),
-                    ),
-                    _buildExchangeRateWidget(swap),
-                  ],
-                ),
+                _buildExchangeRateWidget(swap),
               ],
             ),
           ),
-        ),
-        const SizedBox(
-          height: 20,
         ),
         HtlcSwapDetailsWidget(swap: swap),
       ],
@@ -242,18 +199,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  context.l10n.exchangeRate,
-                  style: const TextStyle(
-                    color: AppColors.subtitleColor,
-                  ),
-                ),
-                _buildExchangeRateWidget(swap),
-              ],
-            ),
+            child: _buildExchangeRateWidget(swap),
           ),
           if (swap.direction == P2pSwapDirection.outgoing)
             Column(

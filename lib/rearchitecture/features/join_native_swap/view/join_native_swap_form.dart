@@ -5,7 +5,6 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/join_native_
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/join_native_swap/widgets/join_swap_button.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/join_swap_availability/join_swap_availability.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/input_validators.dart';
@@ -145,18 +144,7 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text(
-                        '${context.l10n.exchangeRate}:',
-                        style: const TextStyle(
-                          color: AppColors.subtitleColor,
-                        ),
-                      ),
-                      _buildExchangeRateWidget(),
-                    ],
-                  ),
+                  child: _buildExchangeRateWidget(),
                 ),
                 _buildAvailabilitySection(
                   amount: amount,

@@ -1,6 +1,7 @@
 import 'package:big_decimal/big_decimal.dart';
 import 'package:flutter/material.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/constants/app_sizes.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -30,23 +31,29 @@ class _ExchangeRateWidgetState extends State<ExchangeRateWidget> {
       visible:
           widget._fromAmount > BigInt.zero && widget._toAmount > BigInt.zero,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(
-            _getFormattedRate(),
-            style: const TextStyle(color: AppColors.subtitleColor),
+            context.l10n.exchangeRate,
           ),
-          kHorizontalGap4,
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: () => setState(() {
-                _isToggled = !_isToggled;
-              }),
-              child: const Icon(
-                Icons.swap_horiz,
-                color: AppColors.subtitleColor,
+          Row(
+            children: <Widget>[
+              Text(
+                _getFormattedRate(),
               ),
-            ),
+              kHorizontalGap4,
+              MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  onTap: () => setState(() {
+                    _isToggled = !_isToggled;
+                  }),
+                  child: const Icon(
+                    Icons.swap_horiz,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

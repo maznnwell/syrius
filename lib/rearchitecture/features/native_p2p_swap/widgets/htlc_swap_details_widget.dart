@@ -38,10 +38,6 @@ class _HtlcSwapDetailsWidgetState extends State<HtlcSwapDetailsWidget> {
           onPressed: () => setState(() => _isExpanded = !_isExpanded),
           label: Text(
             _isExpanded ? context.l10n.hideDetails : context.l10n.showDetails,
-            style: const TextStyle(
-              fontSize: 14,
-              color: AppColors.subtitleColor,
-            ),
           ),
         ),
         AnimatedSwitcher(
