@@ -33,7 +33,6 @@ class NativeP2pSwapModal extends StatefulWidget {
 
 class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
   bool _shouldShowIncorrectAmountInstructions = false;
-  bool _shouldShowFundsReceivedMessage = false;
 
   @override
   Widget build(BuildContext context) {
@@ -131,9 +130,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
           height: 70,
         ),
         Text(
-          _shouldShowFundsReceivedMessage
-              ? context.l10n.swapCompletedFundsSoon
-              : context.l10n.swapCompleted,
+          context.l10n.swapCompleted,
           style: context.textTheme.titleMedium,
         ),
         Card.filled(
@@ -264,12 +261,10 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
     CompleteSwapState state,
   ) {
     if (state is CompleteSwapDone) {
-      setState(() {
-        _shouldShowFundsReceivedMessage = true;
-      });
       context.read<P2pSwapDetailsBloc>().add(
         const P2pSwapDetailsRequested(),
       );
+      ToastUtils.showToast(context, context.l10n.swapCompletedFundsSoon);
     } else if (state is CompleteSwapFailure) {
       ToastUtils.showToast(context, state.exception.toString());
     }
