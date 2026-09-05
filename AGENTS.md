@@ -3,7 +3,7 @@
 ## Scope and stack
 - This repo is a single Flutter desktop wallet app (not a monorepo); main package config is `pubspec.yaml`.
 - Supported runtime targets here are desktop (`macos`, `windows`, `linux`); CI builds only these three.
-- Core startup/DI wiring lives in `lib/main.dart` (and a dev entrypoint in `lib/main_dev.dart` used by `run_configurations/dev.run.xml`).
+- Core startup/DI wiring lives in `lib/main.dart`.
 
 ## Canonical commands
 - Install deps: `flutter pub get`

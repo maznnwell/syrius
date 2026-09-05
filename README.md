@@ -60,9 +60,6 @@ dart run tool/generate_git_metadata.dart
 
 Running or building the wallet without pre-generating the Git metadata won't break the wallet, but some information inside `About` card won't be filled.
 
-### Dev run configuration
-
-This is a work in progress feature that will have `main_dev.dart` as an entry point.
 
 ## Linux
 
