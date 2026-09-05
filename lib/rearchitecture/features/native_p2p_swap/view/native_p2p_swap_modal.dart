@@ -7,7 +7,7 @@ import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:stacked/stacked.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/notifications_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/blocs/p2p_swap/htlc_swap/complete_htlc_swap_bloc.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/complete_swap/bloc/complete_swap_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';

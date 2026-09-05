@@ -5,6 +5,7 @@ export 'balance/balance.dart';
 export 'burn_token/burn_token.dart';
 export 'cancel_plasma/cancel_plasma.dart';
 export 'cancel_stake/cancel_stake.dart';
+export 'complete_swap/complete_swap.dart';
 export 'create_pillar_qsr_info/create_pillar_qsr_info.dart';
 export 'create_pillar_stepper/create_pillar_stepper.dart';
 export 'create_sentinel_qsr_info/create_sentinel_qsr_info.dart';
