@@ -238,16 +238,16 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
     } else {
       // TODO: to refactor
       return Column(
+        spacing: kVerticalGap16.height!,
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
                   context.l10n.exchangeRate,
                   style: const TextStyle(
-                    fontSize: 14,
                     color: AppColors.subtitleColor,
                   ),
                 ),
@@ -255,45 +255,27 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
               ],
             ),
           ),
-          const SizedBox(
-            height: 25,
-          ),
-          Visibility(
-            visible: swap.direction == P2pSwapDirection.outgoing,
-            child: Column(
+          if (swap.direction == P2pSwapDirection.outgoing)
+            Column(
+              spacing: kVerticalGap16.height!,
               children: <Widget>[
-                Visibility(
-                  visible:
-                      swap.toToken != null &&
-                      !isTrustedToken(swap.toToken!.tokenStandard.toString()),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 25),
-                    child: SwapWarning(
-                      text: context.l10n.verifyNonFavoriteToken(
-                        swap.toToken?.tokenStandard.toString() ?? '',
-                      ),
+                if (swap.toToken != null &&
+                    !isTrustedToken(swap.toToken!.tokenStandard.toString()))
+                  SwapWarning(
+                    text: context.l10n.verifyNonFavoriteToken(
+                      swap.toToken?.tokenStandard.toString() ?? '',
                     ),
                   ),
-                ),
                 _buildExpirationWarningForOutgoingSwap(swap),
                 _buildSwapButtonViewModel(swap),
-                const SizedBox(
-                  height: 25,
-                ),
                 _buildIncorrectAmountButton(swap),
               ],
             ),
-          ),
-          Visibility(
-            visible: swap.direction == P2pSwapDirection.incoming,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 15),
-              child: LoadingInfoText(
-                text: context.l10n.waitingForCounterpartyKeepRunning,
-                tooltipText: context.l10n.walletNotAutoLocked,
-              ),
+          if (swap.direction == P2pSwapDirection.incoming)
+            LoadingInfoText(
+              text: context.l10n.waitingForCounterpartyKeepRunning,
+              tooltipText: context.l10n.walletNotAutoLocked,
             ),
-          ),
         ],
       );
     }
@@ -314,12 +296,9 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
       builder: (_, Duration d, _) {
         return Visibility(
           visible: timeToCompleteSwap <= warningThreshold,
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 25),
-            child: SwapWarning(
-              text: context.l10n.swapExpiresIn(
-                d.toString().split('.').first,
-              ),
+          child: SwapWarning(
+            text: context.l10n.swapExpiresIn(
+              d.toString().split('.').first,
             ),
           ),
         );
@@ -363,35 +342,23 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
   }
 
   Widget _buildIncorrectAmountButton(HtlcSwap swap) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: SizedBox(
-        width: double.infinity,
-        child: AnimatedCrossFade(
-          duration: const Duration(milliseconds: 50),
-          firstCurve: Curves.easeInOut,
-          firstChild: InkWell(
-            onTap: () => setState(() {
-              _shouldShowIncorrectAmountInstructions = true;
-            }),
-            child: Center(
-              child: Text(
-                context.l10n.receivingWrongTokenOrAmount,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppColors.subtitleColor,
-                ),
-              ),
-            ),
-          ),
-          secondChild: _buildIncorrectAmountInstructions(
-            swap.initialHtlcExpirationTime,
-          ),
-          crossFadeState: _shouldShowIncorrectAmountInstructions
-              ? CrossFadeState.showSecond
-              : CrossFadeState.showFirst,
+    return AnimatedCrossFade(
+      duration: const Duration(milliseconds: 50),
+      firstCurve: Curves.easeInOut,
+      firstChild: TextButton(
+        onPressed: () => setState(() {
+          _shouldShowIncorrectAmountInstructions = true;
+        }),
+        child: Text(
+          context.l10n.receivingWrongTokenOrAmount,
         ),
       ),
+      secondChild: _buildIncorrectAmountInstructions(
+        swap.initialHtlcExpirationTime,
+      ),
+      crossFadeState: _shouldShowIncorrectAmountInstructions
+          ? CrossFadeState.showSecond
+          : CrossFadeState.showFirst,
     );
   }
 
@@ -404,9 +371,6 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
         ),
       ),
       textAlign: TextAlign.center,
-      style: const TextStyle(
-        fontSize: 14,
-      ),
     );
   }
 
