@@ -47,6 +47,10 @@ SharedPrefsService? sharedPrefsService;
 HtlcSwapsService? htlcSwapsService;
 IWeb3WalletService? web3WalletService;
 
+const String _znnDataDirectoryName = String.fromEnvironment(
+  'ZNN_DATA_DIRECTORY',
+);
+
 final GetIt sl = GetIt.instance;
 final FlutterLocalNotificationsPlugin desktopNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -88,15 +92,23 @@ main() async {
   if (Platform.isWindows) {
     registerProtocolHandler(kDeepLinkingUrlScheme);
   }
+  _configureZnnDataDirectories();
+  ensureDirectoriesExist();
+
+  final Directory hydratedStorageDirectory = _znnDataDirectoryName.isEmpty
+      ? await getTemporaryDirectory()
+      : Directory(path.join(znnDefaultCacheDirectory.path, 'hydrated_bloc'));
+  if (!hydratedStorageDirectory.existsSync()) {
+    hydratedStorageDirectory.createSync(recursive: true);
+  }
   // Init hydrated bloc storage
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory: kIsWeb
         ? HydratedStorageDirectory.web
-        : HydratedStorageDirectory((await getTemporaryDirectory()).path),
+        : HydratedStorageDirectory(hydratedStorageDirectory.path),
   );
   Provider.debugCheckInvalidValueType = null;
 
-  ensureDirectoriesExist();
   Hive.init(znnDefaultPaths.cache.path);
 
   // Setup logger
@@ -202,6 +214,24 @@ main() async {
   runApp(
     const MyApp(),
   );
+}
+
+void _configureZnnDataDirectories() {
+  if (_znnDataDirectoryName.isEmpty) {
+    return;
+  }
+
+  final Directory root = Directory(
+    path.join(znnDefaultDirectory.parent.path, _znnDataDirectoryName),
+  );
+  znnDefaultPaths = ZnnPaths(
+    main: root,
+    wallet: Directory(path.join(root.path, 'wallet')),
+    cache: Directory(path.join(root.path, 'syrius')),
+  );
+  znnDefaultDirectory = znnDefaultPaths.main;
+  znnDefaultWalletDirectory = znnDefaultPaths.wallet;
+  znnDefaultCacheDirectory = znnDefaultPaths.cache;
 }
 
 Future<void> _setupTrayManager() async {
