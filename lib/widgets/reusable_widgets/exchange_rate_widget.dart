@@ -7,12 +7,16 @@ import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class ExchangeRateWidget extends StatefulWidget {
   const ExchangeRateWidget({
-    required this._fromAmount,
-    required this._toAmount,
-    required this._toToken,
-    required this._fromToken,
+    required BigInt fromAmount,
+    required BigInt toAmount,
+    required Token toToken,
+    required Token fromToken,
     Key? key,
-  }) : super(key: key);
+  }) : _fromAmount = fromAmount,
+       _toAmount = toAmount,
+       _toToken = toToken,
+       _fromToken = fromToken,
+       super(key: key);
   final BigInt _fromAmount;
   final BigInt _toAmount;
   final Token _toToken;
@@ -78,12 +82,14 @@ class _ExchangeRateWidgetState extends State<ExchangeRateWidget> {
     if (_isToggled) {
       final BigDecimal rate = fromAmountWithDecimals.divide(
         toAmountWithDecimals,
+        scale: 5,
         roundingMode: RoundingMode.DOWN,
       );
       return '1 $toSymbol = ${rate.toDouble().toStringFixedNumDecimals(5)} $fromSymbol';
     } else {
       final BigDecimal rate = toAmountWithDecimals.divide(
         fromAmountWithDecimals,
+        scale: 5,
         roundingMode: RoundingMode.DOWN,
       );
       return '1 $fromSymbol = ${rate.toDouble().toStringFixedNumDecimals(5)} $toSymbol';
