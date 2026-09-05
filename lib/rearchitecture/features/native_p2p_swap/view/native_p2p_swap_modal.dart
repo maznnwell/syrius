@@ -5,6 +5,7 @@ import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/native_p2p_swap/widgets/active_swap_view.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/native_p2p_swap/widgets/completed_swap_view.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/native_p2p_swap/widgets/reclaimable_swap_view.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/native_p2p_swap/widgets/unsuccessful_swap_view.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
@@ -80,7 +81,7 @@ class _View extends StatelessWidget {
       P2pSwapState.pending => const _Pending(),
       P2pSwapState.active => ActiveSwapView(swap: swap),
       P2pSwapState.completed => CompletedSwapView(swap: swap),
-      P2pSwapState.reclaimable ||
+      P2pSwapState.reclaimable => ReclaimableSwapView(swap: swap),
       P2pSwapState.unsuccessful => UnsuccessfulSwapView(swap: swap),
       P2pSwapState.error => SyriusErrorWidget(FailureException()),
     };
