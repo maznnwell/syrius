@@ -1,64 +1,92 @@
-import 'package:zenon_syrius_wallet_flutter/blocs/base_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/main.dart';
+import 'dart:async';
+
+import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
+import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/account_block_utils.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/format_utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-class CompleteHtlcSwapBloc extends BaseBloc<HtlcSwap?> {
-  Future<void> completeHtlcSwap({
-    required HtlcSwap swap,
-  }) async {
+part 'complete_swap_event.dart';
+
+part 'complete_swap_state.dart';
+
+/// Completes an HTLC swap by unlocking the counterparty deposit.
+class CompleteSwapBloc extends Bloc<CompleteSwapEvent, CompleteSwapState> {
+  /// Creates a [CompleteSwapBloc].
+  CompleteSwapBloc({
+    required this._accountBlockUtils,
+    required this._htlcSwapsService,
+    required this._zenon,
+    required this._zenonAddressUtils,
+    int Function()? unixTimeProvider,
+  }) : _unixTimeProvider = unixTimeProvider ?? _currentUnixTime,
+       super(const CompleteSwapInitial()) {
+    on<CompleteSwapRequested>(_onCompleteSwapRequested);
+  }
+
+  final AccountBlockUtils _accountBlockUtils;
+  final HtlcSwapsService _htlcSwapsService;
+  final Zenon _zenon;
+  final ZenonAddressUtils _zenonAddressUtils;
+  final int Function() _unixTimeProvider;
+
+  static int _currentUnixTime() => DateTime.now().unixTimestamp;
+
+  FutureOr<void> _onCompleteSwapRequested(
+    CompleteSwapRequested event,
+    Emitter<CompleteSwapState> emit,
+  ) async {
     try {
-      addEvent(null);
-      final String htlcId = swap.direction == P2pSwapDirection.outgoing
-          ? swap.counterHtlcId!
-          : swap.initialHtlcId;
+      emit(const CompleteSwapLoading());
 
-      // Make sure that the HTLC exists and has a safe amount of time left
-      // until expiration.
-      final HtlcInfo htlc = await zenon!.embedded.htlc.getById(
-        Hash.parse(htlcId),
+      final HtlcSwap swap = event.swap;
+      final Hash htlcId = Hash.parse(
+        swap.direction == P2pSwapDirection.outgoing
+            ? swap.counterHtlcId!
+            : swap.initialHtlcId,
       );
+      final HtlcInfo htlc = await _zenon.embedded.htlc.getById(htlcId);
+
       if (htlc.expirationTime <=
-          DateTime.now().unixTimestamp + kMinSafeTimeToCompleteSwap.inSeconds) {
-        throw 'The swap will expire too soon for a safe swap.';
+          _unixTimeProvider() + kMinSafeTimeToCompleteSwap.inSeconds) {
+        throw SyriusException(
+          'The swap will expire too soon for a safe swap.',
+        );
       }
 
-      if (htlc.keyMaxSize <
-          FormatUtils.decodeHexString(swap.preimage!).length) {
-        throw 'The swap secret size exceeds the maximum allowed size.';
+      final List<int> preimage = FormatUtils.decodeHexString(swap.preimage!);
+      if (htlc.keyMaxSize < preimage.length) {
+        throw SyriusException(
+          'The swap secret size exceeds the maximum allowed size.',
+        );
       }
 
-      final AccountBlockTemplate transactionParams = zenon!.embedded.htlc
-          .unlock(
-            Hash.parse(htlcId),
-            FormatUtils.decodeHexString(swap.preimage!),
-          );
-      AccountBlockUtils()
-          .createAccountBlock(
-            transactionParams,
-            'complete swap',
-            address: Address.parse(swap.selfAddress),
-            waitForRequiredPlasma: true,
-          )
-          .then(
-            (AccountBlockTemplate response) async {
-              final HtlcSwap completedSwap = swap.copyWith(
-                state: P2pSwapState.completed,
-              );
-              await htlcSwapsService!.storeSwap(completedSwap);
-              ZenonAddressUtils().refreshBalance();
-              addEvent(completedSwap);
-            },
-          )
-          .onError(
-            (Object? error, StackTrace stackTrace) {
-              addError(error.toString(), stackTrace);
-            },
-          );
-    } catch (e, stackTrace) {
-      addError(e, stackTrace);
+      final AccountBlockTemplate transactionParams = _zenon.embedded.htlc
+          .unlock(htlcId, preimage);
+      await _accountBlockUtils.createAccountBlock(
+        transactionParams,
+        'complete swap',
+        address: Address.parse(swap.selfAddress),
+        waitForRequiredPlasma: true,
+      );
+
+      final HtlcSwap completedSwap = swap.copyWith(
+        state: P2pSwapState.completed,
+      );
+      await _htlcSwapsService.storeSwap(completedSwap);
+      _zenonAddressUtils.refreshBalance();
+      emit(CompleteSwapDone(swap: completedSwap));
+    } on SyriusException catch (error, stackTrace) {
+      addError(error, stackTrace);
+      emit(CompleteSwapFailure(exception: error));
+    } on Object catch (error, stackTrace) {
+      addError(error, stackTrace);
+      emit(CompleteSwapFailure(exception: FailureException()));
     }
   }
 }

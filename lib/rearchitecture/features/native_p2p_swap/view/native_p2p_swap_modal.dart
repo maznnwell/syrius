@@ -5,9 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:provider/single_child_widget.dart';
-import 'package:stacked/stacked.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/notifications_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/complete_swap/bloc/complete_swap_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
@@ -34,7 +32,6 @@ class NativeP2pSwapModal extends StatefulWidget {
 }
 
 class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
-  bool _isSendingTransaction = false;
   bool _shouldShowIncorrectAmountInstructions = false;
   bool _shouldShowFundsReceivedMessage = false;
 
@@ -51,25 +48,36 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
         BlocProvider<SendTransactionBloc>(
           create: (_) => SendTransactionBloc(),
         ),
+        BlocProvider<CompleteSwapBloc>(
+          create: (_) => CompleteSwapBloc(
+            accountBlockUtils: AccountBlockUtils(),
+            htlcSwapsService: htlcSwapsService!,
+            zenon: zenon!,
+            zenonAddressUtils: ZenonAddressUtils(),
+          ),
+        ),
       ],
-      child: BlocBuilder<P2pSwapDetailsBloc, P2pSwapDetailsState>(
-        builder: (_, P2pSwapDetailsState state) {
-          return switch (state) {
-            P2pSwapDetailsPopulated(:final HtlcSwap swap) => BaseModal(
-              title: _getTitle(swap),
-              child: _buildContent(swap),
-            ),
-            P2pSwapDetailsFailure(:final SyriusException exception) =>
-              BaseModal(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: SyriusErrorWidget(exception),
-                ),
+      child: BlocListener<CompleteSwapBloc, CompleteSwapState>(
+        listener: _onCompleteSwapStateChanged,
+        child: BlocBuilder<P2pSwapDetailsBloc, P2pSwapDetailsState>(
+          builder: (_, P2pSwapDetailsState state) {
+            return switch (state) {
+              P2pSwapDetailsPopulated(:final HtlcSwap swap) => BaseModal(
+                title: _getTitle(swap),
+                child: _buildContent(swap),
               ),
-            P2pSwapDetailsInitial() => const SyriusLoadingWidget(),
-            P2pSwapDetailsLoading() => const SyriusLoadingWidget(),
-          };
-        },
+              P2pSwapDetailsFailure(:final SyriusException exception) =>
+                BaseModal(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: SyriusErrorWidget(exception),
+                  ),
+                ),
+              P2pSwapDetailsInitial() => const SyriusLoadingWidget(),
+              P2pSwapDetailsLoading() => const SyriusLoadingWidget(),
+            };
+          },
+        ),
       ),
     );
   }
@@ -193,7 +201,6 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
         ],
       );
     } else {
-      // TODO: to refactor
       return Column(
         spacing: kVerticalGap16.height!,
         children: <Widget>[
@@ -213,7 +220,7 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
                     ),
                   ),
                 _buildExpirationWarningForOutgoingSwap(swap),
-                _buildSwapButtonViewModel(swap),
+                CompleteSwapButton(swap: swap),
                 _buildIncorrectAmountButton(swap),
               ],
             ),
@@ -252,39 +259,20 @@ class _NativeP2pSwapModalState extends State<NativeP2pSwapModal> {
     );
   }
 
-  Widget _buildSwapButtonViewModel(HtlcSwap swap) {
-    return ViewModelBuilder<CompleteHtlcSwapBloc>.reactive(
-      onViewModelReady: (CompleteHtlcSwapBloc model) {
-        model.stream.listen(
-          (HtlcSwap? event) async {
-            if (event is HtlcSwap) {
-              setState(() {
-                _shouldShowFundsReceivedMessage = true;
-              });
-            }
-          },
-          onError: (error) {
-            setState(() {
-              _isSendingTransaction = false;
-            });
-            ToastUtils.showToast(context, error.toString());
-          },
-        );
-      },
-      builder: (_, CompleteHtlcSwapBloc model, _) => InstructionButton(
-        text: context.l10n.swap,
-        isEnabled: true,
-        isLoading: _isSendingTransaction,
-        loadingText: context.l10n.swapping,
-        onPressed: () {
-          setState(() {
-            _isSendingTransaction = true;
-          });
-          unawaited(model.completeHtlcSwap(swap: swap));
-        },
-      ),
-      viewModelBuilder: CompleteHtlcSwapBloc.new,
-    );
+  void _onCompleteSwapStateChanged(
+    BuildContext context,
+    CompleteSwapState state,
+  ) {
+    if (state is CompleteSwapDone) {
+      setState(() {
+        _shouldShowFundsReceivedMessage = true;
+      });
+      context.read<P2pSwapDetailsBloc>().add(
+        const P2pSwapDetailsRequested(),
+      );
+    } else if (state is CompleteSwapFailure) {
+      ToastUtils.showToast(context, state.exception.toString());
+    }
   }
 
   Widget _buildIncorrectAmountButton(HtlcSwap swap) {
