@@ -207,22 +207,23 @@ class _Status extends StatelessWidget {
   }
 
   Widget _buildStatusIcon() {
-    const double size = 16;
     return switch (_swap.state) {
       P2pSwapState.pending || P2pSwapState.active => const SyriusLoadingWidget(
-        size: 12,
+        size: 18,
         strokeWidth: 2,
         padding: 2,
       ),
       P2pSwapState.completed => const Icon(
         Icons.check_circle_outline,
         color: AppColors.znnColor,
-        size: size,
+      ),
+      P2pSwapState.reclaimable => Icon(
+        Icons.call_received_rounded,
+        color: ColorUtils.getTokenColor(_swap.fromToken.tokenStandard),
       ),
       _ => const Icon(
         Icons.cancel_outlined,
         color: AppColors.errorColor,
-        size: size,
       ),
     };
   }
@@ -232,6 +233,7 @@ class _Status extends StatelessWidget {
       P2pSwapState.pending => context.l10n.starting,
       P2pSwapState.active => context.l10n.active,
       P2pSwapState.completed => context.l10n.completed,
+      P2pSwapState.reclaimable => context.l10n.reclaimFunds,
       _ => context.l10n.unsuccessful,
     };
   }
@@ -283,6 +285,7 @@ class _ActionButton extends StatelessWidget {
       height: 36,
       child: switch (_swap.state) {
         P2pSwapState.completed => deleteButton,
+        P2pSwapState.unsuccessful => deleteButton,
         _ => const SizedBox.shrink(),
       },
     );
