@@ -292,6 +292,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exchangeRate => 'Exchange Rate';
 
   @override
+  String get error => 'Error';
+
+  @override
   String get errorCreatingToken => 'Error while creating a new ZTS token';
 
   @override
@@ -764,6 +767,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reclaimFunds => 'Reclaim funds';
+
+  @override
+  String get reclaimableFunds => 'Reclaimable funds';
 
   @override
   String get reclaimFundsIfCounterpartyFails =>

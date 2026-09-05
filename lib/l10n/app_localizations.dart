@@ -562,6 +562,12 @@ abstract class AppLocalizations {
   /// **'Exchange Rate'**
   String get exchangeRate;
 
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get error;
+
   /// No description provided for @errorCreatingToken.
   ///
   /// In en, this message translates to:
@@ -1371,6 +1377,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reclaim funds'**
   String get reclaimFunds;
+
+  /// No description provided for @reclaimableFunds.
+  ///
+  /// In en, this message translates to:
+  /// **'Reclaimable funds'**
+  String get reclaimableFunds;
 
   /// No description provided for @reclaimFundsIfCounterpartyFails.
   ///

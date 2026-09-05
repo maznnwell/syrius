@@ -57,7 +57,7 @@ class _View extends StatelessWidget {
         builder: (BuildContext context, P2pSwapDetailsState state) {
           return switch (state) {
             P2pSwapDetailsPopulated(:final HtlcSwap swap) => BaseModal(
-              title: _getTitle(context, swap),
+              title: swap.state.statusText(context),
               child: _buildContent(swap),
             ),
             P2pSwapDetailsFailure(:final SyriusException exception) =>
@@ -75,10 +75,6 @@ class _View extends StatelessWidget {
     );
   }
 
-  String? _getTitle(BuildContext context, HtlcSwap swap) {
-    return swap.state == P2pSwapState.active ? context.l10n.activeSwap : null;
-  }
-
   Widget _buildContent(HtlcSwap swap) {
     return switch (swap.state) {
       P2pSwapState.pending => const _Pending(),
@@ -86,7 +82,7 @@ class _View extends StatelessWidget {
       P2pSwapState.completed => CompletedSwapView(swap: swap),
       P2pSwapState.reclaimable ||
       P2pSwapState.unsuccessful => UnsuccessfulSwapView(swap: swap),
-      _ => Container(),
+      P2pSwapState.error => SyriusErrorWidget(FailureException()),
     };
   }
 

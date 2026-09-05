@@ -28,10 +28,6 @@ class CompletedSwapView extends StatelessWidget {
           ),
           height: 70,
         ),
-        Text(
-          context.l10n.swapCompleted,
-          style: context.textTheme.titleMedium,
-        ),
         Card.filled(
           color: AppColors.znnColor.withAlpha((255 * 0.2).round()),
           child: Padding(

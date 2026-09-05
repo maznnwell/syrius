@@ -201,7 +201,7 @@ class _Status extends StatelessWidget {
       children: <Widget>[
         _buildStatusIcon(),
         kHorizontalGap8,
-        Text(_statusText(context)),
+        Text(_swap.state.statusText(context)),
       ],
     );
   }
@@ -221,20 +221,10 @@ class _Status extends StatelessWidget {
         Icons.call_received_rounded,
         color: ColorUtils.getTokenColor(_swap.fromToken.tokenStandard),
       ),
-      _ => const Icon(
+      P2pSwapState.unsuccessful || P2pSwapState.error => const Icon(
         Icons.cancel_outlined,
         color: AppColors.errorColor,
       ),
-    };
-  }
-
-  String _statusText(BuildContext context) {
-    return switch (_swap.state) {
-      P2pSwapState.pending => context.l10n.starting,
-      P2pSwapState.active => context.l10n.active,
-      P2pSwapState.completed => context.l10n.completed,
-      P2pSwapState.reclaimable => context.l10n.reclaimFunds,
-      _ => context.l10n.unsuccessful,
     };
   }
 }
