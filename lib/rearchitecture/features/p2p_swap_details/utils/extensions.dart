@@ -9,7 +9,7 @@ extension P2pSwapStateLocalization on P2pSwapState {
     P2pSwapState.pending => context.l10n.starting,
     P2pSwapState.active => context.l10n.active,
     P2pSwapState.completed => context.l10n.completed,
-    P2pSwapState.reclaimable => context.l10n.reclaimableFunds,
+    P2pSwapState.reclaimable => context.l10n.reclaimDeposit,
     P2pSwapState.unsuccessful => context.l10n.unsuccessful,
     P2pSwapState.error => context.l10n.error,
   };
