@@ -306,6 +306,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorBurningZts => 'Error while trying to burn ZTS';
 
   @override
+  String get errorCompletingSwap => 'Error while completing swap';
+
+  @override
   String get errorCollectingPillarRewards =>
       'Error while collecting Pillar rewards';
 
@@ -351,6 +354,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get errorJoiningSwap => 'Error while joining swap';
+
+  @override
   String get errorReclaimingSwapFunds => 'Error while reclaiming swap funds';
 
   @override
@@ -369,6 +375,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorWhileGeneratingStake => 'Error while generating stake';
+
+  @override
+  String get errorStartingSwap => 'Error while starting swap';
 
   @override
   String errorWhileWithdrawing(Object kQsrCoinSymbol) {
@@ -1022,6 +1031,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Swap completed. You will receive the funds shortly.';
 
   @override
+  String get swapJoined => 'Swap joined.';
+
+  @override
   String swapExpiresIn(String duration) {
     return 'The swap will expire in $duration';
   }
@@ -1035,6 +1047,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get swapSecret => 'Swap secret';
+
+  @override
+  String get swapStarted => 'Swap started.';
 
   @override
   String get swapUnsuccessful => 'The swap was unsuccessful.';

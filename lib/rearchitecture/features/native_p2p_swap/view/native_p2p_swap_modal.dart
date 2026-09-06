@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/single_child_widget.dart';
-import 'package:zenon_syrius_wallet_flutter/blocs/notifications_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
@@ -15,7 +14,6 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/error_widget.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_widget.dart';
-import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class NativeP2pSwapModal extends StatelessWidget {
   const NativeP2pSwapModal({
@@ -35,17 +33,11 @@ class NativeP2pSwapModal extends StatelessWidget {
             swapId: swapId,
           )..add(const P2pSwapDetailsRequested()),
         ),
-        BlocProvider<RecoverSwapFundsBloc>(
-          create: (_) => RecoverSwapFundsBloc(
-            accountBlockUtils: AccountBlockUtils(),
-            walletAddresses: kDefaultAddressList.whereType<String>().toSet(),
-            zenon: zenon!,
-            zenonAddressUtils: ZenonAddressUtils(),
-          ),
-        ),
         BlocProvider<CompleteSwapBloc>(
           create: (_) => CompleteSwapBloc(
-            accountBlockUtils: AccountBlockUtils(),
+            accountBlockUtils: AccountBlockUtils(
+              publishSuccessNotification: false,
+            ),
             htlcSwapsService: htlcSwapsService!,
             zenon: zenon!,
             zenonAddressUtils: ZenonAddressUtils(),
@@ -62,15 +54,8 @@ class _View extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocListener(
-      listeners: <SingleChildWidget>[
-        BlocListener<CompleteSwapBloc, CompleteSwapState>(
-          listener: _onCompleteSwapStateChanged,
-        ),
-        BlocListener<RecoverSwapFundsBloc, RecoverSwapFundsState>(
-          listener: _onRecoverSwapFundsStateChanged,
-        ),
-      ],
+    return BlocListener<CompleteSwapBloc, CompleteSwapState>(
+      listener: _onCompleteSwapStateChanged,
       child: BlocBuilder<P2pSwapDetailsBloc, P2pSwapDetailsState>(
         builder: (BuildContext context, P2pSwapDetailsState state) {
           return switch (state) {
@@ -108,38 +93,28 @@ class _View extends StatelessWidget {
     BuildContext context,
     CompleteSwapState state,
   ) {
-    if (state is CompleteSwapDone) {
+    if (state case CompleteSwapDone(:final block)) {
       context.read<P2pSwapDetailsBloc>().add(
         const P2pSwapDetailsRequested(),
       );
-      ToastUtils.showToast(context, context.l10n.swapCompletedFundsSoon);
-    } else if (state is CompleteSwapFailure) {
-      ToastUtils.showToast(context, state.exception.toString());
-    }
-  }
-
-  void _onRecoverSwapFundsStateChanged(
-    BuildContext context,
-    RecoverSwapFundsState state,
-  ) {
-    if (state case RecoverSwapFundsDone(:final AccountBlockTemplate block)) {
       unawaited(
-        sl.get<NotificationsBloc>().addNotification(
+        NotificationUtils.showForegroundNotification(
+          context,
           WalletNotification(
-            title: context.l10n.swapReclaimBlockCreated,
+            title: context.l10n.swapCompleted,
             timestamp: DateTime.now().millisecondsSinceEpoch,
             details: context.l10n.hashValue(block.hash.toString()),
             type: NotificationType.paymentSent,
           ),
+          toastMessage: context.l10n.swapCompletedFundsSoon,
         ),
       );
-    } else if (state case RecoverSwapFundsFailure(
-      :final SyriusException exception,
-    )) {
+    } else if (state case CompleteSwapFailure(:final exception)) {
       unawaited(
-        NotificationUtils.sendNotificationError(
+        NotificationUtils.showForegroundError(
+          context,
           exception,
-          context.l10n.errorReclaimingSwapFunds,
+          context.l10n.errorCompletingSwap,
         ),
       );
     }

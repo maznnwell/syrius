@@ -24,7 +24,9 @@ class JoinNativeSwapModal extends StatelessWidget {
       providers: <SingleChildWidget>[
         BlocProvider<JoinNativeSwapBloc>(
           create: (_) => JoinNativeSwapBloc(
-            accountBlockUtils: AccountBlockUtils(),
+            accountBlockUtils: AccountBlockUtils(
+              publishSuccessNotification: false,
+            ),
             htlcSwapsService: htlcSwapsService!,
             zenon: zenon!,
             zenonAddressUtils: ZenonAddressUtils(),

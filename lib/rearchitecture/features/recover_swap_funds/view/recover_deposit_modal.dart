@@ -5,9 +5,9 @@ import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap_options/widgets/view_swap_tutorial_button.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/recover_swap_funds/bloc/recover_swap_funds_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/recover_swap_funds/widgets/recover_swap_funds_button.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/recover_swap_funds/widgets/recover_swap_funds_listener.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/swap_warning.dart';
 
 /// Modal containing the flow used to recover funds from an expired swap.
 class RecoverDepositModal extends StatelessWidget {
@@ -20,7 +20,9 @@ class RecoverDepositModal extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<RecoverSwapFundsBloc>(
       create: (_) => RecoverSwapFundsBloc(
-        accountBlockUtils: AccountBlockUtils(),
+        accountBlockUtils: AccountBlockUtils(
+          publishSuccessNotification: false,
+        ),
         walletAddresses: kDefaultAddressList.whereType<String>().toSet(),
         zenon: zenon!,
         zenonAddressUtils: ZenonAddressUtils(),
@@ -48,14 +50,17 @@ class _ViewState extends State<_View> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<RecoverSwapFundsBloc, RecoverSwapFundsState>(
-      builder: (_, RecoverSwapFundsState state) => BaseModal(
-        title: state is RecoverSwapFundsDone
-            ? null
-            : context.l10n.recoverDeposit,
-        child: state is RecoverSwapFundsDone
-            ? _buildPendingFundsView()
-            : _buildSearchView(state),
+    return RecoverSwapFundsListener(
+      successMessage: context.l10n.recoveryTransactionSentFundsShortly,
+      child: BlocBuilder<RecoverSwapFundsBloc, RecoverSwapFundsState>(
+        builder: (_, RecoverSwapFundsState state) => BaseModal(
+          title: state is RecoverSwapFundsDone
+              ? null
+              : context.l10n.recoverDeposit,
+          child: state is RecoverSwapFundsDone
+              ? _buildPendingFundsView()
+              : _buildSearchView(),
+        ),
       ),
     );
   }
@@ -82,7 +87,7 @@ class _ViewState extends State<_View> {
     );
   }
 
-  Widget _buildSearchView(RecoverSwapFundsState state) {
+  Widget _buildSearchView() {
     return ValueListenableBuilder<TextEditingValue>(
       valueListenable: _depositIdController,
       builder: (_, TextEditingValue value, _) {
@@ -105,12 +110,6 @@ class _ViewState extends State<_View> {
               ),
               controller: _depositIdController,
             ),
-            if (state case RecoverSwapFundsFailure(
-              :final SyriusException exception,
-            ))
-              SwapWarning(
-                text: exception.toString(),
-              ),
             RecoverSwapFundsButton(
               htlcId: value.text,
               isEnabled: depositIdError == null && value.text.isNotEmpty,

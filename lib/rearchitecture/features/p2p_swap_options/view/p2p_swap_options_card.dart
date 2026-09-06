@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/pow_generating_status_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
+import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
@@ -20,7 +21,9 @@ class P2pSwapOptionsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<StartNativeSwapBloc>(
       create: (_) => StartNativeSwapBloc(
-        accountBlockUtils: AccountBlockUtils(),
+        accountBlockUtils: AccountBlockUtils(
+          publishSuccessNotification: false,
+        ),
         htlcSwapsService: htlcSwapsService!,
         zenon: zenon!,
         zenonAddressUtils: ZenonAddressUtils(),
@@ -137,6 +140,17 @@ class _View extends StatelessWidget {
     }
 
     _showNativeSwapDetailsModal(context, swapId);
+    unawaited(
+      NotificationUtils.showForegroundNotification(
+        context,
+        WalletNotification(
+          title: context.l10n.swapJoined,
+          timestamp: DateTime.now().millisecondsSinceEpoch,
+          details: context.l10n.hashValue(swapId),
+          type: NotificationType.paymentSent,
+        ),
+      ),
+    );
   }
 
   Future<bool> _confirmUserWarningIfNeeded(BuildContext context) async {
@@ -181,10 +195,27 @@ class _View extends StatelessWidget {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (context.mounted) {
           _showNativeSwapDetailsModal(context, state.swap.id);
+          unawaited(
+            NotificationUtils.showForegroundNotification(
+              context,
+              WalletNotification(
+                title: context.l10n.swapStarted,
+                timestamp: DateTime.now().millisecondsSinceEpoch,
+                details: context.l10n.hashValue(state.swap.initialHtlcId),
+                type: NotificationType.paymentSent,
+              ),
+            ),
+          );
         }
       });
-    } else if (state is StartNativeSwapFailure) {
-      ToastUtils.showToast(context, state.exception.toString());
+    } else if (state case StartNativeSwapFailure(:final exception)) {
+      unawaited(
+        NotificationUtils.showForegroundError(
+          context,
+          exception,
+          context.l10n.errorStartingSwap,
+        ),
+      );
     }
   }
 

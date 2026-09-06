@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
@@ -8,7 +10,7 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/input_validators.dart';
-import 'package:zenon_syrius_wallet_flutter/utils/toast_utils.dart';
+import 'package:zenon_syrius_wallet_flutter/utils/notification_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/zts_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/bullet_point_card.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/exchange_rate_widget.dart';
@@ -180,11 +182,12 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
             ),
             if (!isTrustedToken(
               widget.token.tokenStandard.toString(),
-            )) SwapWarning(
-              text: context.l10n.verifyNonFavoriteToken(
-                widget.token.tokenStandard.toString(),
+            ))
+              SwapWarning(
+                text: context.l10n.verifyNonFavoriteToken(
+                  widget.token.tokenStandard.toString(),
+                ),
               ),
-            ),
             JoinSwapButton(
               fromAmount: amount,
               fromToken: _token,
@@ -210,9 +213,15 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
     JoinNativeSwapState state,
   ) {
     if (state is JoinNativeSwapDone) {
-      Navigator.pop(context);
-    } else if (state is JoinNativeSwapFailure) {
-      ToastUtils.showToast(context, state.exception.toString());
+      Navigator.pop(context, state.swap.id);
+    } else if (state case JoinNativeSwapFailure(:final exception)) {
+      unawaited(
+        NotificationUtils.showForegroundError(
+          context,
+          exception,
+          context.l10n.errorJoiningSwap,
+        ),
+      );
     }
   }
 

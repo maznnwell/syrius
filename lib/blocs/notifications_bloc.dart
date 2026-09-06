@@ -9,16 +9,19 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 
 class NotificationsBloc extends BaseBloc<WalletNotification?> {
+  /// Stores [notification] in history without showing it to the user.
+  Future<void> recordNotification(WalletNotification notification) async {
+    try {
+      await _storeNotification(notification);
+    } catch (e, stackTrace) {
+      addError(e, stackTrace);
+    }
+  }
+
+  /// Stores and publishes [notification] to wallet and desktop surfaces.
   Future<void> addNotification(WalletNotification? notification) async {
     try {
-      await Hive.openBox(kNotificationsBox);
-      final Box notificationsBox = Hive.box(kNotificationsBox);
-      if (notificationsBox.length >= kNotificationsEntriesLimit) {
-        while (notificationsBox.length >= kNotificationsEntriesLimit) {
-          await notificationsBox.delete(notificationsBox.keys.first);
-        }
-      }
-      await notificationsBox.add(notification);
+      await _storeNotification(notification);
       if (notification != null &&
           isDesktopPlatform() &&
           _areDesktopNotificationsEnabled()) {
@@ -57,6 +60,27 @@ class NotificationsBloc extends BaseBloc<WalletNotification?> {
         type: NotificationType.error,
       ),
     );
+  }
+
+  /// Stores an error in history without showing it to the user.
+  Future<void> recordErrorNotification(Object error, String title) async {
+    await recordNotification(
+      WalletNotification(
+        title: title,
+        timestamp: DateTime.now().millisecondsSinceEpoch,
+        details: '$title: $error',
+        type: NotificationType.error,
+      ),
+    );
+  }
+
+  Future<void> _storeNotification(WalletNotification? notification) async {
+    await Hive.openBox(kNotificationsBox);
+    final Box notificationsBox = Hive.box(kNotificationsBox);
+    while (notificationsBox.length >= kNotificationsEntriesLimit) {
+      await notificationsBox.delete(notificationsBox.keys.first);
+    }
+    await notificationsBox.add(notification);
   }
 
   bool _areDesktopNotificationsEnabled() => sharedPrefsService!.get(

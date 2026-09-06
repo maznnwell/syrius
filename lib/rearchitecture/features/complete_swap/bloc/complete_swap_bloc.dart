@@ -68,19 +68,20 @@ class CompleteSwapBloc extends Bloc<CompleteSwapEvent, CompleteSwapState> {
 
       final AccountBlockTemplate transactionParams = _zenon.embedded.htlc
           .unlock(htlcId, preimage);
-      await _accountBlockUtils.createAccountBlock(
-        transactionParams,
-        'complete swap',
-        address: Address.parse(swap.selfAddress),
-        waitForRequiredPlasma: true,
-      );
+      final AccountBlockTemplate block = await _accountBlockUtils
+          .createAccountBlock(
+            transactionParams,
+            'complete swap',
+            address: Address.parse(swap.selfAddress),
+            waitForRequiredPlasma: true,
+          );
 
       final HtlcSwap completedSwap = swap.copyWith(
         state: P2pSwapState.completed,
       );
       await _htlcSwapsService.storeSwap(completedSwap);
       _zenonAddressUtils.refreshBalance();
-      emit(CompleteSwapDone(swap: completedSwap));
+      emit(CompleteSwapDone(block: block, swap: completedSwap));
     } on SyriusException catch (error, stackTrace) {
       addError(error, stackTrace);
       emit(CompleteSwapFailure(exception: error));

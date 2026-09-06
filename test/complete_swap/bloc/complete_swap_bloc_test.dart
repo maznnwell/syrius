@@ -135,11 +135,17 @@ void main() {
       ),
       expect: () => <Matcher>[
         isA<CompleteSwapLoading>(),
-        isA<CompleteSwapDone>().having(
-          (CompleteSwapDone state) => state.swap.state,
-          'swap state',
-          P2pSwapState.completed,
-        ),
+        isA<CompleteSwapDone>()
+            .having(
+              (CompleteSwapDone state) => state.block,
+              'submitted block',
+              transactionParams,
+            )
+            .having(
+              (CompleteSwapDone state) => state.swap.state,
+              'swap state',
+              P2pSwapState.completed,
+            ),
       ],
       verify: (_) {
         verify(() => htlcApi.getById(counterHtlcId)).called(1);

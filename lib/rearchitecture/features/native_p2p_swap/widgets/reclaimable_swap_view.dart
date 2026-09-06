@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/native_p2p_swap/widgets/htlc_swap_details_widget.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/native_p2p_swap/widgets/swap_amount_info.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap_details/p2p_swap_details.dart';
@@ -8,17 +10,41 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 
 /// Reclaimable native P2P swap content.
-class ReclaimableSwapView extends StatefulWidget {
+class ReclaimableSwapView extends StatelessWidget {
   /// Creates a [ReclaimableSwapView].
   const ReclaimableSwapView({required this._swap, super.key});
 
   final HtlcSwap _swap;
 
   @override
-  State<ReclaimableSwapView> createState() => _ReclaimableSwapViewState();
+  Widget build(BuildContext context) {
+    return BlocProvider<RecoverSwapFundsBloc>(
+      create: (_) => RecoverSwapFundsBloc(
+        accountBlockUtils: AccountBlockUtils(
+          publishSuccessNotification: false,
+        ),
+        walletAddresses: kDefaultAddressList.whereType<String>().toSet(),
+        zenon: zenon!,
+        zenonAddressUtils: ZenonAddressUtils(),
+      ),
+      child: RecoverSwapFundsListener(
+        successMessage: context.l10n.swapReclaimBlockCreated,
+        child: _View(swap: _swap),
+      ),
+    );
+  }
 }
 
-class _ReclaimableSwapViewState extends State<ReclaimableSwapView> {
+class _View extends StatefulWidget {
+  const _View({required this._swap});
+
+  final HtlcSwap _swap;
+
+  @override
+  State<_View> createState() => _ViewState();
+}
+
+class _ViewState extends State<_View> {
   @override
   Widget build(BuildContext context) {
     final ({int expirationTime, String id}) fundedHtlc =

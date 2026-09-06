@@ -586,6 +586,12 @@ abstract class AppLocalizations {
   /// **'Error while trying to burn ZTS'**
   String get errorBurningZts;
 
+  /// No description provided for @errorCompletingSwap.
+  ///
+  /// In en, this message translates to:
+  /// **'Error while completing swap'**
+  String get errorCompletingSwap;
+
   /// No description provided for @errorCollectingPillarRewards.
   ///
   /// In en, this message translates to:
@@ -664,6 +670,12 @@ abstract class AppLocalizations {
   /// **'Error while trying to mint {symbol}'**
   String errorMintingToken(Object symbol);
 
+  /// No description provided for @errorJoiningSwap.
+  ///
+  /// In en, this message translates to:
+  /// **'Error while joining swap'**
+  String get errorJoiningSwap;
+
   /// No description provided for @errorReclaimingSwapFunds.
   ///
   /// In en, this message translates to:
@@ -693,6 +705,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error while generating stake'**
   String get errorWhileGeneratingStake;
+
+  /// No description provided for @errorStartingSwap.
+  ///
+  /// In en, this message translates to:
+  /// **'Error while starting swap'**
+  String get errorStartingSwap;
 
   /// No description provided for @errorWhileWithdrawing.
   ///
@@ -1799,6 +1817,12 @@ abstract class AppLocalizations {
   /// **'Swap completed. You will receive the funds shortly.'**
   String get swapCompletedFundsSoon;
 
+  /// No description provided for @swapJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap joined.'**
+  String get swapJoined;
+
   /// Shows the remaining time before a swap expires.
   ///
   /// In en, this message translates to:
@@ -1822,6 +1846,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Swap secret'**
   String get swapSecret;
+
+  /// No description provided for @swapStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap started.'**
+  String get swapStarted;
 
   /// No description provided for @swapUnsuccessful.
   ///

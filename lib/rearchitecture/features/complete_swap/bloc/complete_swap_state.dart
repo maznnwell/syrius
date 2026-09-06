@@ -24,13 +24,16 @@ final class CompleteSwapLoading extends CompleteSwapState {
 /// Success state emitted after the completed swap is stored.
 final class CompleteSwapDone extends CompleteSwapState {
   /// Creates a [CompleteSwapDone] state.
-  const CompleteSwapDone({required this.swap});
+  const CompleteSwapDone({required this.block, required this.swap});
+
+  /// The submitted unlock block.
+  final AccountBlockTemplate block;
 
   /// Completed HTLC swap.
   final HtlcSwap swap;
 
   @override
-  List<Object> get props => <Object>[swap];
+  List<Object> get props => <Object>[block, swap];
 }
 
 /// Failure state emitted when the swap cannot be completed.
