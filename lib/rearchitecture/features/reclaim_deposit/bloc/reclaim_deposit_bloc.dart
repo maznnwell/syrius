@@ -9,23 +9,23 @@ import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/format_utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-part 'recover_swap_funds_event.dart';
+part 'reclaim_deposit_event.dart';
 
-part 'recover_swap_funds_state.dart';
+part 'reclaim_deposit_state.dart';
 
-/// Recovers the funds from an expired HTLC owned by the wallet.
-class RecoverSwapFundsBloc
-    extends Bloc<RecoverSwapFundsEvent, RecoverSwapFundsState> {
-  /// Creates a [RecoverSwapFundsBloc].
-  RecoverSwapFundsBloc({
+/// Reclaims an expired deposit owned by the wallet.
+class ReclaimDepositBloc
+    extends Bloc<ReclaimDepositEvent, ReclaimDepositState> {
+  /// Creates a [ReclaimDepositBloc].
+  ReclaimDepositBloc({
     required this._accountBlockUtils,
     required this._walletAddresses,
     required this._zenon,
     required this._zenonAddressUtils,
     int Function()? unixTimeProvider,
   }) : _unixTimeProvider = unixTimeProvider ?? _currentUnixTime,
-       super(const RecoverSwapFundsInitial()) {
-    on<RecoverSwapFundsRequested>(_onRecoverSwapFundsRequested);
+       super(const ReclaimDepositInitial()) {
+    on<ReclaimDepositRequested>(_onReclaimDepositRequested);
   }
 
   final AccountBlockUtils _accountBlockUtils;
@@ -36,14 +36,16 @@ class RecoverSwapFundsBloc
 
   static int _currentUnixTime() => DateTime.now().unixTimestamp;
 
-  FutureOr<void> _onRecoverSwapFundsRequested(
-    RecoverSwapFundsRequested event,
-    Emitter<RecoverSwapFundsState> emit,
+  FutureOr<void> _onReclaimDepositRequested(
+    ReclaimDepositRequested event,
+    Emitter<ReclaimDepositState> emit,
   ) async {
     try {
-      emit(const RecoverSwapFundsLoading());
+      emit(const ReclaimDepositLoading());
 
-      final HtlcInfo htlc = await _zenon.embedded.htlc.getById(event.htlcId);
+      final HtlcInfo htlc = await _zenon.embedded.htlc.getById(
+        event.depositId,
+      );
 
       // TODO(maznnwell): this can trigger bugs: user has 10 addresses,
       // initiates swap from the 10th one, resets his wallet, has generated
@@ -63,23 +65,23 @@ class RecoverSwapFundsBloc
       }
 
       final AccountBlockTemplate transactionParams = _zenon.embedded.htlc
-          .reclaim(event.htlcId);
+          .reclaim(event.depositId);
       final AccountBlockTemplate block = await _accountBlockUtils
           .createAccountBlock(
             transactionParams,
-            'reclaim swap funds',
+            'reclaim deposit',
             address: htlc.timeLocked,
             waitForRequiredPlasma: true,
           );
 
       _zenonAddressUtils.refreshBalance();
-      emit(RecoverSwapFundsDone(block: block));
+      emit(ReclaimDepositDone(block: block));
     } on SyriusException catch (error, stackTrace) {
       addError(error, stackTrace);
-      emit(RecoverSwapFundsFailure(exception: error));
+      emit(ReclaimDepositFailure(exception: error));
     } on Object catch (error, stackTrace) {
       addError(error, stackTrace);
-      emit(RecoverSwapFundsFailure(exception: FailureException()));
+      emit(ReclaimDepositFailure(exception: FailureException()));
     }
   }
 }

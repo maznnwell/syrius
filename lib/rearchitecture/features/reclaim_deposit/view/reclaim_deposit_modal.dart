@@ -3,23 +3,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap_options/widgets/view_swap_tutorial_button.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/recover_swap_funds/bloc/recover_swap_funds_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/recover_swap_funds/widgets/recover_swap_funds_button.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/recover_swap_funds/widgets/recover_swap_funds_listener.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/reclaim_deposit/bloc/reclaim_deposit_bloc.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/reclaim_deposit/widgets/reclaim_deposit_button.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/reclaim_deposit/widgets/reclaim_deposit_listener.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 
-/// Modal containing the flow used to recover funds from an expired swap.
-class RecoverDepositModal extends StatelessWidget {
-  /// Creates a [RecoverDepositModal].
-  const RecoverDepositModal({
+/// Modal containing the flow used to reclaim an expired deposit.
+class ReclaimDepositModal extends StatelessWidget {
+  /// Creates a [ReclaimDepositModal].
+  const ReclaimDepositModal({
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<RecoverSwapFundsBloc>(
-      create: (_) => RecoverSwapFundsBloc(
+    return BlocProvider<ReclaimDepositBloc>(
+      create: (_) => ReclaimDepositBloc(
         accountBlockUtils: AccountBlockUtils(
           publishSuccessNotification: false,
         ),
@@ -50,14 +50,14 @@ class _ViewState extends State<_View> {
 
   @override
   Widget build(BuildContext context) {
-    return RecoverSwapFundsListener(
-      successMessage: context.l10n.recoveryTransactionSentFundsShortly,
-      child: BlocBuilder<RecoverSwapFundsBloc, RecoverSwapFundsState>(
-        builder: (_, RecoverSwapFundsState state) => BaseModal(
-          title: state is RecoverSwapFundsDone
+    return ReclaimDepositListener(
+      successMessage: context.l10n.reclaimTransactionSentFundsShortly,
+      child: BlocBuilder<ReclaimDepositBloc, ReclaimDepositState>(
+        builder: (_, ReclaimDepositState state) => BaseModal(
+          title: state is ReclaimDepositDone
               ? null
-              : context.l10n.recoverDeposit,
-          child: state is RecoverSwapFundsDone
+              : context.l10n.reclaimDeposit,
+          child: state is ReclaimDepositDone
               ? _buildPendingFundsView()
               : _buildSearchView(),
         ),
@@ -79,7 +79,7 @@ class _ViewState extends State<_View> {
           height: 70,
         ),
         Text(
-          context.l10n.recoveryTransactionSentFundsShortly,
+          context.l10n.reclaimTransactionSentFundsShortly,
           style: context.textTheme.titleMedium,
           textAlign: TextAlign.center,
         ),
@@ -97,7 +97,7 @@ class _ViewState extends State<_View> {
           spacing: kVerticalGap16.height!,
           children: <Widget>[
             Text(
-              context.l10n.recoverDepositedFundsWithDepositId,
+              context.l10n.reclaimExpiredDepositWithId,
             ),
             const ViewSwapTutorialButton(),
             TextField(
@@ -110,10 +110,10 @@ class _ViewState extends State<_View> {
               ),
               controller: _depositIdController,
             ),
-            RecoverSwapFundsButton(
-              htlcId: value.text,
+            ReclaimDepositButton(
+              depositId: value.text,
               isEnabled: depositIdError == null && value.text.isNotEmpty,
-              text: context.l10n.recoverDeposit,
+              text: context.l10n.reclaimDeposit,
               loadingText: context.l10n.sendingTransaction,
               instructionText: context.l10n.inputDepositId,
             ),

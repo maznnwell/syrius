@@ -357,7 +357,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorJoiningSwap => 'Error while joining swap';
 
   @override
-  String get errorReclaimingSwapFunds => 'Error while reclaiming swap funds';
+  String get errorReclaimingDeposit => 'Error while reclaiming deposit';
 
   @override
   String errorRemovingTokenFromFavorites(Object name) {
@@ -793,15 +793,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'You will receive the swapped funds to this address.';
 
   @override
-  String get recoverDeposit => 'Recover deposit';
+  String get reclaimDeposit => 'Reclaim deposit';
 
   @override
-  String get recoverDepositedFundsWithDepositId =>
-      'If you have lost access to the machine that a swap was started on, the deposited funds can be recovered with the deposit ID.\n\nIf you don\'t have the deposit ID, please refer to the swap tutorial for instructions on how to recover it using a block explorer.';
+  String get reclaimExpiredDepositWithId =>
+      'If you have lost access to the machine that a swap was started on, the expired deposit can be reclaimed with the deposit ID.\n\nIf you don\'t have the deposit ID, please refer to the swap tutorial for instructions on how to find it using a block explorer.';
 
   @override
-  String get recoveryTransactionSentFundsShortly =>
-      'Recovery transaction sent. You will receive the funds shortly.';
+  String get reclaimTransactionSentFundsShortly =>
+      'Reclaim transaction sent. You will receive the funds shortly.';
 
   @override
   String get register => 'Register';

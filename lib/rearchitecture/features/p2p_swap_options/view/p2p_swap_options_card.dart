@@ -94,9 +94,9 @@ class _View extends StatelessWidget {
           child: TextButton.icon(
             onPressed: () => showCustomDialog(
               context: context,
-              content: const RecoverDepositModal(),
+              content: const ReclaimDepositModal(),
             ),
-            label: Text(context.l10n.recoverDeposit),
+            label: Text(context.l10n.reclaimDeposit),
             icon: const Icon(Icons.refresh),
             iconAlignment: IconAlignment.end,
           ),
@@ -208,7 +208,9 @@ class _View extends StatelessWidget {
           );
         }
       });
-    } else if (state case StartNativeSwapFailure(:final exception)) {
+    } else if (state case StartNativeSwapFailure(
+      :final SyriusException exception,
+    )) {
       unawaited(
         NotificationUtils.showForegroundError(
           context,

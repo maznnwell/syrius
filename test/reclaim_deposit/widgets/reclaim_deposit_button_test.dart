@@ -6,28 +6,28 @@ import 'package:mocktail/mocktail.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-class MockRecoverSwapFundsBloc
-    extends MockBloc<RecoverSwapFundsEvent, RecoverSwapFundsState>
-    implements RecoverSwapFundsBloc {}
+class MockReclaimDepositBloc
+    extends MockBloc<ReclaimDepositEvent, ReclaimDepositState>
+    implements ReclaimDepositBloc {}
 
 void main() {
-  testWidgets('dispatches a recovery request to the provided bloc', (
+  testWidgets('dispatches a reclaim request to the provided bloc', (
     WidgetTester tester,
   ) async {
     final Hash htlcId = Hash.digest(<int>[1, 2, 3]);
-    final MockRecoverSwapFundsBloc bloc = MockRecoverSwapFundsBloc();
-    when(() => bloc.state).thenReturn(const RecoverSwapFundsInitial());
+    final MockReclaimDepositBloc bloc = MockReclaimDepositBloc();
+    when(() => bloc.state).thenReturn(const ReclaimDepositInitial());
 
     await tester.pumpWidget(
-      BlocProvider<RecoverSwapFundsBloc>.value(
+      BlocProvider<ReclaimDepositBloc>.value(
         value: bloc,
         child: MaterialApp(
           home: Scaffold(
-            body: RecoverSwapFundsButton(
-              htlcId: htlcId.toString(),
+            body: ReclaimDepositButton(
+              depositId: htlcId.toString(),
               isEnabled: true,
-              text: 'Recover',
-              loadingText: 'Recovering',
+              text: 'Reclaim',
+              loadingText: 'Reclaiming',
             ),
           ),
         ),
@@ -37,7 +37,7 @@ void main() {
     await tester.tap(find.byType(ElevatedButton));
 
     verify(
-      () => bloc.add(RecoverSwapFundsRequested(htlcId: htlcId)),
+      () => bloc.add(ReclaimDepositRequested(depositId: htlcId)),
     ).called(1);
   });
 }

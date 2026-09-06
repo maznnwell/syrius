@@ -17,7 +17,7 @@ class MockAccountBlockUtils extends Mock implements AccountBlockUtils {}
 class MockZenonAddressUtils extends Mock implements ZenonAddressUtils {}
 
 void main() {
-  group('RecoverSwapFundsBloc', () {
+  group('ReclaimDepositBloc', () {
     const int now = 1000;
     final Hash htlcId = Hash.digest(<int>[1, 2, 3]);
     final Address selfAddress = emptyAddress;
@@ -30,7 +30,7 @@ void main() {
     late MockZenonAddressUtils zenonAddressUtils;
     late AccountBlockTemplate transactionParams;
     late HtlcInfo htlc;
-    late RecoverSwapFundsBloc bloc;
+    late ReclaimDepositBloc bloc;
 
     HtlcInfo buildHtlc({
       required Address timeLocked,
@@ -66,14 +66,14 @@ void main() {
       when(
         () => accountBlockUtils.createAccountBlock(
           transactionParams,
-          'reclaim swap funds',
+          'reclaim deposit',
           address: selfAddress,
           waitForRequiredPlasma: true,
         ),
       ).thenAnswer((_) async => transactionParams);
       when(() => zenonAddressUtils.refreshBalance()).thenAnswer((_) {});
 
-      bloc = RecoverSwapFundsBloc(
+      bloc = ReclaimDepositBloc(
         accountBlockUtils: accountBlockUtils,
         walletAddresses: <String>{selfAddress.toString()},
         zenon: zenon,
@@ -83,18 +83,18 @@ void main() {
     });
 
     test('initial state is correct', () {
-      expect(bloc.state, const RecoverSwapFundsInitial());
+      expect(bloc.state, const ReclaimDepositInitial());
     });
 
-    blocTest<RecoverSwapFundsBloc, RecoverSwapFundsState>(
+    blocTest<ReclaimDepositBloc, ReclaimDepositState>(
       'submits the reclaim transaction and refreshes balances',
       build: () => bloc,
-      act: (RecoverSwapFundsBloc bloc) => bloc.add(
-        RecoverSwapFundsRequested(htlcId: htlcId),
+      act: (ReclaimDepositBloc bloc) => bloc.add(
+        ReclaimDepositRequested(depositId: htlcId),
       ),
-      expect: () => <RecoverSwapFundsState>[
-        const RecoverSwapFundsLoading(),
-        RecoverSwapFundsDone(block: transactionParams),
+      expect: () => <ReclaimDepositState>[
+        const ReclaimDepositLoading(),
+        ReclaimDepositDone(block: transactionParams),
       ],
       verify: (_) {
         verify(() => htlcApi.getById(htlcId)).called(1);
@@ -102,7 +102,7 @@ void main() {
         verify(
           () => accountBlockUtils.createAccountBlock(
             transactionParams,
-            'reclaim swap funds',
+            'reclaim deposit',
             address: selfAddress,
             waitForRequiredPlasma: true,
           ),
@@ -111,7 +111,7 @@ void main() {
       },
     );
 
-    blocTest<RecoverSwapFundsBloc, RecoverSwapFundsState>(
+    blocTest<ReclaimDepositBloc, ReclaimDepositState>(
       'rejects a deposit that does not belong to the wallet',
       setUp: () {
         htlc = buildHtlc(
@@ -120,13 +120,13 @@ void main() {
         );
       },
       build: () => bloc,
-      act: (RecoverSwapFundsBloc bloc) => bloc.add(
-        RecoverSwapFundsRequested(htlcId: htlcId),
+      act: (ReclaimDepositBloc bloc) => bloc.add(
+        ReclaimDepositRequested(depositId: htlcId),
       ),
       expect: () => <Matcher>[
-        isA<RecoverSwapFundsLoading>(),
-        isA<RecoverSwapFundsFailure>().having(
-          (RecoverSwapFundsFailure state) => state.exception.message,
+        isA<ReclaimDepositLoading>(),
+        isA<ReclaimDepositFailure>().having(
+          (ReclaimDepositFailure state) => state.exception.message,
           'message',
           'The deposit does not belong to you.',
         ),
@@ -137,7 +137,7 @@ void main() {
       },
     );
 
-    blocTest<RecoverSwapFundsBloc, RecoverSwapFundsState>(
+    blocTest<ReclaimDepositBloc, ReclaimDepositState>(
       'rejects a deposit that is still locked',
       setUp: () {
         htlc = buildHtlc(
@@ -146,13 +146,13 @@ void main() {
         );
       },
       build: () => bloc,
-      act: (RecoverSwapFundsBloc bloc) => bloc.add(
-        RecoverSwapFundsRequested(htlcId: htlcId),
+      act: (ReclaimDepositBloc bloc) => bloc.add(
+        ReclaimDepositRequested(depositId: htlcId),
       ),
       expect: () => <Matcher>[
-        isA<RecoverSwapFundsLoading>(),
-        isA<RecoverSwapFundsFailure>().having(
-          (RecoverSwapFundsFailure state) => state.exception.message,
+        isA<ReclaimDepositLoading>(),
+        isA<ReclaimDepositFailure>().having(
+          (ReclaimDepositFailure state) => state.exception.message,
           'message',
           'The deposit is locked until '
               '${FormatUtils.formatDate(
@@ -167,28 +167,28 @@ void main() {
       },
     );
 
-    blocTest<RecoverSwapFundsBloc, RecoverSwapFundsState>(
+    blocTest<ReclaimDepositBloc, ReclaimDepositState>(
       'preserves a SyriusException from transaction submission',
       setUp: () {
         when(
           () => accountBlockUtils.createAccountBlock(
             transactionParams,
-            'reclaim swap funds',
+            'reclaim deposit',
             address: selfAddress,
             waitForRequiredPlasma: true,
           ),
-        ).thenThrow(SyriusException('Unable to recover funds.'));
+        ).thenThrow(SyriusException('Unable to reclaim deposit.'));
       },
       build: () => bloc,
-      act: (RecoverSwapFundsBloc bloc) => bloc.add(
-        RecoverSwapFundsRequested(htlcId: htlcId),
+      act: (ReclaimDepositBloc bloc) => bloc.add(
+        ReclaimDepositRequested(depositId: htlcId),
       ),
       expect: () => <Matcher>[
-        isA<RecoverSwapFundsLoading>(),
-        isA<RecoverSwapFundsFailure>().having(
-          (RecoverSwapFundsFailure state) => state.exception.message,
+        isA<ReclaimDepositLoading>(),
+        isA<ReclaimDepositFailure>().having(
+          (ReclaimDepositFailure state) => state.exception.message,
           'message',
-          'Unable to recover funds.',
+          'Unable to reclaim deposit.',
         ),
       ],
       verify: (_) {
@@ -196,7 +196,7 @@ void main() {
       },
     );
 
-    blocTest<RecoverSwapFundsBloc, RecoverSwapFundsState>(
+    blocTest<ReclaimDepositBloc, ReclaimDepositState>(
       'converts an unexpected error to FailureException',
       setUp: () {
         when(
@@ -204,13 +204,13 @@ void main() {
         ).thenThrow(StateError('boom'));
       },
       build: () => bloc,
-      act: (RecoverSwapFundsBloc bloc) => bloc.add(
-        RecoverSwapFundsRequested(htlcId: htlcId),
+      act: (ReclaimDepositBloc bloc) => bloc.add(
+        ReclaimDepositRequested(depositId: htlcId),
       ),
       expect: () => <Matcher>[
-        isA<RecoverSwapFundsLoading>(),
-        isA<RecoverSwapFundsFailure>().having(
-          (RecoverSwapFundsFailure state) => state.exception,
+        isA<ReclaimDepositLoading>(),
+        isA<ReclaimDepositFailure>().having(
+          (ReclaimDepositFailure state) => state.exception,
           'exception',
           isA<FailureException>(),
         ),

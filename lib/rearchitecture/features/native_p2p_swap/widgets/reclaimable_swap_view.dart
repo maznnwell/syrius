@@ -5,7 +5,7 @@ import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/native_p2p_swap/widgets/htlc_swap_details_widget.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/native_p2p_swap/widgets/swap_amount_info.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap_details/p2p_swap_details.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/recover_swap_funds/recover_swap_funds.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/reclaim_deposit/reclaim_deposit.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 
@@ -18,8 +18,8 @@ class ReclaimableSwapView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<RecoverSwapFundsBloc>(
-      create: (_) => RecoverSwapFundsBloc(
+    return BlocProvider<ReclaimDepositBloc>(
+      create: (_) => ReclaimDepositBloc(
         accountBlockUtils: AccountBlockUtils(
           publishSuccessNotification: false,
         ),
@@ -27,7 +27,7 @@ class ReclaimableSwapView extends StatelessWidget {
         zenon: zenon!,
         zenonAddressUtils: ZenonAddressUtils(),
       ),
-      child: RecoverSwapFundsListener(
+      child: ReclaimDepositListener(
         successMessage: context.l10n.swapReclaimBlockCreated,
         child: _View(swap: _swap),
       ),
@@ -113,10 +113,10 @@ class _ViewState extends State<_View> {
             },
           ),
         if (canReclaim)
-          RecoverSwapFundsButton(
-            htlcId: fundedHtlc.id,
+          ReclaimDepositButton(
+            depositId: fundedHtlc.id,
             isEnabled: true,
-            text: context.l10n.reclaimFunds,
+            text: context.l10n.reclaimDeposit,
             loadingText: context.l10n.reclaimingFundsPleaseWait,
           ),
         HtlcSwapDetailsWidget(swap: widget._swap),

@@ -1,30 +1,30 @@
-part of 'recover_swap_funds_bloc.dart';
+part of 'reclaim_deposit_bloc.dart';
 
-/// Base class for recover-swap-funds states.
-sealed class RecoverSwapFundsState extends Equatable {
-  /// Creates a [RecoverSwapFundsState].
-  const RecoverSwapFundsState();
+/// Base class for reclaim-deposit states.
+sealed class ReclaimDepositState extends Equatable {
+  /// Creates a [ReclaimDepositState].
+  const ReclaimDepositState();
 
   @override
   List<Object> get props => <Object>[];
 }
 
-/// Initial state before recovery is requested.
-final class RecoverSwapFundsInitial extends RecoverSwapFundsState {
-  /// Creates a [RecoverSwapFundsInitial] state.
-  const RecoverSwapFundsInitial();
+/// Initial state before a reclaim is requested.
+final class ReclaimDepositInitial extends ReclaimDepositState {
+  /// Creates a [ReclaimDepositInitial] state.
+  const ReclaimDepositInitial();
 }
 
-/// Loading state while the recovery transaction is being submitted.
-final class RecoverSwapFundsLoading extends RecoverSwapFundsState {
-  /// Creates a [RecoverSwapFundsLoading] state.
-  const RecoverSwapFundsLoading();
+/// Loading state while the reclaim transaction is being submitted.
+final class ReclaimDepositLoading extends ReclaimDepositState {
+  /// Creates a [ReclaimDepositLoading] state.
+  const ReclaimDepositLoading();
 }
 
-/// Success state emitted after the recovery transaction is submitted.
-final class RecoverSwapFundsDone extends RecoverSwapFundsState {
-  /// Creates a [RecoverSwapFundsDone] state.
-  const RecoverSwapFundsDone({required this.block});
+/// Success state emitted after the reclaim transaction is submitted.
+final class ReclaimDepositDone extends ReclaimDepositState {
+  /// Creates a [ReclaimDepositDone] state.
+  const ReclaimDepositDone({required this.block});
 
   /// The submitted reclaim block.
   final AccountBlockTemplate block;
@@ -33,12 +33,12 @@ final class RecoverSwapFundsDone extends RecoverSwapFundsState {
   List<Object> get props => <Object>[block];
 }
 
-/// Failure state emitted when swap funds cannot be recovered.
-final class RecoverSwapFundsFailure extends RecoverSwapFundsState {
-  /// Creates a [RecoverSwapFundsFailure] state.
-  const RecoverSwapFundsFailure({required this.exception});
+/// Failure state emitted when the deposit cannot be reclaimed.
+final class ReclaimDepositFailure extends ReclaimDepositState {
+  /// Creates a [ReclaimDepositFailure] state.
+  const ReclaimDepositFailure({required this.exception});
 
-  /// Error that prevented the swap funds from being recovered.
+  /// Error that prevented the deposit from being reclaimed.
   final SyriusException exception;
 
   @override

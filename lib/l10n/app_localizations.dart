@@ -676,11 +676,11 @@ abstract class AppLocalizations {
   /// **'Error while joining swap'**
   String get errorJoiningSwap;
 
-  /// No description provided for @errorReclaimingSwapFunds.
+  /// No description provided for @errorReclaimingDeposit.
   ///
   /// In en, this message translates to:
-  /// **'Error while reclaiming swap funds'**
-  String get errorReclaimingSwapFunds;
+  /// **'Error while reclaiming deposit'**
+  String get errorReclaimingDeposit;
 
   /// No description provided for @errorRemovingTokenFromFavorites.
   ///
@@ -1420,23 +1420,23 @@ abstract class AppLocalizations {
   /// **'You will receive the swapped funds to this address.'**
   String get receiveSwappedFundsToAddress;
 
-  /// No description provided for @recoverDeposit.
+  /// No description provided for @reclaimDeposit.
   ///
   /// In en, this message translates to:
-  /// **'Recover deposit'**
-  String get recoverDeposit;
+  /// **'Reclaim deposit'**
+  String get reclaimDeposit;
 
-  /// No description provided for @recoverDepositedFundsWithDepositId.
+  /// No description provided for @reclaimExpiredDepositWithId.
   ///
   /// In en, this message translates to:
-  /// **'If you have lost access to the machine that a swap was started on, the deposited funds can be recovered with the deposit ID.\n\nIf you don\'t have the deposit ID, please refer to the swap tutorial for instructions on how to recover it using a block explorer.'**
-  String get recoverDepositedFundsWithDepositId;
+  /// **'If you have lost access to the machine that a swap was started on, the expired deposit can be reclaimed with the deposit ID.\n\nIf you don\'t have the deposit ID, please refer to the swap tutorial for instructions on how to find it using a block explorer.'**
+  String get reclaimExpiredDepositWithId;
 
-  /// No description provided for @recoveryTransactionSentFundsShortly.
+  /// No description provided for @reclaimTransactionSentFundsShortly.
   ///
   /// In en, this message translates to:
-  /// **'Recovery transaction sent. You will receive the funds shortly.'**
-  String get recoveryTransactionSentFundsShortly;
+  /// **'Reclaim transaction sent. You will receive the funds shortly.'**
+  String get reclaimTransactionSentFundsShortly;
 
   /// No description provided for @register.
   ///

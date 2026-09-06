@@ -3,14 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/model/model.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/recover_swap_funds/bloc/recover_swap_funds_bloc.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/reclaim_deposit/bloc/reclaim_deposit_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
+import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-/// Records and displays foreground feedback for swap-fund recovery.
-class RecoverSwapFundsListener extends StatelessWidget {
-  /// Creates a [RecoverSwapFundsListener].
-  const RecoverSwapFundsListener({
+/// Displays foreground feedback for a deposit reclaim.
+class ReclaimDepositListener extends StatelessWidget {
+  /// Creates a [ReclaimDepositListener].
+  const ReclaimDepositListener({
     required this._child,
     required this._successMessage,
     super.key,
@@ -21,14 +22,14 @@ class RecoverSwapFundsListener extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<RecoverSwapFundsBloc, RecoverSwapFundsState>(
+    return BlocListener<ReclaimDepositBloc, ReclaimDepositState>(
       listener: _onStateChanged,
       child: _child,
     );
   }
 
-  void _onStateChanged(BuildContext context, RecoverSwapFundsState state) {
-    if (state case RecoverSwapFundsDone(:final block)) {
+  void _onStateChanged(BuildContext context, ReclaimDepositState state) {
+    if (state case ReclaimDepositDone(:final AccountBlockTemplate block)) {
       unawaited(
         NotificationUtils.showForegroundNotification(
           context,
@@ -40,12 +41,14 @@ class RecoverSwapFundsListener extends StatelessWidget {
           ),
         ),
       );
-    } else if (state case RecoverSwapFundsFailure(:final exception)) {
+    } else if (state case ReclaimDepositFailure(
+      :final SyriusException exception,
+    )) {
       unawaited(
         NotificationUtils.showForegroundError(
           context,
           exception,
-          context.l10n.errorReclaimingSwapFunds,
+          context.l10n.errorReclaimingDeposit,
         ),
       );
     }

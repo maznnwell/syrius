@@ -1,22 +1,22 @@
-part of 'recover_swap_funds_bloc.dart';
+part of 'reclaim_deposit_bloc.dart';
 
-/// Base class for recover-swap-funds events.
-sealed class RecoverSwapFundsEvent extends Equatable {
-  /// Creates a [RecoverSwapFundsEvent].
-  const RecoverSwapFundsEvent();
+/// Base class for reclaim-deposit events.
+sealed class ReclaimDepositEvent extends Equatable {
+  /// Creates a [ReclaimDepositEvent].
+  const ReclaimDepositEvent();
 
   @override
   List<Object> get props => <Object>[];
 }
 
-/// Requests recovery of funds from an expired HTLC.
-final class RecoverSwapFundsRequested extends RecoverSwapFundsEvent {
-  /// Creates a [RecoverSwapFundsRequested] event.
-  const RecoverSwapFundsRequested({required this.htlcId});
+/// Requests that an expired deposit be reclaimed.
+final class ReclaimDepositRequested extends ReclaimDepositEvent {
+  /// Creates a [ReclaimDepositRequested] event.
+  const ReclaimDepositRequested({required this.depositId});
 
-  /// Identifier of the HTLC whose funds should be recovered.
-  final Hash htlcId;
+  /// Identifier of the deposit to reclaim.
+  final Hash depositId;
 
   @override
-  List<Object> get props => <Object>[htlcId];
+  List<Object> get props => <Object>[depositId];
 }

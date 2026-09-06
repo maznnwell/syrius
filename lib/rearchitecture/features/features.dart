@@ -42,7 +42,7 @@ export 'pillars_by_owner/pillars_by_owner.dart';
 export 'plasma_stats/plasma_stats.dart';
 export 'realtime_statistics/realtime_statistics.dart';
 export 'receive/receive.dart';
-export 'recover_swap_funds/recover_swap_funds.dart';
+export 'reclaim_deposit/reclaim_deposit.dart';
 export 'refresh_button/refresh_button.dart';
 export 'revoke_pillar/revoke_pillar.dart';
 export 'revoke_sentinel/revoke_sentinel.dart';
