@@ -51,15 +51,15 @@ class _ViewState extends State<_View> {
   Widget build(BuildContext context) {
     return BlocBuilder<ReclaimDepositBloc, ReclaimDepositState>(
       builder: (_, ReclaimDepositState state) => BaseModal(
-        title: state is ReclaimDepositDone ? null : context.l10n.reclaimDeposit,
+        title: context.l10n.reclaimDeposit,
         child: state is ReclaimDepositDone
-            ? _buildPendingFundsView()
+            ? _buildDoneView()
             : _buildSearchView(),
       ),
     );
   }
 
-  Widget _buildPendingFundsView() {
+  Widget _buildDoneView() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       spacing: kVerticalGap16.height!,

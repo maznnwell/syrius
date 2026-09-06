@@ -4,12 +4,12 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buil
 
 class BaseModal extends StatelessWidget {
   const BaseModal({
-    required this._child, this._title,
+    required this._child, required this._title,
     super.key,
   });
 
   final Widget _child;
-  final String? _title;
+  final String _title;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class BaseModal extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Text(
-                  _title ?? '',
+                  _title,
                   style: context.textTheme.titleLarge,
                 ),
                 IconButton(
