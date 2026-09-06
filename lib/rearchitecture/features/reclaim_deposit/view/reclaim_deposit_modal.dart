@@ -5,7 +5,6 @@ import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap_options/widgets/view_swap_tutorial_button.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/reclaim_deposit/bloc/reclaim_deposit_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/reclaim_deposit/widgets/reclaim_deposit_button.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/reclaim_deposit/widgets/reclaim_deposit_listener.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 
@@ -50,17 +49,12 @@ class _ViewState extends State<_View> {
 
   @override
   Widget build(BuildContext context) {
-    return ReclaimDepositListener(
-      successMessage: context.l10n.reclaimTransactionSentFundsShortly,
-      child: BlocBuilder<ReclaimDepositBloc, ReclaimDepositState>(
-        builder: (_, ReclaimDepositState state) => BaseModal(
-          title: state is ReclaimDepositDone
-              ? null
-              : context.l10n.reclaimDeposit,
-          child: state is ReclaimDepositDone
-              ? _buildPendingFundsView()
-              : _buildSearchView(),
-        ),
+    return BlocBuilder<ReclaimDepositBloc, ReclaimDepositState>(
+      builder: (_, ReclaimDepositState state) => BaseModal(
+        title: state is ReclaimDepositDone ? null : context.l10n.reclaimDeposit,
+        child: state is ReclaimDepositDone
+            ? _buildPendingFundsView()
+            : _buildSearchView(),
       ),
     );
   }
@@ -115,6 +109,7 @@ class _ViewState extends State<_View> {
               isEnabled: depositIdError == null && value.text.isNotEmpty,
               text: context.l10n.reclaimDeposit,
               loadingText: context.l10n.sendingTransaction,
+              successMessage: context.l10n.reclaimTransactionSentFundsShortly,
               instructionText: context.l10n.inputDepositId,
             ),
           ],

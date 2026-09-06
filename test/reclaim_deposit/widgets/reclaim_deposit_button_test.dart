@@ -28,6 +28,7 @@ void main() {
               isEnabled: true,
               text: 'Reclaim',
               loadingText: 'Reclaiming',
+              successMessage: 'Reclaim submitted',
             ),
           ),
         ),

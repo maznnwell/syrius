@@ -27,10 +27,7 @@ class ReclaimableSwapView extends StatelessWidget {
         zenon: zenon!,
         zenonAddressUtils: ZenonAddressUtils(),
       ),
-      child: ReclaimDepositListener(
-        successMessage: context.l10n.swapReclaimBlockCreated,
-        child: _View(swap: _swap),
-      ),
+      child: _View(swap: _swap),
     );
   }
 }
@@ -118,6 +115,7 @@ class _ViewState extends State<_View> {
             isEnabled: true,
             text: context.l10n.reclaimDeposit,
             loadingText: context.l10n.reclaimingFundsPleaseWait,
+            successMessage: context.l10n.swapReclaimBlockCreated,
           ),
         HtlcSwapDetailsWidget(swap: widget._swap),
       ],
