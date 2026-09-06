@@ -94,7 +94,7 @@ void main() {
       ),
       expect: () => <RecoverSwapFundsState>[
         const RecoverSwapFundsLoading(),
-        const RecoverSwapFundsDone(),
+        RecoverSwapFundsDone(block: transactionParams),
       ],
       verify: (_) {
         verify(() => htlcApi.getById(htlcId)).called(1);

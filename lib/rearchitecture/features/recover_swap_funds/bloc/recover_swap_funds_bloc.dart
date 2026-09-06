@@ -64,15 +64,16 @@ class RecoverSwapFundsBloc
 
       final AccountBlockTemplate transactionParams = _zenon.embedded.htlc
           .reclaim(event.htlcId);
-      await _accountBlockUtils.createAccountBlock(
-        transactionParams,
-        'reclaim swap funds',
-        address: htlc.timeLocked,
-        waitForRequiredPlasma: true,
-      );
+      final AccountBlockTemplate block = await _accountBlockUtils
+          .createAccountBlock(
+            transactionParams,
+            'reclaim swap funds',
+            address: htlc.timeLocked,
+            waitForRequiredPlasma: true,
+          );
 
       _zenonAddressUtils.refreshBalance();
-      emit(const RecoverSwapFundsDone());
+      emit(RecoverSwapFundsDone(block: block));
     } on SyriusException catch (error, stackTrace) {
       addError(error, stackTrace);
       emit(RecoverSwapFundsFailure(exception: error));

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 
+export 'htlc_swap_extension.dart';
+
 extension P2pSwapStateLocalization on P2pSwapState {
   String statusText(BuildContext context) => switch (this) {
     P2pSwapState.pending => context.l10n.starting,

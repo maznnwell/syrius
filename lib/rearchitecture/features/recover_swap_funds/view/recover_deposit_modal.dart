@@ -19,13 +19,12 @@ class RecoverDepositModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<RecoverSwapFundsBloc>(
-      create: (_) =>
-          RecoverSwapFundsBloc(
-            accountBlockUtils: AccountBlockUtils(),
-            walletAddresses: kDefaultAddressList.whereType<String>().toSet(),
-            zenon: zenon!,
-            zenonAddressUtils: ZenonAddressUtils(),
-          ),
+      create: (_) => RecoverSwapFundsBloc(
+        accountBlockUtils: AccountBlockUtils(),
+        walletAddresses: kDefaultAddressList.whereType<String>().toSet(),
+        zenon: zenon!,
+        zenonAddressUtils: ZenonAddressUtils(),
+      ),
       child: const _View(),
     );
   }
@@ -50,15 +49,14 @@ class _ViewState extends State<_View> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<RecoverSwapFundsBloc, RecoverSwapFundsState>(
-      builder: (_, RecoverSwapFundsState state) =>
-          BaseModal(
-            title: state is RecoverSwapFundsDone
-                ? null
-                : context.l10n.recoverDeposit,
-            child: state is RecoverSwapFundsDone
-                ? _buildPendingFundsView()
-                : _buildSearchView(state),
-          ),
+      builder: (_, RecoverSwapFundsState state) => BaseModal(
+        title: state is RecoverSwapFundsDone
+            ? null
+            : context.l10n.recoverDeposit,
+        child: state is RecoverSwapFundsDone
+            ? _buildPendingFundsView()
+            : _buildSearchView(state),
+      ),
     );
   }
 
@@ -108,15 +106,17 @@ class _ViewState extends State<_View> {
               controller: _depositIdController,
             ),
             if (state case RecoverSwapFundsFailure(
-                :final SyriusException exception,
+              :final SyriusException exception,
             ))
               SwapWarning(
                 text: exception.toString(),
               ),
             RecoverSwapFundsButton(
-              depositId: value.text,
+              htlcId: value.text,
               isEnabled: depositIdError == null && value.text.isNotEmpty,
-              isLoading: state is RecoverSwapFundsLoading,
+              text: context.l10n.recoverDeposit,
+              loadingText: context.l10n.sendingTransaction,
+              instructionText: context.l10n.inputDepositId,
             ),
           ],
         );

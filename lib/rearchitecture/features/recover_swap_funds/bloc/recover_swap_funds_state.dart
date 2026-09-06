@@ -24,7 +24,13 @@ final class RecoverSwapFundsLoading extends RecoverSwapFundsState {
 /// Success state emitted after the recovery transaction is submitted.
 final class RecoverSwapFundsDone extends RecoverSwapFundsState {
   /// Creates a [RecoverSwapFundsDone] state.
-  const RecoverSwapFundsDone();
+  const RecoverSwapFundsDone({required this.block});
+
+  /// The submitted reclaim block.
+  final AccountBlockTemplate block;
+
+  @override
+  List<Object> get props => <Object>[block];
 }
 
 /// Failure state emitted when swap funds cannot be recovered.

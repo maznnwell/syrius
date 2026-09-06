@@ -74,10 +74,44 @@ void main() {
       expect(decodedSwap.toToken?.symbol, 'QSR');
       expect(decodedSwap.toToken?.decimals, 8);
     });
+
+    test('returns the initial HTLC as the outgoing funded HTLC', () {
+      final HtlcSwap swap = _buildSwap();
+
+      expect(
+        swap.fundedHtlc,
+        (id: 'initial-htlc-id', expirationTime: 1000),
+      );
+    });
+
+    test('returns the counter HTLC as the incoming funded HTLC', () {
+      final HtlcSwap swap = _buildSwap(
+        direction: P2pSwapDirection.incoming,
+        counterHtlcId: 'counter-htlc-id',
+        counterHtlcExpirationTime: 2000,
+      );
+
+      expect(
+        swap.fundedHtlc,
+        (id: 'counter-htlc-id', expirationTime: 2000),
+      );
+    });
+
+    test('has no incoming funded HTLC before the counter HTLC exists', () {
+      final HtlcSwap swap = _buildSwap(
+        direction: P2pSwapDirection.incoming,
+      );
+
+      expect(swap.fundedHtlc, isNull);
+    });
   });
 }
 
-HtlcSwap _buildSwap() => HtlcSwap(
+HtlcSwap _buildSwap({
+  P2pSwapDirection direction = P2pSwapDirection.outgoing,
+  String? counterHtlcId,
+  int? counterHtlcExpirationTime,
+}) => HtlcSwap(
   hashLock: 'hash-lock',
   initialHtlcId: 'initial-htlc-id',
   initialHtlcExpirationTime: 1000,
@@ -85,7 +119,7 @@ HtlcSwap _buildSwap() => HtlcSwap(
   id: 'swap-id',
   chainId: 1,
   type: P2pSwapType.native,
-  direction: P2pSwapDirection.outgoing,
+  direction: direction,
   selfAddress: 'self-address',
   counterpartyAddress: 'counterparty-address',
   fromAmount: BigInt.from(100),
@@ -96,4 +130,6 @@ HtlcSwap _buildSwap() => HtlcSwap(
   state: P2pSwapState.pending,
   toAmount: BigInt.from(200),
   toToken: kQsrCoin,
+  counterHtlcId: counterHtlcId,
+  counterHtlcExpirationTime: counterHtlcExpirationTime,
 );
