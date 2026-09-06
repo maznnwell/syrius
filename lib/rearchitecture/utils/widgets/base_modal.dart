@@ -4,7 +4,8 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buil
 
 class BaseModal extends StatelessWidget {
   const BaseModal({
-    required this._child, required this._title,
+    required this._child,
+    required this._title,
     super.key,
   });
 

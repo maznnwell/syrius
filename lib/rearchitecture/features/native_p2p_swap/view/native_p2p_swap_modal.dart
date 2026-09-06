@@ -14,7 +14,7 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/error_widget.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_widget.dart';
-import 'package:znn_sdk_dart/src/model/nom/account_block_template.dart';
+import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class NativeP2pSwapModal extends StatelessWidget {
   const NativeP2pSwapModal({
@@ -111,7 +111,9 @@ class _View extends StatelessWidget {
           toastMessage: context.l10n.swapCompletedFundsSoon,
         ),
       );
-    } else if (state case CompleteSwapFailure(:final exception)) {
+    } else if (state case CompleteSwapFailure(
+      :final SyriusException exception,
+    )) {
       unawaited(
         NotificationUtils.showForegroundError(
           context,

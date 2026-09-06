@@ -15,14 +15,14 @@ final FilledButtonThemeData _kFilledButtonThemeData = FilledButtonThemeData(
   style: FilledButton.styleFrom(
     disabledMouseCursor: SystemMouseCursors.forbidden,
     enabledMouseCursor: SystemMouseCursors.click,
-  )
+  ),
 );
 
 final IconButtonThemeData _kIconButtonThemeData = IconButtonThemeData(
-    style: FilledButton.styleFrom(
-      disabledMouseCursor: SystemMouseCursors.forbidden,
-      enabledMouseCursor: SystemMouseCursors.click,
-    )
+  style: FilledButton.styleFrom(
+    disabledMouseCursor: SystemMouseCursors.forbidden,
+    enabledMouseCursor: SystemMouseCursors.click,
+  ),
 );
 
 final OutlinedButtonThemeData _kOutlinedButtonThemeData =

@@ -16,26 +16,17 @@ extension BuildContextExtension on BuildContext {
   TextTheme get textTheme => themeData.textTheme;
 
   /// Whether the app is currently in dark mode
-  bool get isDarkMode =>
-      Theme
-          .of(this)
-          .brightness == Brightness.dark;
+  bool get isDarkMode => Theme.of(this).brightness == Brightness.dark;
 
   /// Return the current new theme data
   //TODO(maznnwell): to be deleted/replaced
   ThemeData get newThemeData => isDarkMode ? newDarkTheme : newLightTheme;
 
   /// Returns the current app view height in logical pixels
-  double get viewportHeight =>
-      MediaQuery
-          .sizeOf(this)
-          .height;
+  double get viewportHeight => MediaQuery.sizeOf(this).height;
 
   /// Returns the current app view width in logical pixels
-  double get viewportWidth =>
-      MediaQuery
-          .sizeOf(this)
-          .width;
+  double get viewportWidth => MediaQuery.sizeOf(this).width;
 
   /// Max height of [showCustomDialog]
   double get customDialogMaxHeight =>

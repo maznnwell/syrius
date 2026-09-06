@@ -21,10 +21,12 @@ class ClearContentButton extends StatelessWidget {
       builder: (_, TextEditingValue value, _) {
         final bool isActive = value.text.isNotEmpty;
         return IconButton(
-          onPressed: isActive ? () {
-            _controller.clear();
-            _onClear?.call();
-          } : null,
+          onPressed: isActive
+              ? () {
+                  _controller.clear();
+                  _onClear?.call();
+                }
+              : null,
           icon: Icon(
             Icons.clear,
             color: isActive ? null : context.newThemeData.disabledColor,

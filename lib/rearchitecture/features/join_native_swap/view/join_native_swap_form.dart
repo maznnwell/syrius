@@ -214,7 +214,9 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
   ) {
     if (state is JoinNativeSwapDone) {
       Navigator.pop(context, state.swap.id);
-    } else if (state case JoinNativeSwapFailure(:final exception)) {
+    } else if (state case JoinNativeSwapFailure(
+      :final SyriusException exception,
+    )) {
       unawaited(
         NotificationUtils.showForegroundError(
           context,

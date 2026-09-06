@@ -26,7 +26,7 @@ List<Token> getTokensWithBalance({
 }) {
   final List<Token> tokens = <Token>[];
   final List<BalanceInfoListItem> balanceInfoList =
-  accountInfo.balanceInfoList!;
+      accountInfo.balanceInfoList!;
 
   for (final BalanceInfoListItem balanceInfo in balanceInfoList) {
     final BigInt balance = balanceInfo.balance!;

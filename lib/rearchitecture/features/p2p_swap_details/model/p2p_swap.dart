@@ -2,6 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 part 'p2p_swap.freezed.dart';
+
 part 'p2p_swap.g.dart';
 
 enum P2pSwapType {
@@ -47,7 +48,6 @@ sealed class P2pSwap with _$P2pSwap {
     required String id,
     required int chainId,
     required P2pSwapType type,
-    @Default(P2pSwapMode.htlc) P2pSwapMode mode,
     required P2pSwapDirection direction,
     required String selfAddress,
     required String counterpartyAddress,
@@ -57,6 +57,7 @@ sealed class P2pSwap with _$P2pSwap {
     required P2pSwapChain toChain,
     required int startTime,
     required P2pSwapState state,
+    @Default(P2pSwapMode.htlc) P2pSwapMode mode,
     BigInt? toAmount,
     Token? toToken,
     String? counterHtlcId,

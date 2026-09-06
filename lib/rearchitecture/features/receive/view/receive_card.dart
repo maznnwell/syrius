@@ -82,7 +82,7 @@ class _PopulatedState extends State<_Populated> {
   void initState() {
     super.initState();
     final Token networkZnn = widget.assets.firstWhere(
-          (Token asset) => asset.tokenStandard.toString() == znnTokenStandard,
+      (Token asset) => asset.tokenStandard.toString() == znnTokenStandard,
     );
     _tokenNotifier = .new(networkZnn);
   }
