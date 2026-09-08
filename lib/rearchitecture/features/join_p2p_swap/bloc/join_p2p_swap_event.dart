@@ -1,18 +1,18 @@
-part of 'join_native_swap_bloc.dart';
+part of 'join_p2p_swap_bloc.dart';
 
 /// Base class for join-native-swap events.
-sealed class JoinNativeSwapEvent extends Equatable {
-  /// Creates a [JoinNativeSwapEvent].
-  const JoinNativeSwapEvent();
+sealed class JoinP2pSwapEvent extends Equatable {
+  /// Creates a [JoinP2pSwapEvent].
+  const JoinP2pSwapEvent();
 
   @override
   List<Object?> get props => <Object?>[];
 }
 
 /// Requests creation of an incoming HTLC swap.
-final class JoinNativeSwapRequested extends JoinNativeSwapEvent {
-  /// Creates a [JoinNativeSwapRequested] event.
-  const JoinNativeSwapRequested({
+final class JoinP2pSwapRequested extends JoinP2pSwapEvent {
+  /// Creates a [JoinP2pSwapRequested] event.
+  const JoinP2pSwapRequested({
     required this.initialHtlc,
     required this.fromToken,
     required this.toToken,

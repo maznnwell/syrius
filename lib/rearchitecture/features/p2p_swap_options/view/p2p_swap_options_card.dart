@@ -132,7 +132,7 @@ class _View extends StatelessWidget {
 
     final String? swapId = await showCustomDialog<String>(
       context: context,
-      content: const JoinNativeSwapModal(),
+      content: const JoinP2pSwapModal(),
     );
 
     if (swapId == null || !context.mounted) {

@@ -8,9 +8,9 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dar
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-class MockJoinNativeSwapBloc
-    extends MockBloc<JoinNativeSwapEvent, JoinNativeSwapState>
-    implements JoinNativeSwapBloc {}
+class MockJoinP2pSwapBloc
+    extends MockBloc<JoinP2pSwapEvent, JoinP2pSwapState>
+    implements JoinP2pSwapBloc {}
 
 void main() {
   testWidgets('dispatches a join request to the provided bloc', (
@@ -28,11 +28,11 @@ void main() {
       keyMaxSize: htlcPreimageMaxLength,
       hashLock: <int>[4, 5, 6],
     );
-    final MockJoinNativeSwapBloc bloc = MockJoinNativeSwapBloc();
-    when(() => bloc.state).thenReturn(const JoinNativeSwapInitial());
+    final MockJoinP2pSwapBloc bloc = MockJoinP2pSwapBloc();
+    when(() => bloc.state).thenReturn(const JoinP2pSwapInitial());
 
     await tester.pumpWidget(
-      BlocProvider<JoinNativeSwapBloc>.value(
+      BlocProvider<JoinP2pSwapBloc>.value(
         value: bloc,
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -54,7 +54,7 @@ void main() {
 
     verify(
       () => bloc.add(
-        JoinNativeSwapRequested(
+        JoinP2pSwapRequested(
           initialHtlc: initialHtlc,
           fromToken: kZnnCoin,
           toToken: kQsrCoin,

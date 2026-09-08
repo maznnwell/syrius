@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/join_native_swap/bloc/join_native_swap_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap_details/p2p_swap_details.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/instruction_button.dart';
@@ -27,16 +26,16 @@ class JoinSwapButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<JoinNativeSwapBloc, JoinNativeSwapState>(
-      builder: (BuildContext context, JoinNativeSwapState state) {
+    return BlocBuilder<JoinP2pSwapBloc, JoinP2pSwapState>(
+      builder: (BuildContext context, JoinP2pSwapState state) {
         return InstructionButton(
           text: context.l10n.joinSwap,
           instructionText: context.l10n.inputAmountToSend,
           loadingText: context.l10n.sendingTransaction,
           isEnabled: _isEnabled,
-          isLoading: state is JoinNativeSwapLoading,
-          onPressed: () => context.read<JoinNativeSwapBloc>().add(
-            JoinNativeSwapRequested(
+          isLoading: state is JoinP2pSwapLoading,
+          onPressed: () => context.read<JoinP2pSwapBloc>().add(
+            JoinP2pSwapRequested(
               initialHtlc: _initialHtlc,
               fromToken: _fromToken,
               toToken: _toToken,

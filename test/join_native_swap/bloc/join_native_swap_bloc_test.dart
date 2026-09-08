@@ -27,7 +27,7 @@ void main() {
     registerFallbackValue(FakeHtlcSwap());
   });
 
-  group('JoinNativeSwapBloc', () {
+  group('JoinP2pSwapBloc', () {
     const int now = 1000;
     const int counterHtlcExpirationTime = now + Duration.secondsPerHour;
     final BigInt fromAmount = BigInt.from(10);
@@ -44,9 +44,9 @@ void main() {
     late HtlcInfo initialHtlc;
     late AccountBlockTemplate transactionParams;
     late AccountBlockTemplate response;
-    late JoinNativeSwapBloc bloc;
+    late JoinP2pSwapBloc bloc;
 
-    JoinNativeSwapRequested buildEvent() => JoinNativeSwapRequested(
+    JoinP2pSwapRequested buildEvent() => JoinP2pSwapRequested(
       initialHtlc: initialHtlc,
       fromToken: kZnnCoin,
       toToken: kQsrCoin,
@@ -109,7 +109,7 @@ void main() {
       ).thenAnswer((_) async {});
       when(() => zenonAddressUtils.refreshBalance()).thenAnswer((_) {});
 
-      bloc = JoinNativeSwapBloc(
+      bloc = JoinP2pSwapBloc(
         accountBlockUtils: accountBlockUtils,
         htlcSwapsService: htlcSwapsService,
         zenon: zenon,
@@ -119,13 +119,13 @@ void main() {
     });
 
     test('initial state is correct', () {
-      expect(bloc.state, const JoinNativeSwapInitial());
+      expect(bloc.state, const JoinP2pSwapInitial());
     });
 
-    blocTest<JoinNativeSwapBloc, JoinNativeSwapState>(
+    blocTest<JoinP2pSwapBloc, JoinP2pSwapState>(
       'creates, stores, and emits the incoming HTLC swap',
       build: () => bloc,
-      act: (JoinNativeSwapBloc bloc) => bloc.add(buildEvent()),
+      act: (JoinP2pSwapBloc bloc) => bloc.add(buildEvent()),
       verify: (_) {
         verify(
           () => htlcApi.create(
@@ -173,12 +173,12 @@ void main() {
         );
       },
       expect: () => <Matcher>[
-        isA<JoinNativeSwapLoading>(),
-        isA<JoinNativeSwapDone>(),
+        isA<JoinP2pSwapLoading>(),
+        isA<JoinP2pSwapDone>(),
       ],
     );
 
-    blocTest<JoinNativeSwapBloc, JoinNativeSwapState>(
+    blocTest<JoinP2pSwapBloc, JoinP2pSwapState>(
       'rejects a join request after the safe cutoff',
       setUp: () {
         initialHtlc = buildInitialHtlc(
@@ -189,10 +189,10 @@ void main() {
         );
       },
       build: () => bloc,
-      act: (JoinNativeSwapBloc bloc) => bloc.add(buildEvent()),
+      act: (JoinP2pSwapBloc bloc) => bloc.add(buildEvent()),
       expect: () => <Matcher>[
-        isA<JoinNativeSwapFailure>().having(
-          (JoinNativeSwapFailure state) => state.exception.message,
+        isA<JoinP2pSwapFailure>().having(
+          (JoinP2pSwapFailure state) => state.exception.message,
           'message',
           'This deposit will expire too soon for a safe swap.',
         ),
@@ -212,7 +212,7 @@ void main() {
       },
     );
 
-    blocTest<JoinNativeSwapBloc, JoinNativeSwapState>(
+    blocTest<JoinP2pSwapBloc, JoinP2pSwapState>(
       'emits [loading, failure] on SyriusException',
       setUp: () {
         when(
@@ -225,18 +225,18 @@ void main() {
         ).thenThrow(FailureException());
       },
       build: () => bloc,
-      act: (JoinNativeSwapBloc bloc) => bloc.add(buildEvent()),
+      act: (JoinP2pSwapBloc bloc) => bloc.add(buildEvent()),
       expect: () => <Matcher>[
-        isA<JoinNativeSwapLoading>(),
-        isA<JoinNativeSwapFailure>().having(
-          (JoinNativeSwapFailure state) => state.exception,
+        isA<JoinP2pSwapLoading>(),
+        isA<JoinP2pSwapFailure>().having(
+          (JoinP2pSwapFailure state) => state.exception,
           'exception',
           isA<FailureException>(),
         ),
       ],
     );
 
-    blocTest<JoinNativeSwapBloc, JoinNativeSwapState>(
+    blocTest<JoinP2pSwapBloc, JoinP2pSwapState>(
       'emits [loading, failure] on generic error',
       setUp: () {
         when(
@@ -244,11 +244,11 @@ void main() {
         ).thenThrow(StateError('boom'));
       },
       build: () => bloc,
-      act: (JoinNativeSwapBloc bloc) => bloc.add(buildEvent()),
+      act: (JoinP2pSwapBloc bloc) => bloc.add(buildEvent()),
       expect: () => <Matcher>[
-        isA<JoinNativeSwapLoading>(),
-        isA<JoinNativeSwapFailure>().having(
-          (JoinNativeSwapFailure state) => state.exception,
+        isA<JoinP2pSwapLoading>(),
+        isA<JoinP2pSwapFailure>().having(
+          (JoinP2pSwapFailure state) => state.exception,
           'exception',
           isA<FailureException>(),
         ),

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nested/nested.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/initial_htlc_validation/initial_htlc_validation.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/join_native_swap/bloc/join_native_swap_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/join_native_swap/view/join_native_swap_form.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/account_block_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
@@ -12,9 +10,9 @@ import 'package:zenon_syrius_wallet_flutter/utils/global.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 /// Modal containing the flow used to join a native P2P swap.
-class JoinNativeSwapModal extends StatelessWidget {
-  /// Creates a [JoinNativeSwapModal].
-  const JoinNativeSwapModal({
+class JoinP2pSwapModal extends StatelessWidget {
+  /// Creates a [JoinP2pSwapModal].
+  const JoinP2pSwapModal({
     super.key,
   });
 
@@ -22,8 +20,8 @@ class JoinNativeSwapModal extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: <SingleChildWidget>[
-        BlocProvider<JoinNativeSwapBloc>(
-          create: (_) => JoinNativeSwapBloc(
+        BlocProvider<JoinP2pSwapBloc>(
+          create: (_) => JoinP2pSwapBloc(
             accountBlockUtils: AccountBlockUtils(
               publishSuccessNotification: false,
             ),
@@ -61,7 +59,7 @@ class _View extends StatelessWidget {
             :final HtlcInfo htlc,
             :final Token token,
           ) =>
-            JoinNativeSwapForm(
+            JoinP2pSwapForm(
               accountInfo: accountInfo,
               initialHtlc: htlc,
               token: token,

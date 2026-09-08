@@ -11,23 +11,23 @@ import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/format_utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-part 'join_native_swap_event.dart';
+part 'join_p2p_swap_event.dart';
 
-part 'join_native_swap_state.dart';
+part 'join_p2p_swap_state.dart';
 
 /// A bloc that creates and stores an incoming HTLC swap.
-class JoinNativeSwapBloc
-    extends Bloc<JoinNativeSwapEvent, JoinNativeSwapState> {
-  /// Creates a [JoinNativeSwapBloc].
-  JoinNativeSwapBloc({
+class JoinP2pSwapBloc
+    extends Bloc<JoinP2pSwapEvent, JoinP2pSwapState> {
+  /// Creates a [JoinP2pSwapBloc].
+  JoinP2pSwapBloc({
     required this._accountBlockUtils,
     required this._htlcSwapsService,
     required this._zenon,
     required this._zenonAddressUtils,
     int Function()? unixTimeProvider,
   }) : _unixTimeProvider = unixTimeProvider ?? _currentUnixTime,
-       super(const JoinNativeSwapInitial()) {
-    on<JoinNativeSwapRequested>(_onJoinNativeSwapRequested);
+       super(const JoinP2pSwapInitial()) {
+    on<JoinP2pSwapRequested>(_onJoinP2pSwapRequested);
   }
 
   final AccountBlockUtils _accountBlockUtils;
@@ -38,9 +38,9 @@ class JoinNativeSwapBloc
 
   static int _currentUnixTime() => DateTime.now().unixTimestamp;
 
-  FutureOr<void> _onJoinNativeSwapRequested(
-    JoinNativeSwapRequested event,
-    Emitter<JoinNativeSwapState> emit,
+  FutureOr<void> _onJoinP2pSwapRequested(
+    JoinP2pSwapRequested event,
+    Emitter<JoinP2pSwapState> emit,
   ) async {
     try {
       final int now = _unixTimeProvider();
@@ -52,7 +52,7 @@ class JoinNativeSwapBloc
       final int counterHtlcExpirationTime =
           now + kCounterHtlcDuration.inSeconds;
 
-      emit(const JoinNativeSwapLoading());
+      emit(const JoinP2pSwapLoading());
 
       final AccountBlockTemplate transactionParams = _zenon.embedded.htlc
           .create(
@@ -96,13 +96,13 @@ class JoinNativeSwapBloc
 
       await _htlcSwapsService.storeSwap(swap);
       _zenonAddressUtils.refreshBalance();
-      emit(JoinNativeSwapDone(swap: swap));
+      emit(JoinP2pSwapDone(swap: swap));
     } on SyriusException catch (error, stackTrace) {
       addError(error, stackTrace);
-      emit(JoinNativeSwapFailure(exception: error));
+      emit(JoinP2pSwapFailure(exception: error));
     } on Object catch (error, stackTrace) {
       addError(error, stackTrace);
-      emit(JoinNativeSwapFailure(exception: FailureException()));
+      emit(JoinP2pSwapFailure(exception: FailureException()));
     }
   }
 }

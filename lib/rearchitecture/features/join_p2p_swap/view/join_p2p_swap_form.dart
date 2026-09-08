@@ -3,9 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/join_native_swap/bloc/join_native_swap_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/join_native_swap/widgets/join_swap_button.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/join_swap_availability/join_swap_availability.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
@@ -19,9 +17,9 @@ import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/swap_warnin
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 /// Form for reviewing and joining a validated native P2P swap.
-class JoinNativeSwapForm extends StatefulWidget {
-  /// Creates a [JoinNativeSwapForm].
-  const JoinNativeSwapForm({
+class JoinP2pSwapForm extends StatefulWidget {
+  /// Creates a [JoinP2pSwapForm].
+  const JoinP2pSwapForm({
     required this.accountInfo,
     required this.initialHtlc,
     required this.token,
@@ -38,10 +36,10 @@ class JoinNativeSwapForm extends StatefulWidget {
   final Token token;
 
   @override
-  State<JoinNativeSwapForm> createState() => _JoinNativeSwapFormState();
+  State<JoinP2pSwapForm> createState() => _JoinP2pSwapFormState();
 }
 
-class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
+class _JoinP2pSwapFormState extends State<JoinP2pSwapForm> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   final ValueNotifier<Token> _tokenNotifier = .new(kZnnCoin);
@@ -79,10 +77,10 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
         );
     final String reclaimBullet = context.l10n.reclaimFundsIfCounterpartyFails;
 
-    return BlocConsumer<JoinNativeSwapBloc, JoinNativeSwapState>(
-      listener: _onJoinNativeSwapStateChanged,
-      builder: (_, JoinNativeSwapState state) {
-        final bool isSwapLoading = state is JoinNativeSwapLoading;
+    return BlocConsumer<JoinP2pSwapBloc, JoinP2pSwapState>(
+      listener: _onJoinP2pSwapStateChanged,
+      builder: (_, JoinP2pSwapState state) {
+        final bool isSwapLoading = state is JoinP2pSwapLoading;
 
         return ListenableBuilder(
           listenable: Listenable.merge(<Listenable>[
@@ -208,13 +206,13 @@ class _JoinNativeSwapFormState extends State<JoinNativeSwapForm> {
     );
   }
 
-  void _onJoinNativeSwapStateChanged(
+  void _onJoinP2pSwapStateChanged(
     BuildContext context,
-    JoinNativeSwapState state,
+    JoinP2pSwapState state,
   ) {
-    if (state is JoinNativeSwapDone) {
+    if (state is JoinP2pSwapDone) {
       Navigator.pop(context, state.swap.id);
-    } else if (state case JoinNativeSwapFailure(
+    } else if (state case JoinP2pSwapFailure(
       :final SyriusException exception,
     )) {
       unawaited(
