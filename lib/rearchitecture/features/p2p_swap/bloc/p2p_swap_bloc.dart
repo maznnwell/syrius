@@ -2,25 +2,24 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap/model/p2p_swap.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
 
-part 'p2p_swap_details_event.dart';
+part 'p2p_swap_event.dart';
 
-part 'p2p_swap_details_state.dart';
+part 'p2p_swap_state.dart';
 
 /// A bloc that periodically fetches one persisted HTLC swap by id.
-class P2pSwapDetailsBloc
-    extends Bloc<P2pSwapDetailsEvent, P2pSwapDetailsState> {
-  /// Creates a [P2pSwapDetailsBloc].
-  P2pSwapDetailsBloc({
+class P2pSwapBloc extends Bloc<P2pSwapEvent, P2pSwapBlocState> {
+  /// Creates a [P2pSwapBloc].
+  P2pSwapBloc({
     required this._htlcSwapsService,
     required this._swapId,
     this.refreshInterval = const Duration(seconds: 5),
-  }) : super(const P2pSwapDetailsInitial()) {
-    on<P2pSwapDetailsRequested>(_onSwapDetailsRequested);
-    on<_P2pSwapDetailsRefreshRequested>(_onSwapDetailsRequested);
+  }) : super(const P2pSwapInitial()) {
+    on<P2pSwapRequested>(_onSwapRequested);
+    on<_P2pSwapRefreshRequested>(_onSwapRequested);
   }
 
   final HtlcSwapsService _htlcSwapsService;
@@ -31,21 +30,21 @@ class P2pSwapDetailsBloc
 
   Timer? _autoRefresher;
 
-  FutureOr<void> _onSwapDetailsRequested(
-    P2pSwapDetailsEvent event,
-    Emitter<P2pSwapDetailsState> emit,
+  FutureOr<void> _onSwapRequested(
+    P2pSwapEvent event,
+    Emitter<P2pSwapBlocState> emit,
   ) {
     try {
-      if (state is! P2pSwapDetailsPopulated) {
-        emit(const P2pSwapDetailsLoading());
+      if (state is! P2pSwapPopulated) {
+        emit(const P2pSwapLoading());
       }
 
-      emit(P2pSwapDetailsPopulated(swap: _getSwap()));
+      emit(P2pSwapPopulated(swap: _getSwap()));
     } on SyriusException catch (e, stackTrace) {
-      emit(P2pSwapDetailsFailure(exception: e));
+      emit(P2pSwapFailure(exception: e));
       addError(e, stackTrace);
     } on Object catch (e, stackTrace) {
-      emit(P2pSwapDetailsFailure(exception: FailureException()));
+      emit(P2pSwapFailure(exception: FailureException()));
       addError(e, stackTrace);
     } finally {
       _scheduleRefresh();
@@ -70,7 +69,7 @@ class P2pSwapDetailsBloc
       refreshInterval,
       () {
         if (!isClosed) {
-          add(const _P2pSwapDetailsRefreshRequested());
+          add(const _P2pSwapRefreshRequested());
         }
       },
     );

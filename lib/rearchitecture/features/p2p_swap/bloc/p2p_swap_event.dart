@@ -1,20 +1,20 @@
-part of 'p2p_swap_details_bloc.dart';
+part of 'p2p_swap_bloc.dart';
 
-/// Base class for swap-details events.
-sealed class P2pSwapDetailsEvent extends Equatable {
-  /// Creates a [P2pSwapDetailsEvent].
-  const P2pSwapDetailsEvent();
+/// Base class for single-swap events.
+sealed class P2pSwapEvent extends Equatable {
+  /// Creates a [P2pSwapEvent].
+  const P2pSwapEvent();
 
   @override
   List<Object?> get props => <Object?>[];
 }
 
-/// Requests the current swap details and starts periodic refreshes.
-final class P2pSwapDetailsRequested extends P2pSwapDetailsEvent {
-  /// Creates a [P2pSwapDetailsRequested] event.
-  const P2pSwapDetailsRequested();
+/// Requests the current swap and starts periodic refreshes.
+final class P2pSwapRequested extends P2pSwapEvent {
+  /// Creates a [P2pSwapRequested] event.
+  const P2pSwapRequested();
 }
 
-final class _P2pSwapDetailsRefreshRequested extends P2pSwapDetailsEvent {
-  const _P2pSwapDetailsRefreshRequested();
+final class _P2pSwapRefreshRequested extends P2pSwapEvent {
+  const _P2pSwapRefreshRequested();
 }

@@ -1,4 +1,4 @@
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap_details/model/p2p_swap.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap/model/p2p_swap.dart';
 
 /// Swap-specific projections for an [HtlcSwap].
 extension HtlcSwapExtension on HtlcSwap {

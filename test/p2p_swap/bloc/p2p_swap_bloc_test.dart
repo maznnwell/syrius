@@ -10,16 +10,16 @@ import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 class MockHtlcSwapsService extends Mock implements HtlcSwapsService {}
 
 void main() {
-  group('P2pSwapDetailsBloc', () {
+  group('P2pSwapBloc', () {
     const String swapId = 'swap-id';
 
     late MockHtlcSwapsService htlcSwapsService;
     late HtlcSwap swap;
 
-    P2pSwapDetailsBloc buildBloc({
+    P2pSwapBloc buildBloc({
       Duration refreshInterval = const Duration(minutes: 1),
     }) {
-      return P2pSwapDetailsBloc(
+      return P2pSwapBloc(
         htlcSwapsService: htlcSwapsService,
         refreshInterval: refreshInterval,
         swapId: swapId,
@@ -50,48 +50,48 @@ void main() {
       when(() => htlcSwapsService.getSwapById(swapId)).thenReturn(swap);
     });
 
-    test('initial state is P2pSwapDetailsInitial', () {
-      final P2pSwapDetailsBloc bloc = buildBloc();
+    test('initial state is P2pSwapInitial', () {
+      final P2pSwapBloc bloc = buildBloc();
       addTearDown(bloc.close);
 
-      expect(bloc.state, const P2pSwapDetailsInitial());
+      expect(bloc.state, const P2pSwapInitial());
     });
 
-    blocTest<P2pSwapDetailsBloc, P2pSwapDetailsState>(
+    blocTest<P2pSwapBloc, P2pSwapBlocState>(
       'fetches the swap and emits loading and populated states',
       build: buildBloc,
-      act: (P2pSwapDetailsBloc bloc) => bloc.add(
-        const P2pSwapDetailsRequested(),
+      act: (P2pSwapBloc bloc) => bloc.add(
+        const P2pSwapRequested(),
       ),
       verify: (_) {
         verify(() => htlcSwapsService.getSwapById(swapId)).called(1);
       },
-      expect: () => <P2pSwapDetailsState>[
-        const P2pSwapDetailsLoading(),
-        P2pSwapDetailsPopulated(swap: swap),
+      expect: () => <P2pSwapBlocState>[
+        const P2pSwapLoading(),
+        P2pSwapPopulated(swap: swap),
       ],
     );
 
-    blocTest<P2pSwapDetailsBloc, P2pSwapDetailsState>(
+    blocTest<P2pSwapBloc, P2pSwapBlocState>(
       'emits failure when the swap does not exist',
       setUp: () {
         when(() => htlcSwapsService.getSwapById(swapId)).thenReturn(null);
       },
       build: buildBloc,
-      act: (P2pSwapDetailsBloc bloc) => bloc.add(
-        const P2pSwapDetailsRequested(),
+      act: (P2pSwapBloc bloc) => bloc.add(
+        const P2pSwapRequested(),
       ),
       expect: () => <Object>[
-        const P2pSwapDetailsLoading(),
-        isA<P2pSwapDetailsFailure>().having(
-          (P2pSwapDetailsFailure state) => state.exception.message,
+        const P2pSwapLoading(),
+        isA<P2pSwapFailure>().having(
+          (P2pSwapFailure state) => state.exception.message,
           'message',
           'Swap does not exist',
         ),
       ],
     );
 
-    blocTest<P2pSwapDetailsBloc, P2pSwapDetailsState>(
+    blocTest<P2pSwapBloc, P2pSwapBlocState>(
       'emits generic failure when fetching throws unexpectedly',
       setUp: () {
         when(
@@ -99,26 +99,26 @@ void main() {
         ).thenThrow(Exception('boom'));
       },
       build: buildBloc,
-      act: (P2pSwapDetailsBloc bloc) => bloc.add(
-        const P2pSwapDetailsRequested(),
+      act: (P2pSwapBloc bloc) => bloc.add(
+        const P2pSwapRequested(),
       ),
       expect: () => <Object>[
-        const P2pSwapDetailsLoading(),
-        isA<P2pSwapDetailsFailure>().having(
-          (P2pSwapDetailsFailure state) => state.exception,
+        const P2pSwapLoading(),
+        isA<P2pSwapFailure>().having(
+          (P2pSwapFailure state) => state.exception,
           'exception',
           isA<FailureException>(),
         ),
       ],
     );
 
-    blocTest<P2pSwapDetailsBloc, P2pSwapDetailsState>(
+    blocTest<P2pSwapBloc, P2pSwapBlocState>(
       'periodically refreshes after the initial request',
       build: () => buildBloc(
         refreshInterval: const Duration(milliseconds: 10),
       ),
-      act: (P2pSwapDetailsBloc bloc) => bloc.add(
-        const P2pSwapDetailsRequested(),
+      act: (P2pSwapBloc bloc) => bloc.add(
+        const P2pSwapRequested(),
       ),
       wait: const Duration(milliseconds: 25),
       verify: (_) {
@@ -129,13 +129,13 @@ void main() {
     );
 
     test('cancels periodic refreshes when closed', () async {
-      final P2pSwapDetailsBloc bloc = buildBloc(
+      final P2pSwapBloc bloc = buildBloc(
         refreshInterval: const Duration(milliseconds: 10),
-      )..add(const P2pSwapDetailsRequested());
+      )..add(const P2pSwapRequested());
 
       await expectLater(
         bloc.stream,
-        emitsThrough(isA<P2pSwapDetailsPopulated>()),
+        emitsThrough(isA<P2pSwapPopulated>()),
       );
 
       await bloc.close();

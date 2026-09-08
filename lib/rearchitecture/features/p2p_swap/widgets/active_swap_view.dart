@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_vector_icons/flutter_vector_icons.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/complete_swap/widgets/complete_swap_button.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap_details/p2p_swap_details.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap/model/p2p_swap.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/exchange_rate_widget.dart';
@@ -9,7 +9,7 @@ import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_inf
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/swap_warning.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-/// Active native P2P swap content.
+/// Active P2P swap content.
 class ActiveSwapView extends StatefulWidget {
   /// Creates an [ActiveSwapView].
   const ActiveSwapView({required this._swap, super.key});

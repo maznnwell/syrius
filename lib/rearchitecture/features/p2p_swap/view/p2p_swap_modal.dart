@@ -24,11 +24,11 @@ class P2pSwapModal extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: <SingleChildWidget>[
-        BlocProvider<P2pSwapDetailsBloc>(
-          create: (_) => P2pSwapDetailsBloc(
+        BlocProvider<P2pSwapBloc>(
+          create: (_) => P2pSwapBloc(
             htlcSwapsService: htlcSwapsService!,
             swapId: swapId,
-          )..add(const P2pSwapDetailsRequested()),
+          )..add(const P2pSwapRequested()),
         ),
         BlocProvider<CompleteSwapBloc>(
           create: (_) => CompleteSwapBloc(
@@ -53,23 +53,22 @@ class _View extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<CompleteSwapBloc, CompleteSwapState>(
       listener: _onCompleteSwapStateChanged,
-      child: BlocBuilder<P2pSwapDetailsBloc, P2pSwapDetailsState>(
-        builder: (BuildContext context, P2pSwapDetailsState state) {
+      child: BlocBuilder<P2pSwapBloc, P2pSwapBlocState>(
+        builder: (BuildContext context, P2pSwapBlocState state) {
           return switch (state) {
-            P2pSwapDetailsPopulated(:final HtlcSwap swap) => BaseModal(
+            P2pSwapPopulated(:final HtlcSwap swap) => BaseModal(
               title: swap.state.statusText(context),
               child: _buildContent(swap),
             ),
-            P2pSwapDetailsFailure(:final SyriusException exception) =>
-              BaseModal(
-                title: context.l10n.error,
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: SyriusErrorWidget(exception),
-                ),
+            P2pSwapFailure(:final SyriusException exception) => BaseModal(
+              title: context.l10n.error,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: SyriusErrorWidget(exception),
               ),
-            P2pSwapDetailsInitial() => const SyriusLoadingWidget(),
-            P2pSwapDetailsLoading() => const SyriusLoadingWidget(),
+            ),
+            P2pSwapInitial() => const SyriusLoadingWidget(),
+            P2pSwapLoading() => const SyriusLoadingWidget(),
           };
         },
       ),
@@ -92,8 +91,8 @@ class _View extends StatelessWidget {
     CompleteSwapState state,
   ) {
     if (state case CompleteSwapDone(:final AccountBlockTemplate block)) {
-      context.read<P2pSwapDetailsBloc>().add(
-        const P2pSwapDetailsRequested(),
+      context.read<P2pSwapBloc>().add(
+        const P2pSwapRequested(),
       );
       unawaited(
         NotificationUtils.showForegroundNotification(

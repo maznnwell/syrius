@@ -1,44 +1,44 @@
-part of 'p2p_swap_details_bloc.dart';
+part of 'p2p_swap_bloc.dart';
 
-/// Base class for swap-details states.
-sealed class P2pSwapDetailsState extends Equatable {
-  /// Creates a [P2pSwapDetailsState].
-  const P2pSwapDetailsState();
+/// Base class for the single-swap bloc states.
+sealed class P2pSwapBlocState extends Equatable {
+  /// Creates a [P2pSwapBlocState].
+  const P2pSwapBlocState();
 
   @override
   List<Object?> get props => <Object?>[];
 }
 
-/// Initial state before swap details have been requested.
-final class P2pSwapDetailsInitial extends P2pSwapDetailsState {
-  /// Creates a [P2pSwapDetailsInitial] state.
-  const P2pSwapDetailsInitial();
+/// Initial state before the swap has been requested.
+final class P2pSwapInitial extends P2pSwapBlocState {
+  /// Creates a [P2pSwapInitial] state.
+  const P2pSwapInitial();
 }
 
-/// Loading state while swap details are being fetched.
-final class P2pSwapDetailsLoading extends P2pSwapDetailsState {
-  /// Creates a [P2pSwapDetailsLoading] state.
-  const P2pSwapDetailsLoading();
+/// Loading state while the swap is being fetched.
+final class P2pSwapLoading extends P2pSwapBlocState {
+  /// Creates a [P2pSwapLoading] state.
+  const P2pSwapLoading();
 }
 
-/// Populated state containing the latest swap details.
-final class P2pSwapDetailsPopulated extends P2pSwapDetailsState {
-  /// Creates a [P2pSwapDetailsPopulated] state.
-  const P2pSwapDetailsPopulated({required this.swap});
+/// Populated state containing the latest swap.
+final class P2pSwapPopulated extends P2pSwapBlocState {
+  /// Creates a [P2pSwapPopulated] state.
+  const P2pSwapPopulated({required this.swap});
 
-  /// The latest persisted HTLC swap details.
+  /// The latest persisted HTLC swap.
   final HtlcSwap swap;
 
   @override
   List<Object?> get props => <Object?>[swap];
 }
 
-/// Failure state emitted when swap details cannot be fetched.
-final class P2pSwapDetailsFailure extends P2pSwapDetailsState {
-  /// Creates a [P2pSwapDetailsFailure] state.
-  const P2pSwapDetailsFailure({required this.exception});
+/// Failure state emitted when the swap cannot be fetched.
+final class P2pSwapFailure extends P2pSwapBlocState {
+  /// Creates a [P2pSwapFailure] state.
+  const P2pSwapFailure({required this.exception});
 
-  /// Error that prevented swap details from being fetched.
+  /// Error that prevented the swap from being fetched.
   final SyriusException exception;
 
   @override
