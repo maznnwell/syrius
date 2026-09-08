@@ -135,7 +135,7 @@ class _PopulatedState extends State<_Populated> {
               unawaited(
                 showCustomDialog(
                   context: context,
-                  content: NativeP2pSwapModal(swapId: widget._swaps[index].id),
+                  content: P2pSwapModal(swapId: widget._swaps[index].id),
                 ),
               );
             },

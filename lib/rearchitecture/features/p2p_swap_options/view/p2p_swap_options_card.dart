@@ -180,7 +180,7 @@ class _View extends StatelessWidget {
     unawaited(
       showCustomDialog(
         context: context,
-        content: NativeP2pSwapModal(
+        content: P2pSwapModal(
           swapId: swapId,
         ),
       ),

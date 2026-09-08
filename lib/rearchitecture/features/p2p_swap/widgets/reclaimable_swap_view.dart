@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/native_p2p_swap/widgets/htlc_swap_details_widget.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/native_p2p_swap/widgets/swap_amount_info.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap_details/p2p_swap_details.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/reclaim_deposit/reclaim_deposit.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 

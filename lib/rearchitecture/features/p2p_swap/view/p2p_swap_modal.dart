@@ -6,18 +6,14 @@ import 'package:provider/single_child_widget.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/native_p2p_swap/widgets/active_swap_view.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/native_p2p_swap/widgets/completed_swap_view.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/native_p2p_swap/widgets/reclaimable_swap_view.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/native_p2p_swap/widgets/unsuccessful_swap_view.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/error_widget.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_widget.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-class NativeP2pSwapModal extends StatelessWidget {
-  const NativeP2pSwapModal({
+class P2pSwapModal extends StatelessWidget {
+  const P2pSwapModal({
     required this.swapId,
     super.key,
   });
