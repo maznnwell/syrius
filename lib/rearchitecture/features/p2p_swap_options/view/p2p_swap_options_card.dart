@@ -36,7 +36,7 @@ class P2pSwapOptionsCard extends StatelessWidget {
   }
 
   CardData _buildCardData({required BuildContext context}) => CardData(
-    title: context.l10n.p2pSwapOptionsTitle,
+    title: context.l10n.options,
     description: context.l10n.p2pSwapOptionsDescription,
   );
 }

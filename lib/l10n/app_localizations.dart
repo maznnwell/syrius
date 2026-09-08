@@ -1018,6 +1018,12 @@ abstract class AppLocalizations {
   /// **'The oldest swap entry will be deleted when a new swap is started.'**
   String get oldestSwapDeletedWhenFull;
 
+  /// No description provided for @options.
+  ///
+  /// In en, this message translates to:
+  /// **'Options'**
+  String get options;
+
   /// No description provided for @ownZtsToken.
   ///
   /// In en, this message translates to:

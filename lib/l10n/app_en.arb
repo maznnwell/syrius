@@ -171,6 +171,7 @@
   "noZtsTokensAvailable": "No ZTS tokens available",
   "numberOfDecimals": "Number of decimals: {number}",
   "oldestSwapDeletedWhenFull": "The oldest swap entry will be deleted when a new swap is started.",
+  "options": "Options",
   "ownZtsToken": "You own this ZTS token",
   "p2pSwapAddressHint": "Enter NoM address",
   "p2pSwapCounterpartyAddressDescription": "The address of the trading partner for the swap.",

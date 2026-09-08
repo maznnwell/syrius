@@ -556,6 +556,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'The oldest swap entry will be deleted when a new swap is started.';
 
   @override
+  String get options => 'Options';
+
+  @override
   String get ownZtsToken => 'You own this ZTS token';
 
   @override
