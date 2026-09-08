@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/multiple_balance/multiple_balance.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/start_native_swap/bloc/start_native_swap_bloc.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/bullet_point_card.dart';
@@ -11,9 +10,9 @@ import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_wid
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 /// A modal containing the form used to start a native P2P swap.
-class StartNativeSwapModal extends StatelessWidget {
+class StartP2pSwapModal extends StatelessWidget {
   /// Creates a native-swap modal.
-  const StartNativeSwapModal({super.key});
+  const StartP2pSwapModal({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -88,10 +87,10 @@ class _ViewState extends State<_View> {
   Widget _buildContent({
     required Map<String, AccountInfo> balances,
   }) {
-    return BlocConsumer<StartNativeSwapBloc, StartNativeSwapState>(
-      listener: _onStartNativeSwapStateChanged,
-      builder: (BuildContext context, StartNativeSwapState swapState) {
-        final bool isSwapLoading = swapState is StartNativeSwapLoading;
+    return BlocConsumer<StartP2pSwapBloc, StartP2pSwapState>(
+      listener: _onStartP2pSwapStateChanged,
+      builder: (BuildContext context, StartP2pSwapState swapState) {
+        final bool isSwapLoading = swapState is StartP2pSwapLoading;
 
         return ListenableBuilder(
           listenable: Listenable.merge(<Listenable?>[
@@ -219,8 +218,8 @@ class _ViewState extends State<_View> {
   }
 
   void _onStartButtonPressed(BuildContext context) {
-    context.read<StartNativeSwapBloc>().add(
-      StartNativeSwapRequested(
+    context.read<StartP2pSwapBloc>().add(
+      StartP2pSwapRequested(
         selfAddress: Address.parse(_sender.value),
         counterpartyAddress: Address.parse(_counterpartyAddressController.text),
         fromToken: _token,
@@ -231,11 +230,11 @@ class _ViewState extends State<_View> {
     );
   }
 
-  void _onStartNativeSwapStateChanged(
+  void _onStartP2pSwapStateChanged(
     BuildContext context,
-    StartNativeSwapState state,
+    StartP2pSwapState state,
   ) {
-    if (state is StartNativeSwapDone) {
+    if (state is StartP2pSwapDone) {
       Navigator.pop(context);
     }
   }

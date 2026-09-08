@@ -1,18 +1,18 @@
-part of 'start_native_swap_bloc.dart';
+part of 'start_p2p_swap_bloc.dart';
 
 /// Base class for start-HTLC-swap events.
-sealed class StartNativeSwapEvent extends Equatable {
-  /// Creates a [StartNativeSwapEvent].
-  const StartNativeSwapEvent();
+sealed class StartP2pSwapEvent extends Equatable {
+  /// Creates a [StartP2pSwapEvent].
+  const StartP2pSwapEvent();
 
   @override
   List<Object?> get props => <Object?>[];
 }
 
 /// Requests creation of an outgoing HTLC swap.
-final class StartNativeSwapRequested extends StartNativeSwapEvent {
-  /// Creates a [StartNativeSwapRequested] event.
-  const StartNativeSwapRequested({
+final class StartP2pSwapRequested extends StartP2pSwapEvent {
+  /// Creates a [StartP2pSwapRequested] event.
+  const StartP2pSwapRequested({
     required this.selfAddress,
     required this.counterpartyAddress,
     required this.fromToken,

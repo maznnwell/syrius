@@ -36,7 +36,7 @@ void main() {
     registerFallbackValue(FakeHtlcSwap());
   });
 
-  group('StartNativeSwapBloc', () {
+  group('StartP2pSwapBloc', () {
     const Duration expirationDuration = kInitialHtlcDuration;
     const int frontierTimestamp = 1000;
     final BigInt fromAmount = BigInt.one;
@@ -53,9 +53,9 @@ void main() {
     late MockZenonAddressUtils zenonAddressUtils;
     late AccountBlockTemplate transactionParams;
     late AccountBlockTemplate response;
-    late StartNativeSwapBloc bloc;
+    late StartP2pSwapBloc bloc;
 
-    StartNativeSwapRequested buildEvent() => StartNativeSwapRequested(
+    StartP2pSwapRequested buildEvent() => StartP2pSwapRequested(
       selfAddress: selfAddress,
       counterpartyAddress: counterpartyAddress,
       fromToken: kZnnCoin,
@@ -107,7 +107,7 @@ void main() {
       ).thenAnswer((_) async {});
       when(() => zenonAddressUtils.refreshBalance()).thenAnswer((_) {});
 
-      bloc = StartNativeSwapBloc(
+      bloc = StartP2pSwapBloc(
         accountBlockUtils: accountBlockUtils,
         htlcSwapsService: htlcSwapsService,
         zenon: zenon,
@@ -116,13 +116,13 @@ void main() {
     });
 
     test('initial state is correct', () {
-      expect(bloc.state, const StartNativeSwapInitial());
+      expect(bloc.state, const StartP2pSwapInitial());
     });
 
-    blocTest<StartNativeSwapBloc, StartNativeSwapState>(
+    blocTest<StartP2pSwapBloc, StartP2pSwapState>(
       'creates, stores, and emits the outgoing HTLC swap',
       build: () => bloc,
-      act: (StartNativeSwapBloc bloc) => bloc.add(buildEvent()),
+      act: (StartP2pSwapBloc bloc) => bloc.add(buildEvent()),
       verify: (_) {
         verify(
           () => htlcApi.create(
@@ -167,12 +167,12 @@ void main() {
         expect(swap.hashLock, Hash.digest(preimage).toString());
       },
       expect: () => <Matcher>[
-        isA<StartNativeSwapLoading>(),
-        isA<StartNativeSwapDone>(),
+        isA<StartP2pSwapLoading>(),
+        isA<StartP2pSwapDone>(),
       ],
     );
 
-    blocTest<StartNativeSwapBloc, StartNativeSwapState>(
+    blocTest<StartP2pSwapBloc, StartP2pSwapState>(
       'emits [loading, failure] on SyriusException',
       setUp: () {
         when(
@@ -185,18 +185,18 @@ void main() {
         ).thenThrow(FailureException());
       },
       build: () => bloc,
-      act: (StartNativeSwapBloc bloc) => bloc.add(buildEvent()),
+      act: (StartP2pSwapBloc bloc) => bloc.add(buildEvent()),
       expect: () => <Matcher>[
-        isA<StartNativeSwapLoading>(),
-        isA<StartNativeSwapFailure>().having(
-          (StartNativeSwapFailure state) => state.exception,
+        isA<StartP2pSwapLoading>(),
+        isA<StartP2pSwapFailure>().having(
+          (StartP2pSwapFailure state) => state.exception,
           'exception',
           isA<FailureException>(),
         ),
       ],
     );
 
-    blocTest<StartNativeSwapBloc, StartNativeSwapState>(
+    blocTest<StartP2pSwapBloc, StartP2pSwapState>(
       'emits [loading, failure] on generic exception',
       setUp: () {
         when(
@@ -209,11 +209,11 @@ void main() {
         ).thenThrow(Exception('boom'));
       },
       build: () => bloc,
-      act: (StartNativeSwapBloc bloc) => bloc.add(buildEvent()),
+      act: (StartP2pSwapBloc bloc) => bloc.add(buildEvent()),
       expect: () => <Matcher>[
-        isA<StartNativeSwapLoading>(),
-        isA<StartNativeSwapFailure>().having(
-          (StartNativeSwapFailure state) => state.exception,
+        isA<StartP2pSwapLoading>(),
+        isA<StartP2pSwapFailure>().having(
+          (StartP2pSwapFailure state) => state.exception,
           'exception',
           isA<FailureException>(),
         ),

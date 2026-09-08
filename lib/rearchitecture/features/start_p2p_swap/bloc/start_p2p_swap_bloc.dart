@@ -12,21 +12,21 @@ import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/format_utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-part 'start_native_swap_event.dart';
+part 'start_p2p_swap_event.dart';
 
-part 'start_native_swap_state.dart';
+part 'start_p2p_swap_state.dart';
 
 /// A bloc that creates and stores an outgoing HTLC swap.
-class StartNativeSwapBloc
-    extends Bloc<StartNativeSwapEvent, StartNativeSwapState> {
-  /// Creates a [StartNativeSwapBloc].
-  StartNativeSwapBloc({
+class StartP2pSwapBloc
+    extends Bloc<StartP2pSwapEvent, StartP2pSwapState> {
+  /// Creates a [StartP2pSwapBloc].
+  StartP2pSwapBloc({
     required this._accountBlockUtils,
     required this._htlcSwapsService,
     required this._zenon,
     required this._zenonAddressUtils,
-  }) : super(const StartNativeSwapInitial()) {
-    on<StartNativeSwapRequested>(_onStartNativeSwapRequested);
+  }) : super(const StartP2pSwapInitial()) {
+    on<StartP2pSwapRequested>(_onStartP2pSwapRequested);
   }
 
   final AccountBlockUtils _accountBlockUtils;
@@ -34,12 +34,12 @@ class StartNativeSwapBloc
   final Zenon _zenon;
   final ZenonAddressUtils _zenonAddressUtils;
 
-  FutureOr<void> _onStartNativeSwapRequested(
-    StartNativeSwapRequested event,
-    Emitter<StartNativeSwapState> emit,
+  FutureOr<void> _onStartP2pSwapRequested(
+    StartP2pSwapRequested event,
+    Emitter<StartP2pSwapState> emit,
   ) async {
     try {
-      emit(const StartNativeSwapLoading());
+      emit(const StartP2pSwapLoading());
 
       final List<int> preimage = _generatePreimage();
       final Hash hashLock = await _getHashLock(event.hashType, preimage);
@@ -87,13 +87,13 @@ class StartNativeSwapBloc
 
       await _htlcSwapsService.storeSwap(swap);
       _zenonAddressUtils.refreshBalance();
-      emit(StartNativeSwapDone(swap: swap));
+      emit(StartP2pSwapDone(swap: swap));
     } on SyriusException catch (error, stackTrace) {
       addError(error, stackTrace);
-      emit(StartNativeSwapFailure(exception: error));
+      emit(StartP2pSwapFailure(exception: error));
     } on Exception catch (error, stackTrace) {
       addError(error, stackTrace);
-      emit(StartNativeSwapFailure(exception: FailureException()));
+      emit(StartP2pSwapFailure(exception: FailureException()));
     }
   }
 

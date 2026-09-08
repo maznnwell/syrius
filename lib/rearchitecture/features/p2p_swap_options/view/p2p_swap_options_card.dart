@@ -19,8 +19,8 @@ class P2pSwapOptionsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<StartNativeSwapBloc>(
-      create: (_) => StartNativeSwapBloc(
+    return BlocProvider<StartP2pSwapBloc>(
+      create: (_) => StartP2pSwapBloc(
         accountBlockUtils: AccountBlockUtils(
           publishSuccessNotification: false,
         ),
@@ -46,8 +46,8 @@ class _View extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<StartNativeSwapBloc, StartNativeSwapState>(
-      listener: _onStartNativeSwapStateChanged,
+    return BlocListener<StartP2pSwapBloc, StartP2pSwapState>(
+      listener: _onStartP2pSwapStateChanged,
       child: StreamBuilder<PowStatus>(
         stream: sl.get<PowGeneratingStatusBloc>().stream,
         builder: (_, AsyncSnapshot<PowStatus> snapshot) {
@@ -115,9 +115,9 @@ class _View extends StatelessWidget {
     unawaited(
       showCustomDialog(
         context: context,
-        content: BlocProvider<StartNativeSwapBloc>.value(
-          value: context.read<StartNativeSwapBloc>(),
-          child: const StartNativeSwapModal(),
+        content: BlocProvider<StartP2pSwapBloc>.value(
+          value: context.read<StartP2pSwapBloc>(),
+          child: const StartP2pSwapModal(),
         ),
       ),
     );
@@ -187,11 +187,11 @@ class _View extends StatelessWidget {
     );
   }
 
-  void _onStartNativeSwapStateChanged(
+  void _onStartP2pSwapStateChanged(
     BuildContext context,
-    StartNativeSwapState state,
+    StartP2pSwapState state,
   ) {
-    if (state is StartNativeSwapDone) {
+    if (state is StartP2pSwapDone) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (context.mounted) {
           _showNativeSwapDetailsModal(context, state.swap.id);
@@ -208,7 +208,7 @@ class _View extends StatelessWidget {
           );
         }
       });
-    } else if (state case StartNativeSwapFailure(
+    } else if (state case StartP2pSwapFailure(
       :final SyriusException exception,
     )) {
       unawaited(
