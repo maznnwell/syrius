@@ -14,9 +14,6 @@ HtlcSwap _$HtlcSwapFromJson(Map<String, dynamic> json) => HtlcSwap(
   id: json['id'] as String,
   chainId: (json['chainId'] as num).toInt(),
   type: $enumDecode(_$P2pSwapTypeEnumMap, json['type']),
-  mode:
-      $enumDecodeNullable(_$P2pSwapModeEnumMap, json['mode']) ??
-      P2pSwapMode.htlc,
   direction: $enumDecode(_$P2pSwapDirectionEnumMap, json['direction']),
   selfAddress: json['selfAddress'] as String,
   counterpartyAddress: json['counterpartyAddress'] as String,
@@ -26,6 +23,9 @@ HtlcSwap _$HtlcSwapFromJson(Map<String, dynamic> json) => HtlcSwap(
   toChain: $enumDecode(_$P2pSwapChainEnumMap, json['toChain']),
   startTime: (json['startTime'] as num).toInt(),
   state: $enumDecode(_$P2pSwapStateEnumMap, json['state']),
+  mode:
+      $enumDecodeNullable(_$P2pSwapModeEnumMap, json['mode']) ??
+      P2pSwapMode.htlc,
   toAmount: json['toAmount'] == null
       ? null
       : BigInt.parse(json['toAmount'] as String),
@@ -46,7 +46,6 @@ Map<String, dynamic> _$HtlcSwapToJson(HtlcSwap instance) => <String, dynamic>{
   'id': instance.id,
   'chainId': instance.chainId,
   'type': _$P2pSwapTypeEnumMap[instance.type]!,
-  'mode': _$P2pSwapModeEnumMap[instance.mode]!,
   'direction': _$P2pSwapDirectionEnumMap[instance.direction]!,
   'selfAddress': instance.selfAddress,
   'counterpartyAddress': instance.counterpartyAddress,
@@ -56,6 +55,7 @@ Map<String, dynamic> _$HtlcSwapToJson(HtlcSwap instance) => <String, dynamic>{
   'toChain': _$P2pSwapChainEnumMap[instance.toChain]!,
   'startTime': instance.startTime,
   'state': _$P2pSwapStateEnumMap[instance.state]!,
+  'mode': _$P2pSwapModeEnumMap[instance.mode]!,
   'toAmount': instance.toAmount?.toString(),
   'toToken': instance.toToken?.toJson(),
   'counterHtlcId': instance.counterHtlcId,
@@ -67,8 +67,6 @@ const _$P2pSwapTypeEnumMap = {
   P2pSwapType.native: 'native',
   P2pSwapType.crosschain: 'crosschain',
 };
-
-const _$P2pSwapModeEnumMap = {P2pSwapMode.htlc: 'htlc'};
 
 const _$P2pSwapDirectionEnumMap = {
   P2pSwapDirection.outgoing: 'outgoing',
@@ -89,3 +87,5 @@ const _$P2pSwapStateEnumMap = {
   P2pSwapState.unsuccessful: 'unsuccessful',
   P2pSwapState.error: 'error',
 };
+
+const _$P2pSwapModeEnumMap = {P2pSwapMode.htlc: 'htlc'};

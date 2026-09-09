@@ -78,10 +78,10 @@ void main() {
       when(() => tokenApi.getByZts(znnZts)).thenAnswer((_) async => kZnnCoin);
       when(
         () => htlcSwapsService.getSwapByHtlcId(htlcId.toString()),
-      ).thenReturn(null);
+      ).thenAnswer((_) async => null);
       when(
         () => htlcSwapsService.getSwapByHashLock(htlc.hashLockHex),
-      ).thenReturn(null);
+      ).thenAnswer((_) async => null);
       when(
         () => ledger.getAccountBlockByHash(htlcId),
       ).thenAnswer((_) async => creationBlock);

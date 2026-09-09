@@ -50,7 +50,7 @@ class InitialHtlcValidationBloc
       final HtlcInfo htlc = await _zenon.embedded.htlc.getById(event.id);
 
       _validateParticipants(htlc);
-      _validateUnusedDeposit(htlc);
+      await _validateUnusedDeposit(htlc);
       _validateExpiration(htlc);
       await _validateCreationDuration(htlc);
       await _validateUniqueHashLock(htlc);
@@ -89,13 +89,13 @@ class InitialHtlcValidationBloc
     }
   }
 
-  void _validateUnusedDeposit(HtlcInfo htlc) {
-    if (_htlcSwapsService.getSwapByHtlcId(htlc.id.toString()) != null) {
+  Future<void> _validateUnusedDeposit(HtlcInfo htlc) async {
+    if (await _htlcSwapsService.getSwapByHtlcId(htlc.id.toString()) != null) {
       throw SyriusException(
         'This deposit is already used in another swap.',
       );
     }
-    if (_htlcSwapsService.getSwapByHashLock(htlc.hashLockHex) != null) {
+    if (await _htlcSwapsService.getSwapByHashLock(htlc.hashLockHex) != null) {
       throw SyriusException(
         "The deposit's hashlock is already used in another swap.",
       );

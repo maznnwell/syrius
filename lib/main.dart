@@ -537,6 +537,8 @@ class _MyAppState extends State<MyApp> with WindowListener, TrayListener {
 
     sl<Zenon>().wsClient.stop();
     Future.delayed(const Duration(seconds: 60)).then((value) => exit(0));
+    await sl<HtlcSwapsHandler>().stop();
+    await htlcSwapsService?.close();
     await NodeUtils.closeEmbeddedNode();
     await sl.reset();
     super.onWindowClose();

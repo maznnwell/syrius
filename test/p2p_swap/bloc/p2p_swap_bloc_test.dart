@@ -47,7 +47,9 @@ void main() {
         state: P2pSwapState.pending,
       );
 
-      when(() => htlcSwapsService.getSwapById(swapId)).thenReturn(swap);
+      when(
+        () => htlcSwapsService.getSwapById(swapId),
+      ).thenAnswer((_) async => swap);
     });
 
     test('initial state is P2pSwapInitial', () {
@@ -75,7 +77,9 @@ void main() {
     blocTest<P2pSwapBloc, P2pSwapBlocState>(
       'emits failure when the swap does not exist',
       setUp: () {
-        when(() => htlcSwapsService.getSwapById(swapId)).thenReturn(null);
+        when(
+          () => htlcSwapsService.getSwapById(swapId),
+        ).thenAnswer((_) async => null);
       },
       build: buildBloc,
       act: (P2pSwapBloc bloc) => bloc.add(

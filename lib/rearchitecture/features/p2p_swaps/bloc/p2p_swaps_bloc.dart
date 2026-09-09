@@ -26,16 +26,16 @@ class P2pSwapsBloc extends Bloc<P2pSwapsEvent, P2pSwapsState> {
 
   Timer? _autoRefresher;
 
-  FutureOr<void> _onP2pSwapsRequested(
+  Future<void> _onP2pSwapsRequested(
     P2pSwapsEvent event,
     Emitter<P2pSwapsState> emit,
-  ) {
+  ) async {
     try {
       if (state is! P2pSwapsPopulated) {
         emit(const P2pSwapsLoading());
       }
 
-      emit(P2pSwapsPopulated(swaps: _getSwaps()));
+      emit(P2pSwapsPopulated(swaps: await _getSwaps()));
     } on SyriusException catch (error, stackTrace) {
       emit(P2pSwapsFailure(exception: error));
       addError(error, stackTrace);
@@ -47,8 +47,8 @@ class P2pSwapsBloc extends Bloc<P2pSwapsEvent, P2pSwapsState> {
     }
   }
 
-  List<P2pSwap> _getSwaps() {
-    final List<HtlcSwap> swaps = _htlcSwapsService.getAllSwaps()
+  Future<List<P2pSwap>> _getSwaps() async {
+    final List<HtlcSwap> swaps = await _htlcSwapsService.getAllSwaps()
       ..sort((HtlcSwap a, HtlcSwap b) => b.startTime.compareTo(a.startTime));
     return swaps;
   }

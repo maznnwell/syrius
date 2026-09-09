@@ -1,15 +1,17 @@
 import 'dart:convert';
+import 'dart:io';
 
-import 'package:collection/collection.dart';
-import 'package:hive_ce/hive_ce.dart';
-import 'package:zenon_syrius_wallet_flutter/model/model.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
+import 'package:drift/drift.dart';
+import 'package:mutex/mutex.dart';
+import 'package:path/path.dart' as path;
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap/model/p2p_swap.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swaps_database.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/global.dart';
+import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class HtlcSwapsService {
-  static Box? _htlcSwapsBox;
-  static Box? _lastCheckedHtlcBlockHeightBox;
+  HtlcSwapsService({File? databaseFile}) : _databaseFileOverride = databaseFile;
 
   static HtlcSwapsService? _instance;
 
@@ -18,162 +20,344 @@ class HtlcSwapsService {
     return _instance!;
   }
 
-  bool get isMaxSwapsReached => _htlcSwapsBox!.length >= kMaxP2pSwapsToStore;
+  final File? _databaseFileOverride;
+  final Mutex _mutex = Mutex();
 
-  Future<void> openBoxes(
-    String htlcSwapsBoxSuffix,
-    List<int> cipherKey, {
-    List<int>? newCipherKey,
-  }) async {
-    if (_htlcSwapsBox == null || !_htlcSwapsBox!.isOpen) {
-      _htlcSwapsBox = await Hive.openBox(
-        '${kHtlcSwapsBox}_$htlcSwapsBoxSuffix',
-        encryptionCipher: HiveAesCipher(cipherKey),
-      );
-      if (newCipherKey != null) {
-        final Map values = _htlcSwapsBox!.toMap();
-        await _htlcSwapsBox!.deleteFromDisk();
-        _htlcSwapsBox = await Hive.openBox(
-          '${kHtlcSwapsBox}_$htlcSwapsBoxSuffix',
-          encryptionCipher: HiveAesCipher(newCipherKey),
-        );
-        _htlcSwapsBox!.putAll(values);
-        _htlcSwapsBox!.flush();
+  HtlcSwapsDatabase? _database;
+
+  File get _databaseFile =>
+      _databaseFileOverride ??
+      File(path.join(znnDefaultPaths.cache.path, kHtlcSwapsDatabase));
+
+  File get _rekeyBackupFile => File('${_databaseFile.path}.rekey-backup');
+
+  bool get isOpen => _database != null;
+
+  Future<void> open(List<int> encryptionKey) => _mutex.protect(() async {
+    if (_database != null) {
+      return;
+    }
+
+    await _databaseFile.parent.create(recursive: true);
+    try {
+      _database = await _openDatabase(_databaseFile, encryptionKey);
+    } catch (_) {
+      if (!await _rekeyBackupFile.exists()) {
+        rethrow;
       }
-    }
 
-    if (_lastCheckedHtlcBlockHeightBox == null ||
-        !_lastCheckedHtlcBlockHeightBox!.isOpen) {
-      _lastCheckedHtlcBlockHeightBox = await Hive.openBox(
-        kLastCheckedHtlcBlockBox,
-        encryptionCipher: HiveAesCipher(cipherKey),
+      final HtlcSwapsDatabase backup = await _openDatabase(
+        _rekeyBackupFile,
+        encryptionKey,
       );
-      if (newCipherKey != null) {
-        final Map values = _lastCheckedHtlcBlockHeightBox!.toMap();
-        await _lastCheckedHtlcBlockHeightBox!.deleteFromDisk();
-        _lastCheckedHtlcBlockHeightBox = await Hive.openBox(
-          kLastCheckedHtlcBlockBox,
-          encryptionCipher: HiveAesCipher(newCipherKey),
-        );
-        _lastCheckedHtlcBlockHeightBox!.putAll(values);
-        _lastCheckedHtlcBlockHeightBox!.flush();
-      }
+      await backup.close();
+      await _deleteDatabaseFiles(_databaseFile);
+      await _rekeyBackupFile.rename(_databaseFile.path);
+      _database = await _openDatabase(_databaseFile, encryptionKey);
     }
-  }
 
-  Future<void> closeBoxes() async {
-    if (_htlcSwapsBox != null && _htlcSwapsBox!.isOpen) {
-      await _htlcSwapsBox!.close();
-      _htlcSwapsBox = null;
-    }
-    if (_lastCheckedHtlcBlockHeightBox != null &&
-        _lastCheckedHtlcBlockHeightBox!.isOpen) {
-      await _lastCheckedHtlcBlockHeightBox!.close();
-      _lastCheckedHtlcBlockHeightBox = null;
-    }
-  }
-
-  List<HtlcSwap> getAllSwaps() {
-    return _swapsForCurrentChainId;
-  }
-
-  List<HtlcSwap> getSwapsByState(List<P2pSwapState> states) {
-    return _swapsForCurrentChainId
-        .where((HtlcSwap e) => states.contains(e.state))
-        .toList();
-  }
-
-  HtlcSwap? getSwapByHashLock(String hashLock) {
     try {
-      return _swapsForCurrentChainId.firstWhereOrNull(
-        (HtlcSwap e) => e.hashLock == hashLock,
-      );
-    } on HiveError {
-      return null;
+      await _deleteDatabaseFiles(_rekeyBackupFile);
+    } on FileSystemException {
+      // A valid primary database makes a stale encrypted backup disposable.
     }
-  }
+  });
 
-  HtlcSwap? getSwapByHtlcId(String htlcId) {
+  Future<void> close() => _mutex.protect(() async {
+    await _closeDatabase();
+  });
+
+  Future<void> deleteDatabase() => _mutex.protect(() async {
+    await _closeDatabase();
+    await _deleteDatabaseFiles(_databaseFile);
+    await _deleteDatabaseFiles(_rekeyBackupFile);
+  });
+
+  Future<void> beginRekey({
+    required List<int> oldEncryptionKey,
+    required List<int> newEncryptionKey,
+  }) => _mutex.protect(() async {
+    final HtlcSwapsDatabase database = _requireDatabase();
+    await database.customStatement('PRAGMA wal_checkpoint(TRUNCATE);');
+    await _closeDatabase();
+    await _deleteDatabaseFiles(_rekeyBackupFile);
+    await _databaseFile.copy(_rekeyBackupFile.path);
+
     try {
-      return _swapsForCurrentChainId.firstWhereOrNull(
-        (HtlcSwap e) => e.initialHtlcId == htlcId || e.counterHtlcId == htlcId,
-      );
-    } on HiveError {
-      return null;
+      _database = await _openDatabase(_databaseFile, oldEncryptionKey);
+      await _database!.rekey(newEncryptionKey);
+      await _closeDatabase();
+      _database = await _openDatabase(_databaseFile, newEncryptionKey);
+    } catch (_) {
+      await _restoreRekeyBackup(oldEncryptionKey);
+      rethrow;
     }
-  }
+  });
 
-  HtlcSwap? getSwapById(String id) {
+  Future<void> commitRekey() => _mutex.protect(() async {
     try {
-      return _swapsForCurrentChainId.firstWhereOrNull(
-        (HtlcSwap e) => e.id == id,
-      );
-    } on HiveError {
-      return null;
+      await _deleteDatabaseFiles(_rekeyBackupFile);
+    } on FileSystemException {
+      // A stale encrypted backup is removed the next time the database opens.
     }
+  });
+
+  Future<void> rollbackRekey(List<int> oldEncryptionKey) =>
+      _mutex.protect(() => _restoreRekeyBackup(oldEncryptionKey));
+
+  Future<List<HtlcSwap>> getAllSwaps() async {
+    final int? chainId = kNodeChainId;
+    if (chainId == null) {
+      return <HtlcSwap>[];
+    }
+
+    return _mutex.protect(() async {
+      final HtlcSwapsDatabase database = _requireDatabase();
+      final List<HtlcSwapEntry> entries = await (database.select(
+        database.htlcSwapEntries,
+      )..where((table) => table.chainId.equals(chainId))).get();
+      return entries.map(_decodeSwap).toList();
+    });
   }
 
-  int getLastCheckedHtlcBlockHeight() {
-    return _lastCheckedHtlcBlockHeightBox!.get(
-      kLastCheckedHtlcBlockKey,
-      defaultValue: 0,
+  Future<List<HtlcSwap>> getSwapsByState(
+    List<P2pSwapState> states,
+  ) async {
+    final int? chainId = kNodeChainId;
+    if (chainId == null || states.isEmpty) {
+      return <HtlcSwap>[];
+    }
+
+    return _mutex.protect(() async {
+      final HtlcSwapsDatabase database = _requireDatabase();
+      final List<HtlcSwapEntry> entries =
+          await (database.select(
+                database.htlcSwapEntries,
+              )..where(
+                (table) =>
+                    table.chainId.equals(chainId) &
+                    table.state.isIn(states.map((state) => state.name)),
+              ))
+              .get();
+      return entries.map(_decodeSwap).toList();
+    });
+  }
+
+  Future<HtlcSwap?> getSwapByHashLock(String hashLock) {
+    return _getSingleSwap(
+      (table, chainId) =>
+          table.chainId.equals(chainId) & table.hashLock.equals(hashLock),
     );
   }
 
-  Future<void> storeSwap(HtlcSwap swap) async => _htlcSwapsBox!
-      .put(
-        swap.id,
-        jsonEncode(swap.toJson()),
-      )
-      .then((_) async => _pruneSwapsHistoryIfNeeded());
+  Future<HtlcSwap?> getSwapByHtlcId(String htlcId) {
+    return _getSingleSwap(
+      (table, chainId) =>
+          table.chainId.equals(chainId) &
+          (table.initialHtlcId.equals(htlcId) |
+              table.counterHtlcId.equals(htlcId)),
+    );
+  }
 
-  Future<void> storeLastCheckedHtlcBlockHeight(int height) async =>
-      _lastCheckedHtlcBlockHeightBox!.put(kLastCheckedHtlcBlockKey, height);
+  Future<HtlcSwap?> getSwapById(String id) {
+    return _getSingleSwap(
+      (table, chainId) => table.chainId.equals(chainId) & table.id.equals(id),
+    );
+  }
 
-  Future<void> deleteSwap(String swapId) async => _htlcSwapsBox!.delete(swapId);
+  Future<int> getLastCheckedHtlcBlockHeight() async {
+    final int? chainId = kNodeChainId;
+    if (chainId == null) {
+      return 0;
+    }
 
-  Future<void> deleteInactiveSwaps() async => _htlcSwapsBox!.deleteAll(
-    _swapsForCurrentChainId
-        .where(
-          (HtlcSwap e) => <P2pSwapState>[
-            P2pSwapState.completed,
-            P2pSwapState.unsuccessful,
-            P2pSwapState.error,
-          ].contains(e.state),
-        )
-        .map((HtlcSwap e) => e.id),
-  );
+    return _mutex.protect(() async {
+      final HtlcSwapsDatabase database = _requireDatabase();
+      final HtlcScanCheckpoint? checkpoint = await (database.select(
+        database.htlcScanCheckpoints,
+      )..where((table) => table.chainId.equals(chainId))).getSingleOrNull();
+      return checkpoint?.lastCheckedHeight ?? 0;
+    });
+  }
 
-  List<HtlcSwap> get _swapsForCurrentChainId {
-    return kNodeChainId != null
-        ? _htlcSwapsBox!.values
-              .map(
-                (dynamic value) =>
-                    P2pSwap.fromJson(jsonDecode(value)) as HtlcSwap,
+  Future<void> storeSwap(HtlcSwap swap) => _mutex.protect(() async {
+    final HtlcSwapsDatabase database = _requireDatabase();
+    await database.transaction(() async {
+      await database
+          .into(database.htlcSwapEntries)
+          .insertOnConflictUpdate(
+            HtlcSwapEntriesCompanion.insert(
+              id: swap.id,
+              chainId: swap.chainId,
+              state: swap.state.name,
+              direction: swap.direction.name,
+              hashLock: swap.hashLock,
+              initialHtlcId: swap.initialHtlcId,
+              counterHtlcId: Value<String?>(swap.counterHtlcId),
+              startTime: swap.startTime,
+              payloadJson: jsonEncode(swap.toJson()),
+            ),
+          );
+      await _pruneSwapsHistoryIfNeeded(database);
+    });
+  });
+
+  Future<void> storeLastCheckedHtlcBlockHeight(int height) async {
+    final int? chainId = kNodeChainId;
+    if (chainId == null) {
+      throw StateError('Cannot store an HTLC checkpoint without a chain id');
+    }
+
+    await _mutex.protect(() async {
+      final HtlcSwapsDatabase database = _requireDatabase();
+      await database
+          .into(database.htlcScanCheckpoints)
+          .insertOnConflictUpdate(
+            HtlcScanCheckpointsCompanion.insert(
+              chainId: Value<int>(chainId),
+              lastCheckedHeight: height,
+            ),
+          );
+    });
+  }
+
+  Future<void> deleteSwap(String swapId) => _mutex.protect(() async {
+    final HtlcSwapsDatabase database = _requireDatabase();
+    await (database.delete(
+      database.htlcSwapEntries,
+    )..where((table) => table.id.equals(swapId))).go();
+  });
+
+  Future<void> deleteInactiveSwaps() async {
+    final int? chainId = kNodeChainId;
+    if (chainId == null) {
+      return;
+    }
+
+    await _mutex.protect(() async {
+      final HtlcSwapsDatabase database = _requireDatabase();
+      await (database.delete(database.htlcSwapEntries)..where(
+            (table) =>
+                table.chainId.equals(chainId) &
+                table.state.isIn(<String>[
+                  P2pSwapState.completed.name,
+                  P2pSwapState.unsuccessful.name,
+                  P2pSwapState.error.name,
+                ]),
+          ))
+          .go();
+    });
+  }
+
+  Future<HtlcSwap?> _getSingleSwap(
+    Expression<bool> Function($HtlcSwapEntriesTable table, int chainId)
+    predicate,
+  ) async {
+    final int? chainId = kNodeChainId;
+    if (chainId == null) {
+      return null;
+    }
+
+    return _mutex.protect(() async {
+      final HtlcSwapsDatabase database = _requireDatabase();
+      final HtlcSwapEntry? entry =
+          await (database.select(database.htlcSwapEntries)
+                ..where((table) => predicate(table, chainId))
+                ..limit(1))
+              .getSingleOrNull();
+      return entry == null ? null : _decodeSwap(entry);
+    });
+  }
+
+  Future<void> _pruneSwapsHistoryIfNeeded(
+    HtlcSwapsDatabase database,
+  ) async {
+    final Expression<int> count = database.htlcSwapEntries.id.count();
+    final TypedResult countResult = await (database.selectOnly(
+      database.htlcSwapEntries,
+    )..addColumns(<Expression<Object>>[count])).getSingle();
+    if ((countResult.read(count) ?? 0) <= kMaxP2pSwapsToStore) {
+      return;
+    }
+
+    final int? chainId = kNodeChainId;
+    if (chainId == null) {
+      return;
+    }
+
+    final HtlcSwapEntry? oldest =
+        await (database.select(database.htlcSwapEntries)
+              ..where(
+                (table) =>
+                    table.chainId.equals(chainId) &
+                    table.state.isIn(<String>[
+                      P2pSwapState.completed.name,
+                      P2pSwapState.unsuccessful.name,
+                    ]),
               )
-              .where((HtlcSwap swap) => swap.chainId == kNodeChainId)
-              .toList()
-        : <HtlcSwap>[];
+              ..orderBy(<OrderingTerm Function($HtlcSwapEntriesTable)>[
+                (table) => OrderingTerm.asc(table.startTime),
+              ])
+              ..limit(1))
+            .getSingleOrNull();
+    if (oldest != null) {
+      await (database.delete(
+        database.htlcSwapEntries,
+      )..where((table) => table.id.equals(oldest.id))).go();
+    }
   }
 
-  HtlcSwap? _getOldestPrunableSwap() {
-    final List<HtlcSwap> swaps = getAllSwaps()
-        .where(
-          (HtlcSwap e) => <P2pSwapState>[
-            P2pSwapState.completed,
-            P2pSwapState.unsuccessful,
-          ].contains(e.state),
+  HtlcSwap _decodeSwap(HtlcSwapEntry entry) {
+    return P2pSwap.fromJson(
+          jsonDecode(entry.payloadJson) as Map<String, dynamic>,
         )
-        .toList();
-    swaps.sort((HtlcSwap a, HtlcSwap b) => b.startTime.compareTo(a.startTime));
-    return swaps.isNotEmpty ? swaps.last : null;
+        as HtlcSwap;
   }
 
-  Future<void> _pruneSwapsHistoryIfNeeded() async {
-    if (_htlcSwapsBox!.length > kMaxP2pSwapsToStore) {
-      final HtlcSwap? toBePruned = _getOldestPrunableSwap();
-      if (toBePruned != null) {
-        await deleteSwap(toBePruned.id);
+  HtlcSwapsDatabase _requireDatabase() {
+    return _database ??
+        (throw StateError('The HTLC swaps database is not open'));
+  }
+
+  Future<HtlcSwapsDatabase> _openDatabase(
+    File file,
+    List<int> encryptionKey,
+  ) async {
+    final HtlcSwapsDatabase database = HtlcSwapsDatabase.encrypted(
+      file,
+      encryptionKey,
+    );
+    try {
+      await database.verifyOpen();
+      return database;
+    } catch (_) {
+      await database.close();
+      rethrow;
+    }
+  }
+
+  Future<void> _closeDatabase() async {
+    final HtlcSwapsDatabase? database = _database;
+    _database = null;
+    await database?.close();
+  }
+
+  Future<void> _restoreRekeyBackup(List<int> oldEncryptionKey) async {
+    await _closeDatabase();
+    if (!await _rekeyBackupFile.exists()) {
+      throw StateError('The HTLC swaps rekey backup does not exist');
+    }
+
+    await _deleteDatabaseFiles(_databaseFile);
+    await _rekeyBackupFile.rename(_databaseFile.path);
+    _database = await _openDatabase(_databaseFile, oldEncryptionKey);
+  }
+
+  Future<void> _deleteDatabaseFiles(File databaseFile) async {
+    for (final String suffix in <String>['', '-wal', '-shm']) {
+      final File file = File('${databaseFile.path}$suffix');
+      if (await file.exists()) {
+        await file.delete();
       }
     }
   }

@@ -53,7 +53,7 @@ void main() {
 
       when(
         () => htlcSwapsService.getAllSwaps(),
-      ).thenReturn(<HtlcSwap>[olderSwap, newerSwap]);
+      ).thenAnswer((_) async => <HtlcSwap>[olderSwap, newerSwap]);
     });
 
     test('initial state is P2pSwapsInitial', () {

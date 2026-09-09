@@ -41,6 +41,7 @@ const String kNodesBox = 'nodes_box';
 const String kKeyStoreBox = 'key_store_box';
 const String kHtlcSwapsBox = 'htlc_swaps_box';
 const String kLastCheckedHtlcBlockBox = 'last_checked_htlc_block_box';
+const String kHtlcSwapsDatabase = 'htlc_swaps.sqlite';
 
 const List<String> kCacheBoxesToBeDeleted = <String>[
   kFavoriteTokensBox,

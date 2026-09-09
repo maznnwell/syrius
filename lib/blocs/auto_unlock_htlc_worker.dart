@@ -31,8 +31,9 @@ class AutoUnlockHtlcWorker extends BaseBloc<WalletNotification> {
       final Hash currentHash = pool.first;
       try {
         final HtlcInfo htlc = await zenon!.embedded.htlc.getById(currentHash);
-        final HtlcSwap? swap = htlcSwapsService!
-            .getSwapByHashLock(FormatUtils.encodeHexString(htlc.hashLock));
+        final HtlcSwap? swap = await htlcSwapsService!.getSwapByHashLock(
+          FormatUtils.encodeHexString(htlc.hashLock),
+        );
         if (swap == null || swap.preimage == null) {
           throw 'Invalid swap';
         }

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:collection/collection.dart';
 import 'package:logging/logging.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/auto_unlock_htlc_worker.dart';
@@ -16,6 +15,8 @@ class HtlcSwapsHandler {
   static HtlcSwapsHandler? _instance;
 
   bool _isRunning = false;
+  Timer? _timer;
+  Future<void>? _currentRun;
 
   static HtlcSwapsHandler getInstance() {
     _instance ??= HtlcSwapsHandler();
@@ -24,24 +25,29 @@ class HtlcSwapsHandler {
 
   void start() {
     if (!_isRunning) {
-      _runPeriodically();
+      _isRunning = true;
+      _currentRun = _runPeriodically();
     }
   }
 
-  bool get hasActiveIncomingSwaps =>
-      htlcSwapsService!
-          .getSwapsByState(<P2pSwapState>[P2pSwapState.active])
-          .firstWhereOrNull(
-            (HtlcSwap e) => e.direction == P2pSwapDirection.incoming,
-          ) !=
-      null;
+  Future<void> stop() async {
+    _isRunning = false;
+    _timer?.cancel();
+    _timer = null;
+    await _currentRun;
+    _currentRun = null;
+  }
+
+  Future<bool> get hasActiveIncomingSwaps async =>
+      (await htlcSwapsService!.getSwapsByState(<P2pSwapState>[
+        P2pSwapState.active,
+      ])).any((HtlcSwap swap) => swap.direction == P2pSwapDirection.incoming);
 
   Future<void> _runPeriodically() async {
     try {
-      _isRunning = true;
       await _enableWakelockIfNeeded();
       if (!zenon!.wsClient.isClosed()) {
-        final List<HtlcSwap> unresolvedSwaps = htlcSwapsService!
+        final List<HtlcSwap> unresolvedSwaps = await htlcSwapsService!
             .getSwapsByState(<P2pSwapState>[
               P2pSwapState.pending,
               P2pSwapState.active,
@@ -55,19 +61,23 @@ class HtlcSwapsHandler {
             await _goThroughHtlcBlocks(newBlocks);
           }
           await _checkForExpiredSwaps();
-          _checkForAutoUnlockableSwaps();
+          await _checkForAutoUnlockableSwaps();
         }
-        sl<AutoUnlockHtlcWorker>().autoUnlock();
+        await sl<AutoUnlockHtlcWorker>().autoUnlock();
       }
     } catch (e) {
       Logger('HtlcSwapsHandler').log(Level.WARNING, '_runPeriodically', e);
     } finally {
-      Future.delayed(const Duration(seconds: 5), _runPeriodically);
+      if (_isRunning) {
+        _timer = Timer(const Duration(seconds: 5), () {
+          _currentRun = _runPeriodically();
+        });
+      }
     }
   }
 
   Future<void> _enableWakelockIfNeeded() async {
-    if (hasActiveIncomingSwaps) {
+    if (await hasActiveIncomingSwaps) {
       try {
         await WakelockPlus.enable();
       } catch (e) {
@@ -94,11 +104,11 @@ class HtlcSwapsHandler {
   Future<bool> _areThereNewHtlcBlocks() async {
     final int? frontier = await _getHtlcFrontierHeight();
     return frontier != null &&
-        frontier > htlcSwapsService!.getLastCheckedHtlcBlockHeight();
+        frontier > (await htlcSwapsService!.getLastCheckedHtlcBlockHeight());
   }
 
   Future<List<AccountBlock>> _getNewHtlcBlocks(List<HtlcSwap> swaps) async {
-    final int lastCheckedHeight = htlcSwapsService!
+    final int lastCheckedHeight = await htlcSwapsService!
         .getLastCheckedHtlcBlockHeight();
     final int oldestSwapStartTime = _getOldestSwapStartTime(swaps) ?? 0;
     int lastCheckedBlockTime = 0;
@@ -154,7 +164,7 @@ class HtlcSwapsHandler {
       return;
     }
 
-    final HtlcSwap? swap = _tryGetSwapFromBlockData(blockData);
+    final HtlcSwap? swap = await _tryGetSwapFromBlockData(blockData);
     if (swap == null) {
       return;
     }
@@ -237,13 +247,15 @@ class HtlcSwapsHandler {
     }
   }
 
-  HtlcSwap? _tryGetSwapFromBlockData(BlockData data) {
+  Future<HtlcSwap?> _tryGetSwapFromBlockData(BlockData data) async {
     HtlcSwap? swap;
     if (data.params.containsKey('id')) {
-      swap = htlcSwapsService!.getSwapByHtlcId(data.params['id'].toString());
+      swap = await htlcSwapsService!.getSwapByHtlcId(
+        data.params['id'].toString(),
+      );
     }
     if (data.params.containsKey('hashLock') && swap == null) {
-      swap = htlcSwapsService!.getSwapByHashLock(
+      swap = await htlcSwapsService!.getSwapByHashLock(
         Hash.fromBytes(data.params['hashLock']).toString(),
       );
     }
@@ -277,7 +289,7 @@ class HtlcSwapsHandler {
   }
 
   Future<void> _checkForExpiredSwaps() async {
-    final List<HtlcSwap> swaps = htlcSwapsService!.getSwapsByState(
+    final List<HtlcSwap> swaps = await htlcSwapsService!.getSwapsByState(
       <P2pSwapState>[P2pSwapState.pending, P2pSwapState.active],
     );
     final int now = DateTime.now().unixTimestamp;
@@ -294,12 +306,12 @@ class HtlcSwapsHandler {
     }
   }
 
-  void _checkForAutoUnlockableSwaps() {
+  Future<void> _checkForAutoUnlockableSwaps() async {
     // It is important to check swaps that are in reclaimable state as well,
     // since the counterparty may have published the preimage at the last moment
     // before the HTLC would have expired. In this situation the swap's state
     // may have already been changed to reclaimable.
-    final List<HtlcSwap> swaps = htlcSwapsService!.getSwapsByState(
+    final List<HtlcSwap> swaps = await htlcSwapsService!.getSwapsByState(
       <P2pSwapState>[P2pSwapState.active, P2pSwapState.reclaimable],
     );
     for (final HtlcSwap swap in swaps) {
