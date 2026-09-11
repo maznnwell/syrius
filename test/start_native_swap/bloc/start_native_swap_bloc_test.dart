@@ -4,7 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
+import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -22,7 +22,7 @@ class MockMomentum extends Mock implements Momentum {}
 
 class MockAccountBlockUtils extends Mock implements AccountBlockUtils {}
 
-class MockHtlcSwapsService extends Mock implements HtlcSwapsService {}
+class MockHtlcSwapsService extends Mock implements HtlcSwapRepository {}
 
 class MockZenonAddressUtils extends Mock implements ZenonAddressUtils {}
 

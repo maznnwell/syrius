@@ -10,13 +10,13 @@ import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/global.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-class HtlcSwapsService {
-  HtlcSwapsService({File? databaseFile}) : _databaseFileOverride = databaseFile;
+class HtlcSwapRepository {
+  HtlcSwapRepository({File? databaseFile}) : _databaseFileOverride = databaseFile;
 
-  static HtlcSwapsService? _instance;
+  static HtlcSwapRepository? _instance;
 
-  static HtlcSwapsService getInstance() {
-    _instance ??= HtlcSwapsService();
+  static HtlcSwapRepository getInstance() {
+    _instance ??= HtlcSwapRepository();
     return _instance!;
   }
 

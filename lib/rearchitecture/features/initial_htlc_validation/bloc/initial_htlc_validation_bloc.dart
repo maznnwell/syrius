@@ -5,7 +5,7 @@ import 'package:equatable/equatable.dart';
 import 'package:zenon_syrius_wallet_flutter/model/block_data.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/initial_htlc_validation/utils/htlc_info_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
+import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/account_block_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/format_utils.dart';
@@ -36,7 +36,7 @@ class InitialHtlcValidationBloc
   }
 
   final AccountBlocksAfterTimeFetcher _accountBlocksAfterTimeFetcher;
-  final HtlcSwapsService _htlcSwapsService;
+  final HtlcSwapRepository _htlcSwapsService;
   final Set<String> _walletAddresses;
   final Zenon _zenon;
 

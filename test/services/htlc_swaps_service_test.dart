@@ -3,14 +3,14 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
+import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 void main() {
   late Directory temporaryDirectory;
   late File databaseFile;
-  late HtlcSwapsService service;
+  late HtlcSwapRepository service;
   late int? originalChainId;
 
   final List<int> encryptionKey = Crypto.digest(utf8.encode('password'));
@@ -25,7 +25,7 @@ void main() {
       'syrius_htlc_drift_test_',
     );
     databaseFile = File('${temporaryDirectory.path}/htlc_swaps.sqlite');
-    service = HtlcSwapsService(databaseFile: databaseFile);
+    service = HtlcSwapRepository(databaseFile: databaseFile);
     await service.open(encryptionKey);
   });
 
@@ -102,7 +102,7 @@ void main() {
     expect(databaseContents, isNot(contains('SQLite format 3')));
     expect(databaseContents, isNot(contains(secretPreimage)));
 
-    final HtlcSwapsService incorrectKeyService = HtlcSwapsService(
+    final HtlcSwapRepository incorrectKeyService = HtlcSwapRepository(
       databaseFile: databaseFile,
     );
     await expectLater(
@@ -111,7 +111,7 @@ void main() {
     );
     await incorrectKeyService.close();
 
-    service = HtlcSwapsService(databaseFile: databaseFile);
+    service = HtlcSwapRepository(databaseFile: databaseFile);
     await service.open(encryptionKey);
     expect(await service.getAllSwaps(), hasLength(1));
   });
@@ -127,13 +127,13 @@ void main() {
     await service.commitRekey();
     await service.close();
 
-    final HtlcSwapsService oldKeyService = HtlcSwapsService(
+    final HtlcSwapRepository oldKeyService = HtlcSwapRepository(
       databaseFile: databaseFile,
     );
     await expectLater(oldKeyService.open(encryptionKey), throwsA(anything));
     await oldKeyService.close();
 
-    service = HtlcSwapsService(databaseFile: databaseFile);
+    service = HtlcSwapRepository(databaseFile: databaseFile);
     await service.open(newEncryptionKey);
     expect(await service.getAllSwaps(), <HtlcSwap>[swap]);
   });
@@ -147,7 +147,7 @@ void main() {
     );
     await service.close();
 
-    service = HtlcSwapsService(databaseFile: databaseFile);
+    service = HtlcSwapRepository(databaseFile: databaseFile);
     await service.open(encryptionKey);
 
     expect(await service.getAllSwaps(), <HtlcSwap>[swap]);
@@ -166,7 +166,7 @@ void main() {
 
     expect(await service.getAllSwaps(), <HtlcSwap>[swap]);
     await service.close();
-    service = HtlcSwapsService(databaseFile: databaseFile);
+    service = HtlcSwapRepository(databaseFile: databaseFile);
     await service.open(encryptionKey);
     expect(await service.getAllSwaps(), <HtlcSwap>[swap]);
   });

@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
+import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/zts_utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -17,7 +17,7 @@ class MockTokenApi extends Mock implements TokenApi {}
 
 class MockLedger extends Mock implements LedgerApi {}
 
-class MockHtlcSwapsService extends Mock implements HtlcSwapsService {}
+class MockHtlcSwapsService extends Mock implements HtlcSwapRepository {}
 
 class MockAccountBlock extends Mock implements AccountBlock {}
 

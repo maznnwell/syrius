@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
+import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart'
     hide InfiniteScrollTable, InfiniteScrollTableCell;
@@ -18,7 +18,7 @@ class P2pSwapsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final HtlcSwapsService swapsService = htlcSwapsService!;
+    final HtlcSwapRepository swapsService = htlcSwapsService!;
 
     return BlocProvider<P2pSwapsBloc>(
       create: (_) => P2pSwapsBloc(
@@ -32,7 +32,7 @@ class P2pSwapsCard extends StatelessWidget {
 class _View extends StatelessWidget {
   const _View({required this._swapsService});
 
-  final HtlcSwapsService _swapsService;
+  final HtlcSwapRepository _swapsService;
 
   @override
   Widget build(BuildContext context) {

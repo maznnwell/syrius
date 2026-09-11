@@ -33,7 +33,7 @@ import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/screens/screens.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
+import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/services/i_web3wallet_service.dart';
 import 'package:zenon_syrius_wallet_flutter/services/shared_prefs_service.dart';
 import 'package:zenon_syrius_wallet_flutter/services/web3wallet_service.dart';
@@ -44,7 +44,7 @@ import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 Zenon? zenon;
 SharedPrefsService? sharedPrefsService;
-HtlcSwapsService? htlcSwapsService;
+HtlcSwapRepository? htlcSwapsService;
 IWeb3WalletService? web3WalletService;
 
 const String _znnDataDirectoryName = String.fromEnvironment(
@@ -169,7 +169,7 @@ main() async {
     await sharedPrefsService!.checkIfBoxIsOpen();
   }
 
-  htlcSwapsService ??= sl.get<HtlcSwapsService>();
+  htlcSwapsService ??= sl.get<HtlcSwapRepository>();
 
   windowManager.waitUntilReadyToShow().then((_) async {
     await windowManager.setTitle('s y r i u s');
@@ -285,7 +285,7 @@ void setup() {
       (SharedPrefsService? value) => value!,
     ),
   );
-  sl.registerSingleton<HtlcSwapsService>(HtlcSwapsService.getInstance());
+  sl.registerSingleton<HtlcSwapRepository>(HtlcSwapRepository.getInstance());
 
   // Initialize WalletConnect service
   sl.registerSingleton<IWeb3WalletService>(web3WalletService!);

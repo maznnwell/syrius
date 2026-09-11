@@ -5,7 +5,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
+import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/account_block_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
@@ -30,7 +30,7 @@ class StartP2pSwapBloc
   }
 
   final AccountBlockUtils _accountBlockUtils;
-  final HtlcSwapsService _htlcSwapsService;
+  final HtlcSwapRepository _htlcSwapsService;
   final Zenon _zenon;
   final ZenonAddressUtils _zenonAddressUtils;
 

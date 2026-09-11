@@ -4,7 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap/model/p2p_swap.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swaps_service.dart';
+import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 
 part 'p2p_swap_event.dart';
 
@@ -22,7 +22,7 @@ class P2pSwapBloc extends Bloc<P2pSwapEvent, P2pSwapBlocState> {
     on<_P2pSwapRefreshRequested>(_onSwapRequested);
   }
 
-  final HtlcSwapsService _htlcSwapsService;
+  final HtlcSwapRepository _htlcSwapsService;
   final String _swapId;
 
   /// The interval at which swap details are refreshed.
