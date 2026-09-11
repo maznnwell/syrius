@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 
 part 'p2p_swaps_event.dart';
 
@@ -14,14 +13,14 @@ part 'p2p_swaps_state.dart';
 class P2pSwapsBloc extends Bloc<P2pSwapsEvent, P2pSwapsState> {
   /// Creates a [P2pSwapsBloc].
   P2pSwapsBloc({
-    required this._htlcSwapsService,
+    required this._swapRepository,
     this._refreshInterval = const Duration(seconds: 5),
   }) : super(const P2pSwapsInitial()) {
     on<P2pSwapsRequested>(_onP2pSwapsRequested);
     on<_P2pSwapsRefreshRequested>(_onP2pSwapsRequested);
   }
 
-  final HtlcSwapRepository _htlcSwapsService;
+  final P2pSwapRepository<HtlcSwap> _swapRepository;
   final Duration _refreshInterval;
 
   Timer? _autoRefresher;
@@ -48,7 +47,7 @@ class P2pSwapsBloc extends Bloc<P2pSwapsEvent, P2pSwapsState> {
   }
 
   Future<List<P2pSwap>> _getSwaps() async {
-    final List<HtlcSwap> swaps = await _htlcSwapsService.getAllSwaps()
+    final List<HtlcSwap> swaps = await _swapRepository.getAllSwaps()
       ..sort((HtlcSwap a, HtlcSwap b) => b.startTime.compareTo(a.startTime));
     return swaps;
   }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_ce/hive_ce.dart';
 import 'package:zenon_syrius_wallet_flutter/handlers/htlc_swaps_handler.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/services/shared_prefs_service.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
@@ -51,8 +52,9 @@ class InitUtils {
         0,
       );
     }
-    kNumFailedUnlockAttempts =
-        sharedPrefsService!.get(kNumUnlockFailedAttemptsKey);
+    kNumFailedUnlockAttempts = sharedPrefsService!.get(
+      kNumUnlockFailedAttemptsKey,
+    );
   }
 
   static void _setAutoEraseWalletNumAttempts() =>
@@ -72,7 +74,7 @@ class InitUtils {
     await ZenonAddressUtils.setAddressLabels();
     await ZenonAddressUtils.setDefaultAddress();
     await NodeUtils.initWebSocketClient();
-    await htlcSwapsService!.open(cipherKey);
+    await sl<HtlcSwapRepository>().open(cipherKey);
     await _setWalletVersion();
     sl<HtlcSwapsHandler>().start();
     kWalletInitCompleted = true;
@@ -88,7 +90,7 @@ class InitUtils {
       Hive.openBox(kRecipientAddressBox);
 
   static Future<void> _setWalletVersion() async => sharedPrefsService!.put(
-        kWalletVersionKey,
-        kWalletVersion,
-      );
+    kWalletVersionKey,
+    kWalletVersion,
+  );
 }

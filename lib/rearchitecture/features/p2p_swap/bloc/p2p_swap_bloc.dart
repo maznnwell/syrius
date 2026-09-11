@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap/model/p2p_swap.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/p2p_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 
 part 'p2p_swap_event.dart';
 
@@ -14,7 +14,7 @@ part 'p2p_swap_state.dart';
 class P2pSwapBloc extends Bloc<P2pSwapEvent, P2pSwapBlocState> {
   /// Creates a [P2pSwapBloc].
   P2pSwapBloc({
-    required this._htlcSwapsService,
+    required this._swapRepository,
     required this._swapId,
     this.refreshInterval = const Duration(seconds: 5),
   }) : super(const P2pSwapInitial()) {
@@ -22,7 +22,7 @@ class P2pSwapBloc extends Bloc<P2pSwapEvent, P2pSwapBlocState> {
     on<_P2pSwapRefreshRequested>(_onSwapRequested);
   }
 
-  final HtlcSwapRepository _htlcSwapsService;
+  final P2pSwapRepository<HtlcSwap> _swapRepository;
   final String _swapId;
 
   /// The interval at which swap details are refreshed.
@@ -52,7 +52,7 @@ class P2pSwapBloc extends Bloc<P2pSwapEvent, P2pSwapBlocState> {
   }
 
   Future<HtlcSwap> _getSwap() async {
-    final HtlcSwap? swap = await _htlcSwapsService.getSwapById(_swapId);
+    final HtlcSwap? swap = await _swapRepository.getSwapById(_swapId);
     if (swap == null) {
       throw SyriusException('Swap does not exist');
     }

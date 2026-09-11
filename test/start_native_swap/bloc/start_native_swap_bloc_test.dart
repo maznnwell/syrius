@@ -1,10 +1,8 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -22,7 +20,8 @@ class MockMomentum extends Mock implements Momentum {}
 
 class MockAccountBlockUtils extends Mock implements AccountBlockUtils {}
 
-class MockHtlcSwapsService extends Mock implements HtlcSwapRepository {}
+class MockP2pSwapRepository extends Mock
+    implements P2pSwapRepository<HtlcSwap> {}
 
 class MockZenonAddressUtils extends Mock implements ZenonAddressUtils {}
 
@@ -49,7 +48,7 @@ void main() {
     late MockLedger ledger;
     late MockMomentum momentum;
     late MockAccountBlockUtils accountBlockUtils;
-    late MockHtlcSwapsService htlcSwapsService;
+    late MockP2pSwapRepository swapRepository;
     late MockZenonAddressUtils zenonAddressUtils;
     late AccountBlockTemplate transactionParams;
     late AccountBlockTemplate response;
@@ -69,7 +68,7 @@ void main() {
       ledger = MockLedger();
       momentum = MockMomentum();
       accountBlockUtils = MockAccountBlockUtils();
-      htlcSwapsService = MockHtlcSwapsService();
+      swapRepository = MockP2pSwapRepository();
       zenonAddressUtils = MockZenonAddressUtils();
       transactionParams = AccountBlockTemplate(blockType: 1);
       response = AccountBlockTemplate(blockType: 1)
@@ -103,13 +102,13 @@ void main() {
         ),
       ).thenAnswer((_) async => response);
       when(
-        () => htlcSwapsService.storeSwap(any()),
+        () => swapRepository.storeSwap(any()),
       ).thenAnswer((_) async {});
       when(() => zenonAddressUtils.refreshBalance()).thenAnswer((_) {});
 
       bloc = StartP2pSwapBloc(
         accountBlockUtils: accountBlockUtils,
-        htlcSwapsService: htlcSwapsService,
+        swapRepository: swapRepository,
         zenon: zenon,
         zenonAddressUtils: zenonAddressUtils,
       );
@@ -147,7 +146,7 @@ void main() {
 
         final HtlcSwap swap =
             verify(
-                  () => htlcSwapsService.storeSwap(captureAny()),
+                  () => swapRepository.storeSwap(captureAny()),
                 ).captured.single
                 as HtlcSwap;
         final List<int> preimage = FormatUtils.decodeHexString(swap.preimage!);

@@ -2,17 +2,16 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/bloc/p2p_swaps_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-class MockHtlcSwapsService extends Mock implements HtlcSwapRepository {}
+class MockP2pSwapRepository extends Mock
+    implements P2pSwapRepository<HtlcSwap> {}
 
 void main() {
   group('P2pSwapsBloc', () {
-    late MockHtlcSwapsService htlcSwapsService;
+    late MockP2pSwapRepository swapRepository;
     late HtlcSwap olderSwap;
     late HtlcSwap newerSwap;
 
@@ -20,7 +19,7 @@ void main() {
       Duration refreshInterval = const Duration(minutes: 1),
     }) {
       return P2pSwapsBloc(
-        htlcSwapsService: htlcSwapsService,
+        swapRepository: swapRepository,
         refreshInterval: refreshInterval,
       );
     }
@@ -47,12 +46,12 @@ void main() {
     }
 
     setUp(() {
-      htlcSwapsService = MockHtlcSwapsService();
+      swapRepository = MockP2pSwapRepository();
       olderSwap = buildSwap(id: 'older-swap', startTime: 1);
       newerSwap = buildSwap(id: 'newer-swap', startTime: 2);
 
       when(
-        () => htlcSwapsService.getAllSwaps(),
+        () => swapRepository.getAllSwaps(),
       ).thenAnswer((_) async => <HtlcSwap>[olderSwap, newerSwap]);
     });
 
@@ -70,7 +69,7 @@ void main() {
         const P2pSwapsRequested(),
       ),
       verify: (_) {
-        verify(() => htlcSwapsService.getAllSwaps()).called(1);
+        verify(() => swapRepository.getAllSwaps()).called(1);
       },
       expect: () => <P2pSwapsState>[
         const P2pSwapsLoading(),
@@ -82,7 +81,7 @@ void main() {
       'emits failure when fetching swaps throws',
       setUp: () {
         when(
-          () => htlcSwapsService.getAllSwaps(),
+          () => swapRepository.getAllSwaps(),
         ).thenThrow(StateError('boom'));
       },
       build: buildBloc,
@@ -110,7 +109,7 @@ void main() {
       wait: const Duration(milliseconds: 25),
       verify: (_) {
         verify(
-          () => htlcSwapsService.getAllSwaps(),
+          () => swapRepository.getAllSwaps(),
         ).called(greaterThanOrEqualTo(2));
       },
     );
@@ -126,10 +125,10 @@ void main() {
       );
 
       await bloc.close();
-      clearInteractions(htlcSwapsService);
+      clearInteractions(swapRepository);
       await Future<void>.delayed(const Duration(milliseconds: 25));
 
-      verifyNever(() => htlcSwapsService.getAllSwaps());
+      verifyNever(() => swapRepository.getAllSwaps());
     });
   });
 }

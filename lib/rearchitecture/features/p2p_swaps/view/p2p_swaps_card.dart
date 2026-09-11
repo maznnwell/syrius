@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart'
     hide InfiniteScrollTable, InfiniteScrollTableCell;
@@ -18,21 +17,21 @@ class P2pSwapsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final HtlcSwapRepository swapsService = htlcSwapsService!;
+    final P2pSwapRepository<HtlcSwap> swapRepository = sl<HtlcSwapRepository>();
 
     return BlocProvider<P2pSwapsBloc>(
       create: (_) => P2pSwapsBloc(
-        htlcSwapsService: swapsService,
+        swapRepository: swapRepository,
       )..add(const P2pSwapsRequested()),
-      child: _View(swapsService: swapsService),
+      child: _View(swapRepository: swapRepository),
     );
   }
 }
 
 class _View extends StatelessWidget {
-  const _View({required this._swapsService});
+  const _View({required this._swapRepository});
 
-  final HtlcSwapRepository _swapsService;
+  final P2pSwapRepository<HtlcSwap> _swapRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +75,7 @@ class _View extends StatelessWidget {
 
     if (deleteConfirmed ?? false) {
       if (swap.mode == P2pSwapMode.htlc) {
-        await _swapsService.deleteSwap(swap.id);
+        await _swapRepository.deleteSwap(swap.id);
       }
       if (context.mounted) {
         context.read<P2pSwapsBloc>().add(const P2pSwapsRequested());
@@ -93,7 +92,7 @@ class _View extends StatelessWidget {
     );
 
     if (deleteHistoryConfirmed ?? false) {
-      await _swapsService.deleteInactiveSwaps();
+      await _swapRepository.deleteInactiveSwaps();
       if (context.mounted) {
         context.read<P2pSwapsBloc>().add(const P2pSwapsRequested());
       }

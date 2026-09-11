@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/p2p_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -15,7 +15,8 @@ class MockHtlcApi extends Mock implements HtlcApi {}
 
 class MockAccountBlockUtils extends Mock implements AccountBlockUtils {}
 
-class MockHtlcSwapsService extends Mock implements HtlcSwapRepository {}
+class MockP2pSwapRepository extends Mock
+    implements P2pSwapRepository<HtlcSwap> {}
 
 class MockZenonAddressUtils extends Mock implements ZenonAddressUtils {}
 
@@ -38,7 +39,7 @@ void main() {
     late MockEmbedded embedded;
     late MockHtlcApi htlcApi;
     late MockAccountBlockUtils accountBlockUtils;
-    late MockHtlcSwapsService htlcSwapsService;
+    late MockP2pSwapRepository swapRepository;
     late MockZenonAddressUtils zenonAddressUtils;
     late AccountBlockTemplate transactionParams;
     late HtlcInfo htlc;
@@ -65,7 +66,7 @@ void main() {
       embedded = MockEmbedded();
       htlcApi = MockHtlcApi();
       accountBlockUtils = MockAccountBlockUtils();
-      htlcSwapsService = MockHtlcSwapsService();
+      swapRepository = MockP2pSwapRepository();
       zenonAddressUtils = MockZenonAddressUtils();
       transactionParams = AccountBlockTemplate(blockType: 1);
       htlc = buildHtlc(
@@ -110,13 +111,13 @@ void main() {
         ),
       ).thenAnswer((_) async => transactionParams);
       when(
-        () => htlcSwapsService.storeSwap(any()),
+        () => swapRepository.storeSwap(any()),
       ).thenAnswer((_) async {});
       when(() => zenonAddressUtils.refreshBalance()).thenAnswer((_) {});
 
       bloc = CompleteSwapBloc(
         accountBlockUtils: accountBlockUtils,
-        htlcSwapsService: htlcSwapsService,
+        swapRepository: swapRepository,
         zenon: zenon,
         zenonAddressUtils: zenonAddressUtils,
         unixTimeProvider: () => now,
@@ -165,7 +166,7 @@ void main() {
         ).called(1);
         final HtlcSwap storedSwap =
             verify(
-                  () => htlcSwapsService.storeSwap(captureAny()),
+                  () => swapRepository.storeSwap(captureAny()),
                 ).captured.single
                 as HtlcSwap;
         expect(storedSwap.state, P2pSwapState.completed);
@@ -194,7 +195,7 @@ void main() {
       ],
       verify: (_) {
         verifyNever(() => htlcApi.unlock(counterHtlcId, any()));
-        verifyNever(() => htlcSwapsService.storeSwap(any()));
+        verifyNever(() => swapRepository.storeSwap(any()));
         verifyNever(() => zenonAddressUtils.refreshBalance());
       },
     );
@@ -221,7 +222,7 @@ void main() {
       ],
       verify: (_) {
         verifyNever(() => htlcApi.unlock(counterHtlcId, any()));
-        verifyNever(() => htlcSwapsService.storeSwap(any()));
+        verifyNever(() => swapRepository.storeSwap(any()));
         verifyNever(() => zenonAddressUtils.refreshBalance());
       },
     );
@@ -251,7 +252,7 @@ void main() {
         ),
       ],
       verify: (_) {
-        verifyNever(() => htlcSwapsService.storeSwap(any()));
+        verifyNever(() => swapRepository.storeSwap(any()));
         verifyNever(() => zenonAddressUtils.refreshBalance());
       },
     );
@@ -277,7 +278,7 @@ void main() {
       ],
       verify: (_) {
         verifyNever(() => htlcApi.unlock(counterHtlcId, any()));
-        verifyNever(() => htlcSwapsService.storeSwap(any()));
+        verifyNever(() => swapRepository.storeSwap(any()));
         verifyNever(() => zenonAddressUtils.refreshBalance());
       },
     );

@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/account_block_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
@@ -20,7 +19,7 @@ class CompleteSwapBloc extends Bloc<CompleteSwapEvent, CompleteSwapState> {
   /// Creates a [CompleteSwapBloc].
   CompleteSwapBloc({
     required this._accountBlockUtils,
-    required this._htlcSwapsService,
+    required this._swapRepository,
     required this._zenon,
     required this._zenonAddressUtils,
     int Function()? unixTimeProvider,
@@ -30,7 +29,7 @@ class CompleteSwapBloc extends Bloc<CompleteSwapEvent, CompleteSwapState> {
   }
 
   final AccountBlockUtils _accountBlockUtils;
-  final HtlcSwapRepository _htlcSwapsService;
+  final P2pSwapRepository<HtlcSwap> _swapRepository;
   final Zenon _zenon;
   final ZenonAddressUtils _zenonAddressUtils;
   final int Function() _unixTimeProvider;
@@ -79,7 +78,7 @@ class CompleteSwapBloc extends Bloc<CompleteSwapEvent, CompleteSwapState> {
       final HtlcSwap completedSwap = swap.copyWith(
         state: P2pSwapState.completed,
       );
-      await _htlcSwapsService.storeSwap(completedSwap);
+      await _swapRepository.storeSwap(completedSwap);
       _zenonAddressUtils.refreshBalance();
       emit(CompleteSwapDone(block: block, swap: completedSwap));
     } on SyriusException catch (error, stackTrace) {

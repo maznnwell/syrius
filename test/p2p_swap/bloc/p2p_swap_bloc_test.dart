@@ -3,31 +3,31 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-class MockHtlcSwapsService extends Mock implements HtlcSwapRepository {}
+class MockP2pSwapRepository extends Mock
+    implements P2pSwapRepository<HtlcSwap> {}
 
 void main() {
   group('P2pSwapBloc', () {
     const String swapId = 'swap-id';
 
-    late MockHtlcSwapsService htlcSwapsService;
+    late MockP2pSwapRepository swapRepository;
     late HtlcSwap swap;
 
     P2pSwapBloc buildBloc({
       Duration refreshInterval = const Duration(minutes: 1),
     }) {
       return P2pSwapBloc(
-        htlcSwapsService: htlcSwapsService,
+        swapRepository: swapRepository,
         refreshInterval: refreshInterval,
         swapId: swapId,
       );
     }
 
     setUp(() {
-      htlcSwapsService = MockHtlcSwapsService();
+      swapRepository = MockP2pSwapRepository();
       swap = HtlcSwap(
         hashLock: 'hash-lock',
         initialHtlcId: 'initial-htlc-id',
@@ -48,7 +48,7 @@ void main() {
       );
 
       when(
-        () => htlcSwapsService.getSwapById(swapId),
+        () => swapRepository.getSwapById(swapId),
       ).thenAnswer((_) async => swap);
     });
 
@@ -66,7 +66,7 @@ void main() {
         const P2pSwapRequested(),
       ),
       verify: (_) {
-        verify(() => htlcSwapsService.getSwapById(swapId)).called(1);
+        verify(() => swapRepository.getSwapById(swapId)).called(1);
       },
       expect: () => <P2pSwapBlocState>[
         const P2pSwapLoading(),
@@ -78,7 +78,7 @@ void main() {
       'emits failure when the swap does not exist',
       setUp: () {
         when(
-          () => htlcSwapsService.getSwapById(swapId),
+          () => swapRepository.getSwapById(swapId),
         ).thenAnswer((_) async => null);
       },
       build: buildBloc,
@@ -99,7 +99,7 @@ void main() {
       'emits generic failure when fetching throws unexpectedly',
       setUp: () {
         when(
-          () => htlcSwapsService.getSwapById(swapId),
+          () => swapRepository.getSwapById(swapId),
         ).thenThrow(Exception('boom'));
       },
       build: buildBloc,
@@ -127,7 +127,7 @@ void main() {
       wait: const Duration(milliseconds: 25),
       verify: (_) {
         verify(
-          () => htlcSwapsService.getSwapById(swapId),
+          () => swapRepository.getSwapById(swapId),
         ).called(greaterThanOrEqualTo(2));
       },
     );
@@ -143,10 +143,10 @@ void main() {
       );
 
       await bloc.close();
-      clearInteractions(htlcSwapsService);
+      clearInteractions(swapRepository);
       await Future<void>.delayed(const Duration(milliseconds: 25));
 
-      verifyNever(() => htlcSwapsService.getSwapById(swapId));
+      verifyNever(() => swapRepository.getSwapById(swapId));
     });
   });
 }

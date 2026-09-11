@@ -26,7 +26,7 @@ class P2pSwapModal extends StatelessWidget {
       providers: <SingleChildWidget>[
         BlocProvider<P2pSwapBloc>(
           create: (_) => P2pSwapBloc(
-            htlcSwapsService: htlcSwapsService!,
+            swapRepository: sl<HtlcSwapRepository>(),
             swapId: swapId,
           )..add(const P2pSwapRequested()),
         ),
@@ -35,7 +35,7 @@ class P2pSwapModal extends StatelessWidget {
             accountBlockUtils: AccountBlockUtils(
               publishSuccessNotification: false,
             ),
-            htlcSwapsService: htlcSwapsService!,
+            swapRepository: sl<HtlcSwapRepository>(),
             zenon: zenon!,
             zenonAddressUtils: ZenonAddressUtils(),
           ),

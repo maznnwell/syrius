@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/zts_utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -17,7 +16,7 @@ class MockTokenApi extends Mock implements TokenApi {}
 
 class MockLedger extends Mock implements LedgerApi {}
 
-class MockHtlcSwapsService extends Mock implements HtlcSwapRepository {}
+class MockHtlcSwapRepository extends Mock implements HtlcSwapRepository {}
 
 class MockAccountBlock extends Mock implements AccountBlock {}
 
@@ -35,7 +34,7 @@ void main() {
     late MockHtlcApi htlcApi;
     late MockTokenApi tokenApi;
     late MockLedger ledger;
-    late MockHtlcSwapsService htlcSwapsService;
+    late MockHtlcSwapRepository htlcSwapRepository;
     late MockAccountBlock creationBlock;
     late MockConfirmationDetail creationConfirmation;
     late AccountInfo accountInfo;
@@ -50,7 +49,7 @@ void main() {
       htlcApi = MockHtlcApi();
       tokenApi = MockTokenApi();
       ledger = MockLedger();
-      htlcSwapsService = MockHtlcSwapsService();
+      htlcSwapRepository = MockHtlcSwapRepository();
       creationBlock = MockAccountBlock();
       creationConfirmation = MockConfirmationDetail();
       accountInfo = AccountInfo(
@@ -77,10 +76,10 @@ void main() {
       when(() => htlcApi.getById(htlcId)).thenAnswer((_) async => htlc);
       when(() => tokenApi.getByZts(znnZts)).thenAnswer((_) async => kZnnCoin);
       when(
-        () => htlcSwapsService.getSwapByHtlcId(htlcId.toString()),
+        () => htlcSwapRepository.getSwapByHtlcId(htlcId.toString()),
       ).thenAnswer((_) async => null);
       when(
-        () => htlcSwapsService.getSwapByHashLock(htlc.hashLockHex),
+        () => htlcSwapRepository.getSwapByHashLock(htlc.hashLockHex),
       ).thenAnswer((_) async => null);
       when(
         () => ledger.getAccountBlockByHash(htlcId),
@@ -96,7 +95,7 @@ void main() {
       ).thenReturn(now);
       bloc = InitialHtlcValidationBloc(
         accountBlocksAfterTimeFetcher: (_, _) async => <AccountBlock>[],
-        htlcSwapsService: htlcSwapsService,
+        htlcSwapRepository: htlcSwapRepository,
         walletAddresses: <String>{walletAddress.toString()},
         zenon: zenon,
       );
@@ -177,7 +176,7 @@ void main() {
       'emits [loading, failure] when the HTLC is not intended for the wallet',
       build: () => InitialHtlcValidationBloc(
         accountBlocksAfterTimeFetcher: (_, _) async => <AccountBlock>[],
-        htlcSwapsService: htlcSwapsService,
+        htlcSwapRepository: htlcSwapRepository,
         walletAddresses: <String>{},
         zenon: zenon,
       ),

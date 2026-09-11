@@ -33,7 +33,6 @@ import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/screens/screens.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/services/i_web3wallet_service.dart';
 import 'package:zenon_syrius_wallet_flutter/services/shared_prefs_service.dart';
 import 'package:zenon_syrius_wallet_flutter/services/web3wallet_service.dart';
@@ -44,7 +43,6 @@ import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 Zenon? zenon;
 SharedPrefsService? sharedPrefsService;
-HtlcSwapRepository? htlcSwapsService;
 IWeb3WalletService? web3WalletService;
 
 const String _znnDataDirectoryName = String.fromEnvironment(
@@ -169,8 +167,6 @@ main() async {
     await sharedPrefsService!.checkIfBoxIsOpen();
   }
 
-  htlcSwapsService ??= sl.get<HtlcSwapRepository>();
-
   windowManager.waitUntilReadyToShow().then((_) async {
     await windowManager.setTitle('s y r i u s');
     await windowManager.setMinimumSize(const Size(1200, 600));
@@ -285,7 +281,9 @@ void setup() {
       (SharedPrefsService? value) => value!,
     ),
   );
-  sl.registerSingleton<HtlcSwapRepository>(HtlcSwapRepository.getInstance());
+  sl.registerLazySingleton<HtlcSwapRepository>(
+    () => HtlcSwapRepository(chainIdProvider: () => kNodeChainId),
+  );
 
   // Initialize WalletConnect service
   sl.registerSingleton<IWeb3WalletService>(web3WalletService!);
@@ -387,7 +385,8 @@ class _MyAppState extends State<MyApp> with WindowListener, TrayListener {
           create: (_) => sl.get<MultipleBalanceBloc>(),
         ),
         BlocProvider<AllTokensBloc>(
-          create: (_) => sl.get<AllTokensBloc>()..add(const AllTokensRequested()),
+          create: (_) =>
+              sl.get<AllTokensBloc>()..add(const AllTokensRequested()),
         ),
         BlocProvider<PlasmaStatsBloc>(
           create: (_) => PlasmaStatsBloc(zenon: zenon!)
@@ -538,7 +537,7 @@ class _MyAppState extends State<MyApp> with WindowListener, TrayListener {
     sl<Zenon>().wsClient.stop();
     Future.delayed(const Duration(seconds: 60)).then((value) => exit(0));
     await sl<HtlcSwapsHandler>().stop();
-    await htlcSwapsService?.close();
+    await sl<HtlcSwapRepository>().close();
     await NodeUtils.closeEmbeddedNode();
     await sl.reset();
     super.onWindowClose();

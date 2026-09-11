@@ -4,8 +4,8 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:zenon_syrius_wallet_flutter/model/block_data.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/initial_htlc_validation/utils/htlc_info_extension.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/account_block_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/format_utils.dart';
@@ -27,7 +27,7 @@ class InitialHtlcValidationBloc
   /// Creates an [InitialHtlcValidationBloc].
   InitialHtlcValidationBloc({
     required this._accountBlocksAfterTimeFetcher,
-    required this._htlcSwapsService,
+    required this._htlcSwapRepository,
     required this._walletAddresses,
     required this._zenon,
   }) : super(const InitialHtlcValidationInitial()) {
@@ -36,7 +36,7 @@ class InitialHtlcValidationBloc
   }
 
   final AccountBlocksAfterTimeFetcher _accountBlocksAfterTimeFetcher;
-  final HtlcSwapRepository _htlcSwapsService;
+  final HtlcSwapRepository _htlcSwapRepository;
   final Set<String> _walletAddresses;
   final Zenon _zenon;
 
@@ -90,12 +90,12 @@ class InitialHtlcValidationBloc
   }
 
   Future<void> _validateUnusedDeposit(HtlcInfo htlc) async {
-    if (await _htlcSwapsService.getSwapByHtlcId(htlc.id.toString()) != null) {
+    if (await _htlcSwapRepository.getSwapByHtlcId(htlc.id.toString()) != null) {
       throw SyriusException(
         'This deposit is already used in another swap.',
       );
     }
-    if (await _htlcSwapsService.getSwapByHashLock(htlc.hashLockHex) != null) {
+    if (await _htlcSwapRepository.getSwapByHashLock(htlc.hashLockHex) != null) {
       throw SyriusException(
         "The deposit's hashlock is already used in another swap.",
       );

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nested/nested.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart' show BaseModal, BuildContextExtension;
 import 'package:zenon_syrius_wallet_flutter/utils/account_block_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/global.dart';
@@ -25,7 +25,7 @@ class JoinP2pSwapModal extends StatelessWidget {
             accountBlockUtils: AccountBlockUtils(
               publishSuccessNotification: false,
             ),
-            htlcSwapsService: htlcSwapsService!,
+            swapRepository: sl<HtlcSwapRepository>(),
             zenon: zenon!,
             zenonAddressUtils: ZenonAddressUtils(),
           ),
@@ -34,7 +34,7 @@ class JoinP2pSwapModal extends StatelessWidget {
           create: (_) => InitialHtlcValidationBloc(
             accountBlocksAfterTimeFetcher:
                 AccountBlockUtils.getAccountBlocksAfterTime,
-            htlcSwapsService: htlcSwapsService!,
+            htlcSwapRepository: sl<HtlcSwapRepository>(),
             walletAddresses: kDefaultAddressList.whereType<String>().toSet(),
             zenon: zenon!,
           ),

@@ -24,7 +24,7 @@ class P2pSwapOptionsCard extends StatelessWidget {
         accountBlockUtils: AccountBlockUtils(
           publishSuccessNotification: false,
         ),
-        htlcSwapsService: htlcSwapsService!,
+        swapRepository: sl<HtlcSwapRepository>(),
         zenon: zenon!,
         zenonAddressUtils: ZenonAddressUtils(),
       ),

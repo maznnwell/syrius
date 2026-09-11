@@ -5,7 +5,6 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/account_block_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
@@ -17,12 +16,11 @@ part 'start_p2p_swap_event.dart';
 part 'start_p2p_swap_state.dart';
 
 /// A bloc that creates and stores an outgoing HTLC swap.
-class StartP2pSwapBloc
-    extends Bloc<StartP2pSwapEvent, StartP2pSwapState> {
+class StartP2pSwapBloc extends Bloc<StartP2pSwapEvent, StartP2pSwapState> {
   /// Creates a [StartP2pSwapBloc].
   StartP2pSwapBloc({
     required this._accountBlockUtils,
-    required this._htlcSwapsService,
+    required this._swapRepository,
     required this._zenon,
     required this._zenonAddressUtils,
   }) : super(const StartP2pSwapInitial()) {
@@ -30,7 +28,7 @@ class StartP2pSwapBloc
   }
 
   final AccountBlockUtils _accountBlockUtils;
-  final HtlcSwapRepository _htlcSwapsService;
+  final P2pSwapRepository<HtlcSwap> _swapRepository;
   final Zenon _zenon;
   final ZenonAddressUtils _zenonAddressUtils;
 
@@ -85,7 +83,7 @@ class StartP2pSwapBloc
         hashType: event.hashType,
       );
 
-      await _htlcSwapsService.storeSwap(swap);
+      await _swapRepository.storeSwap(swap);
       _zenonAddressUtils.refreshBalance();
       emit(StartP2pSwapDone(swap: swap));
     } on SyriusException catch (error, stackTrace) {

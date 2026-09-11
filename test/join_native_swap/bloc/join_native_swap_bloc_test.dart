@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -15,7 +14,8 @@ class MockHtlcApi extends Mock implements HtlcApi {}
 
 class MockAccountBlockUtils extends Mock implements AccountBlockUtils {}
 
-class MockHtlcSwapsService extends Mock implements HtlcSwapRepository {}
+class MockP2pSwapRepository extends Mock
+    implements P2pSwapRepository<HtlcSwap> {}
 
 class MockZenonAddressUtils extends Mock implements ZenonAddressUtils {}
 
@@ -39,7 +39,7 @@ void main() {
     late MockEmbedded embedded;
     late MockHtlcApi htlcApi;
     late MockAccountBlockUtils accountBlockUtils;
-    late MockHtlcSwapsService htlcSwapsService;
+    late MockP2pSwapRepository swapRepository;
     late MockZenonAddressUtils zenonAddressUtils;
     late HtlcInfo initialHtlc;
     late AccountBlockTemplate transactionParams;
@@ -73,7 +73,7 @@ void main() {
       embedded = MockEmbedded();
       htlcApi = MockHtlcApi();
       accountBlockUtils = MockAccountBlockUtils();
-      htlcSwapsService = MockHtlcSwapsService();
+      swapRepository = MockP2pSwapRepository();
       zenonAddressUtils = MockZenonAddressUtils();
       initialHtlc = buildInitialHtlc(
         now + kInitialHtlcDuration.inSeconds,
@@ -105,13 +105,13 @@ void main() {
         ),
       ).thenAnswer((_) async => response);
       when(
-        () => htlcSwapsService.storeSwap(any()),
+        () => swapRepository.storeSwap(any()),
       ).thenAnswer((_) async {});
       when(() => zenonAddressUtils.refreshBalance()).thenAnswer((_) {});
 
       bloc = JoinP2pSwapBloc(
         accountBlockUtils: accountBlockUtils,
-        htlcSwapsService: htlcSwapsService,
+        swapRepository: swapRepository,
         zenon: zenon,
         zenonAddressUtils: zenonAddressUtils,
         unixTimeProvider: () => now,
@@ -150,7 +150,7 @@ void main() {
 
         final HtlcSwap swap =
             verify(
-                  () => htlcSwapsService.storeSwap(captureAny()),
+                  () => swapRepository.storeSwap(captureAny()),
                 ).captured.single
                 as HtlcSwap;
 
@@ -240,7 +240,7 @@ void main() {
       'emits [loading, failure] on generic error',
       setUp: () {
         when(
-          () => htlcSwapsService.storeSwap(any()),
+          () => swapRepository.storeSwap(any()),
         ).thenThrow(StateError('boom'));
       },
       build: () => bloc,

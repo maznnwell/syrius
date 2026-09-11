@@ -31,7 +31,7 @@ class AutoUnlockHtlcWorker extends BaseBloc<WalletNotification> {
       final Hash currentHash = pool.first;
       try {
         final HtlcInfo htlc = await zenon!.embedded.htlc.getById(currentHash);
-        final HtlcSwap? swap = await htlcSwapsService!.getSwapByHashLock(
+        final HtlcSwap? swap = await sl<HtlcSwapRepository>().getSwapByHashLock(
           FormatUtils.encodeHexString(htlc.hashLock),
         );
         if (swap == null || swap.preimage == null) {
@@ -42,23 +42,25 @@ class AutoUnlockHtlcWorker extends BaseBloc<WalletNotification> {
         }
         final AccountBlockTemplate transactionParams = zenon!.embedded.htlc
             .unlock(htlc.id, FormatUtils.decodeHexString(swap.preimage!));
-        final AccountBlockTemplate response =
-            await AccountBlockUtils().createAccountBlock(
-          transactionParams,
-          'complete swap',
-          address: htlc.hashLocked,
-          waitForRequiredPlasma: true,
-        );
+        final AccountBlockTemplate response = await AccountBlockUtils()
+            .createAccountBlock(
+              transactionParams,
+              'complete swap',
+              address: htlc.hashLocked,
+              waitForRequiredPlasma: true,
+            );
         _sendSuccessNotification(response, htlc.hashLocked.toString());
       } on RpcException catch (e, stackTrace) {
-        Logger('AutoUnlockHtlcWorker')
-            .log(Level.WARNING, 'autoUnlock', e, stackTrace);
+        Logger(
+          'AutoUnlockHtlcWorker',
+        ).log(Level.WARNING, 'autoUnlock', e, stackTrace);
         if (!e.message.contains('data non existent')) {
           _sendErrorNotification(e.toString());
         }
       } catch (e, stackTrace) {
-        Logger('AutoUnlockHtlcWorker')
-            .log(Level.WARNING, 'autoUnlock', e, stackTrace);
+        Logger(
+          'AutoUnlockHtlcWorker',
+        ).log(Level.WARNING, 'autoUnlock', e, stackTrace);
         _sendErrorNotification(e.toString());
       } finally {
         pool.removeFirst();
@@ -93,21 +95,26 @@ class AutoUnlockHtlcWorker extends BaseBloc<WalletNotification> {
 
   void addHash(Hash hash) {
     if (!processedHashes.contains(hash)) {
-      zenon!.stats.syncInfo().then((SyncInfo syncInfo) {
-        if (!processedHashes.contains(hash) &&
-            (syncInfo.state == SyncState.syncDone ||
-                (syncInfo.targetHeight > 0 &&
-                    syncInfo.currentHeight > 0 &&
-                    (syncInfo.targetHeight - syncInfo.currentHeight) < 3))) {
-          pool.add(hash);
-          processedHashes.add(hash);
-        }
-      }).onError(
-        (Object? e, StackTrace stackTrace) {
-          Logger('AutoUnlockHtlcWorker')
-              .log(Level.WARNING, 'addHash', e, stackTrace);
-        },
-      );
+      zenon!.stats
+          .syncInfo()
+          .then((SyncInfo syncInfo) {
+            if (!processedHashes.contains(hash) &&
+                (syncInfo.state == SyncState.syncDone ||
+                    (syncInfo.targetHeight > 0 &&
+                        syncInfo.currentHeight > 0 &&
+                        (syncInfo.targetHeight - syncInfo.currentHeight) <
+                            3))) {
+              pool.add(hash);
+              processedHashes.add(hash);
+            }
+          })
+          .onError(
+            (Object? e, StackTrace stackTrace) {
+              Logger(
+                'AutoUnlockHtlcWorker',
+              ).log(Level.WARNING, 'addHash', e, stackTrace);
+            },
+          );
     }
   }
 
@@ -119,6 +126,8 @@ class AutoUnlockHtlcWorker extends BaseBloc<WalletNotification> {
   // allowing for it to be retried.
   void _removeHashFromHashSetAfterDelay(Hash hash) {
     Future.delayed(
-        const Duration(minutes: 2), () => processedHashes.remove(hash),);
+      const Duration(minutes: 2),
+      () => processedHashes.remove(hash),
+    );
   }
 }

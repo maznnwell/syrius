@@ -10,6 +10,7 @@ import 'package:zenon_syrius_wallet_flutter/blocs/blocs.dart';
 import 'package:zenon_syrius_wallet_flutter/handlers/htlc_swaps_handler.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/model/model.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/screens/screens.dart';
 import 'package:zenon_syrius_wallet_flutter/services/i_web3wallet_service.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
@@ -66,8 +67,8 @@ class _SplashScreenState extends State<SplashScreen> {
       widget.resetWalletFlow
           ? await _resetWallet()
           : widget.deleteCacheFlow
-              ? await _deleteCache().then((value) => exit(0))
-              : await InitUtils.initApp(context);
+          ? await _deleteCache().then((value) => exit(0))
+          : await InitUtils.initApp(context);
       _navigateToNextScreen();
     } on Exception catch (e) {
       Navigator.pushReplacementNamed(
@@ -118,7 +119,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _deleteCache() async {
     await sl<HtlcSwapsHandler>().stop();
-    await htlcSwapsService?.deleteDatabase();
+    await sl<HtlcSwapRepository>().deleteDatabase();
     await Hive.close();
     await Future.forEach<String>(
       kCacheBoxesToBeDeleted,
@@ -134,8 +135,9 @@ class _SplashScreenState extends State<SplashScreen> {
         await web3WalletService.deactivatePairing(topic: pairing.topic);
       }
     } catch (e, stackTrace) {
-      Logger('SplashScreen')
-          .log(Level.WARNING, '_deleteWeb3Cache', e, stackTrace);
+      Logger(
+        'SplashScreen',
+      ).log(Level.WARNING, '_deleteWeb3Cache', e, stackTrace);
     }
   }
 
@@ -149,7 +151,8 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
-  void _checkForDefaultNode() => sharedPrefsService!.get(
+  void _checkForDefaultNode() =>
+      sharedPrefsService!.get(
             kSelectedNodeKey,
           ) !=
           null

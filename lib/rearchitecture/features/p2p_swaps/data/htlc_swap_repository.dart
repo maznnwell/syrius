@@ -6,20 +6,17 @@ import 'package:mutex/mutex.dart';
 import 'package:path/path.dart' as path;
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap/model/p2p_swap.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swaps_database.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/p2p_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
-import 'package:zenon_syrius_wallet_flutter/utils/global.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-class HtlcSwapRepository {
-  HtlcSwapRepository({File? databaseFile}) : _databaseFileOverride = databaseFile;
+class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
+  HtlcSwapRepository({
+    required this._chainIdProvider,
+    File? databaseFile,
+  }) : _databaseFileOverride = databaseFile;
 
-  static HtlcSwapRepository? _instance;
-
-  static HtlcSwapRepository getInstance() {
-    _instance ??= HtlcSwapRepository();
-    return _instance!;
-  }
-
+  final int? Function() _chainIdProvider;
   final File? _databaseFileOverride;
   final Mutex _mutex = Mutex();
 
@@ -105,8 +102,9 @@ class HtlcSwapRepository {
   Future<void> rollbackRekey(List<int> oldEncryptionKey) =>
       _mutex.protect(() => _restoreRekeyBackup(oldEncryptionKey));
 
+  @override
   Future<List<HtlcSwap>> getAllSwaps() async {
-    final int? chainId = kNodeChainId;
+    final int? chainId = _chainIdProvider();
     if (chainId == null) {
       return <HtlcSwap>[];
     }
@@ -120,10 +118,11 @@ class HtlcSwapRepository {
     });
   }
 
+  @override
   Future<List<HtlcSwap>> getSwapsByState(
     List<P2pSwapState> states,
   ) async {
-    final int? chainId = kNodeChainId;
+    final int? chainId = _chainIdProvider();
     if (chainId == null || states.isEmpty) {
       return <HtlcSwap>[];
     }
@@ -159,6 +158,7 @@ class HtlcSwapRepository {
     );
   }
 
+  @override
   Future<HtlcSwap?> getSwapById(String id) {
     return _getSingleSwap(
       (table, chainId) => table.chainId.equals(chainId) & table.id.equals(id),
@@ -166,7 +166,7 @@ class HtlcSwapRepository {
   }
 
   Future<int> getLastCheckedHtlcBlockHeight() async {
-    final int? chainId = kNodeChainId;
+    final int? chainId = _chainIdProvider();
     if (chainId == null) {
       return 0;
     }
@@ -180,6 +180,7 @@ class HtlcSwapRepository {
     });
   }
 
+  @override
   Future<void> storeSwap(HtlcSwap swap) => _mutex.protect(() async {
     final HtlcSwapsDatabase database = _requireDatabase();
     await database.transaction(() async {
@@ -203,7 +204,7 @@ class HtlcSwapRepository {
   });
 
   Future<void> storeLastCheckedHtlcBlockHeight(int height) async {
-    final int? chainId = kNodeChainId;
+    final int? chainId = _chainIdProvider();
     if (chainId == null) {
       throw StateError('Cannot store an HTLC checkpoint without a chain id');
     }
@@ -221,6 +222,7 @@ class HtlcSwapRepository {
     });
   }
 
+  @override
   Future<void> deleteSwap(String swapId) => _mutex.protect(() async {
     final HtlcSwapsDatabase database = _requireDatabase();
     await (database.delete(
@@ -228,8 +230,9 @@ class HtlcSwapRepository {
     )..where((table) => table.id.equals(swapId))).go();
   });
 
+  @override
   Future<void> deleteInactiveSwaps() async {
-    final int? chainId = kNodeChainId;
+    final int? chainId = _chainIdProvider();
     if (chainId == null) {
       return;
     }
@@ -253,7 +256,7 @@ class HtlcSwapRepository {
     Expression<bool> Function($HtlcSwapEntriesTable table, int chainId)
     predicate,
   ) async {
-    final int? chainId = kNodeChainId;
+    final int? chainId = _chainIdProvider();
     if (chainId == null) {
       return null;
     }
@@ -280,7 +283,7 @@ class HtlcSwapRepository {
       return;
     }
 
-    final int? chainId = kNodeChainId;
+    final int? chainId = _chainIdProvider();
     if (chainId == null) {
       return;
     }

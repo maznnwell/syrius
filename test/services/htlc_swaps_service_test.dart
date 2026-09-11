@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
-import 'package:zenon_syrius_wallet_flutter/services/htlc_swap_repository.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -25,7 +25,10 @@ void main() {
       'syrius_htlc_drift_test_',
     );
     databaseFile = File('${temporaryDirectory.path}/htlc_swaps.sqlite');
-    service = HtlcSwapRepository(databaseFile: databaseFile);
+    service = HtlcSwapRepository(
+      chainIdProvider: () => kNodeChainId,
+      databaseFile: databaseFile,
+    );
     await service.open(encryptionKey);
   });
 
@@ -103,6 +106,7 @@ void main() {
     expect(databaseContents, isNot(contains(secretPreimage)));
 
     final HtlcSwapRepository incorrectKeyService = HtlcSwapRepository(
+      chainIdProvider: () => kNodeChainId,
       databaseFile: databaseFile,
     );
     await expectLater(
@@ -111,7 +115,10 @@ void main() {
     );
     await incorrectKeyService.close();
 
-    service = HtlcSwapRepository(databaseFile: databaseFile);
+    service = HtlcSwapRepository(
+      chainIdProvider: () => kNodeChainId,
+      databaseFile: databaseFile,
+    );
     await service.open(encryptionKey);
     expect(await service.getAllSwaps(), hasLength(1));
   });
@@ -128,12 +135,16 @@ void main() {
     await service.close();
 
     final HtlcSwapRepository oldKeyService = HtlcSwapRepository(
+      chainIdProvider: () => kNodeChainId,
       databaseFile: databaseFile,
     );
     await expectLater(oldKeyService.open(encryptionKey), throwsA(anything));
     await oldKeyService.close();
 
-    service = HtlcSwapRepository(databaseFile: databaseFile);
+    service = HtlcSwapRepository(
+      chainIdProvider: () => kNodeChainId,
+      databaseFile: databaseFile,
+    );
     await service.open(newEncryptionKey);
     expect(await service.getAllSwaps(), <HtlcSwap>[swap]);
   });
@@ -147,7 +158,10 @@ void main() {
     );
     await service.close();
 
-    service = HtlcSwapRepository(databaseFile: databaseFile);
+    service = HtlcSwapRepository(
+      chainIdProvider: () => kNodeChainId,
+      databaseFile: databaseFile,
+    );
     await service.open(encryptionKey);
 
     expect(await service.getAllSwaps(), <HtlcSwap>[swap]);
@@ -166,7 +180,10 @@ void main() {
 
     expect(await service.getAllSwaps(), <HtlcSwap>[swap]);
     await service.close();
-    service = HtlcSwapRepository(databaseFile: databaseFile);
+    service = HtlcSwapRepository(
+      chainIdProvider: () => kNodeChainId,
+      databaseFile: databaseFile,
+    );
     await service.open(encryptionKey);
     expect(await service.getAllSwaps(), <HtlcSwap>[swap]);
   });

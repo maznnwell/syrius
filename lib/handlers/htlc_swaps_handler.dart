@@ -39,7 +39,7 @@ class HtlcSwapsHandler {
   }
 
   Future<bool> get hasActiveIncomingSwaps async =>
-      (await htlcSwapsService!.getSwapsByState(<P2pSwapState>[
+      (await sl<HtlcSwapRepository>().getSwapsByState(<P2pSwapState>[
         P2pSwapState.active,
       ])).any((HtlcSwap swap) => swap.direction == P2pSwapDirection.incoming);
 
@@ -47,7 +47,7 @@ class HtlcSwapsHandler {
     try {
       await _enableWakelockIfNeeded();
       if (!zenon!.wsClient.isClosed()) {
-        final List<HtlcSwap> unresolvedSwaps = await htlcSwapsService!
+        final List<HtlcSwap> unresolvedSwaps = await sl<HtlcSwapRepository>()
             .getSwapsByState(<P2pSwapState>[
               P2pSwapState.pending,
               P2pSwapState.active,
@@ -104,11 +104,12 @@ class HtlcSwapsHandler {
   Future<bool> _areThereNewHtlcBlocks() async {
     final int? frontier = await _getHtlcFrontierHeight();
     return frontier != null &&
-        frontier > (await htlcSwapsService!.getLastCheckedHtlcBlockHeight());
+        frontier >
+            (await sl<HtlcSwapRepository>().getLastCheckedHtlcBlockHeight());
   }
 
   Future<List<AccountBlock>> _getNewHtlcBlocks(List<HtlcSwap> swaps) async {
-    final int lastCheckedHeight = await htlcSwapsService!
+    final int lastCheckedHeight = await sl<HtlcSwapRepository>()
         .getLastCheckedHtlcBlockHeight();
     final int oldestSwapStartTime = _getOldestSwapStartTime(swaps) ?? 0;
     int lastCheckedBlockTime = 0;
@@ -145,7 +146,9 @@ class HtlcSwapsHandler {
   Future<void> _goThroughHtlcBlocks(List<AccountBlock> blocks) async {
     for (final AccountBlock block in blocks) {
       await _extractSwapDataFromBlock(block);
-      await htlcSwapsService!.storeLastCheckedHtlcBlockHeight(block.height);
+      await sl<HtlcSwapRepository>().storeLastCheckedHtlcBlockHeight(
+        block.height,
+      );
     }
   }
 
@@ -176,7 +179,7 @@ class HtlcSwapsHandler {
     switch (blockData.function) {
       case 'Create':
         if (swap.state == P2pSwapState.pending) {
-          await htlcSwapsService!.storeSwap(
+          await sl<HtlcSwapRepository>().storeSwap(
             swap.copyWith(state: P2pSwapState.active),
           );
         } else if (swap.state == P2pSwapState.active &&
@@ -185,7 +188,7 @@ class HtlcSwapsHandler {
           if (!_isValidCounterHtlc(pairedBlock, blockData, swap)) {
             return;
           }
-          await htlcSwapsService!.storeSwap(
+          await sl<HtlcSwapRepository>().storeSwap(
             swap.copyWith(
               counterHtlcId: pairedBlock.hash.toString(),
               toAmount: pairedBlock.amount,
@@ -208,13 +211,13 @@ class HtlcSwapsHandler {
           updatedSwap = updatedSwap.copyWith(
             preimage: FormatUtils.encodeHexString(blockData.params['preimage']),
           );
-          await htlcSwapsService!.storeSwap(updatedSwap);
+          await sl<HtlcSwapRepository>().storeSwap(updatedSwap);
         }
 
         if (updatedSwap.direction == P2pSwapDirection.incoming &&
             blockData.params['id'].toString() == updatedSwap.initialHtlcId) {
           updatedSwap = updatedSwap.copyWith(state: P2pSwapState.completed);
-          await htlcSwapsService!.storeSwap(updatedSwap);
+          await sl<HtlcSwapRepository>().storeSwap(updatedSwap);
         }
 
         // Handle the situation where the counter HTLC of an outgoing swap
@@ -223,7 +226,7 @@ class HtlcSwapsHandler {
             updatedSwap.state == P2pSwapState.active &&
             blockData.params['id'].toString() == updatedSwap.counterHtlcId) {
           updatedSwap = updatedSwap.copyWith(state: P2pSwapState.completed);
-          await htlcSwapsService!.storeSwap(updatedSwap);
+          await sl<HtlcSwapRepository>().storeSwap(updatedSwap);
         }
         return;
       case 'Reclaim':
@@ -239,7 +242,7 @@ class HtlcSwapsHandler {
           isSelfReclaim = true;
         }
         if (isSelfReclaim) {
-          await htlcSwapsService!.storeSwap(
+          await sl<HtlcSwapRepository>().storeSwap(
             swap.copyWith(state: P2pSwapState.unsuccessful),
           );
         }
@@ -250,12 +253,12 @@ class HtlcSwapsHandler {
   Future<HtlcSwap?> _tryGetSwapFromBlockData(BlockData data) async {
     HtlcSwap? swap;
     if (data.params.containsKey('id')) {
-      swap = await htlcSwapsService!.getSwapByHtlcId(
+      swap = await sl<HtlcSwapRepository>().getSwapByHtlcId(
         data.params['id'].toString(),
       );
     }
     if (data.params.containsKey('hashLock') && swap == null) {
-      swap = await htlcSwapsService!.getSwapByHashLock(
+      swap = await sl<HtlcSwapRepository>().getSwapByHashLock(
         Hash.fromBytes(data.params['hashLock']).toString(),
       );
     }
@@ -289,7 +292,7 @@ class HtlcSwapsHandler {
   }
 
   Future<void> _checkForExpiredSwaps() async {
-    final List<HtlcSwap> swaps = await htlcSwapsService!.getSwapsByState(
+    final List<HtlcSwap> swaps = await sl<HtlcSwapRepository>().getSwapsByState(
       <P2pSwapState>[P2pSwapState.pending, P2pSwapState.active],
     );
     final int now = DateTime.now().unixTimestamp;
@@ -299,7 +302,7 @@ class HtlcSwapsHandler {
               swap.counterHtlcExpirationTime! -
                       kMinSafeTimeToCompleteSwap.inSeconds <
                   now)) {
-        await htlcSwapsService!.storeSwap(
+        await sl<HtlcSwapRepository>().storeSwap(
           swap.copyWith(state: P2pSwapState.reclaimable),
         );
       }
@@ -311,7 +314,7 @@ class HtlcSwapsHandler {
     // since the counterparty may have published the preimage at the last moment
     // before the HTLC would have expired. In this situation the swap's state
     // may have already been changed to reclaimable.
-    final List<HtlcSwap> swaps = await htlcSwapsService!.getSwapsByState(
+    final List<HtlcSwap> swaps = await sl<HtlcSwapRepository>().getSwapsByState(
       <P2pSwapState>[P2pSwapState.active, P2pSwapState.reclaimable],
     );
     for (final HtlcSwap swap in swaps) {
