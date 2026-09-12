@@ -9,72 +9,70 @@ import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class HtlcSwapLocalStorageApi {
   HtlcSwapLocalStorageApi({File? databaseFile})
-    : _databaseFileOverride = databaseFile;
+    : _storageFile =
+          databaseFile ??
+          File(path.join(znnDefaultPaths.cache.path, kHtlcSwapsDatabase));
 
-  final File? _databaseFileOverride;
+  final File _storageFile;
   final Mutex _mutex = Mutex();
 
-  HtlcSwapsDatabase? _database;
+  HtlcSwapsDatabase? _connection;
 
-  File get _databaseFile =>
-      _databaseFileOverride ??
-      File(path.join(znnDefaultPaths.cache.path, kHtlcSwapsDatabase));
-
-  File get _rekeyBackupFile => File('${_databaseFile.path}.rekey-backup');
+  File get _rekeyBackupFile => File('${_storageFile.path}.rekey-backup');
 
   Future<void> open(List<int> encryptionKey) => _mutex.protect(() async {
-    if (_database != null) {
+    if (_connection != null) {
       return;
     }
 
-    await _databaseFile.parent.create(recursive: true);
+    await _storageFile.parent.create(recursive: true);
     try {
-      _database = await _openDatabase(_databaseFile, encryptionKey);
+      _connection = await _openConnection(_storageFile, encryptionKey);
     } catch (_) {
       if (!_rekeyBackupFile.existsSync()) {
         rethrow;
       }
 
-      final HtlcSwapsDatabase backup = await _openDatabase(
+      final HtlcSwapsDatabase backupConnection = await _openConnection(
         _rekeyBackupFile,
         encryptionKey,
       );
-      await backup.close();
-      await _deleteDatabaseFiles(_databaseFile);
-      await _rekeyBackupFile.rename(_databaseFile.path);
-      _database = await _openDatabase(_databaseFile, encryptionKey);
+      await backupConnection.close();
+      await _deleteSqliteFiles(_storageFile);
+      await _rekeyBackupFile.rename(_storageFile.path);
+      _connection = await _openConnection(_storageFile, encryptionKey);
     }
 
     try {
-      await _deleteDatabaseFiles(_rekeyBackupFile);
+      await _deleteSqliteFiles(_rekeyBackupFile);
     } on FileSystemException {
       // A valid primary database makes a stale encrypted backup disposable.
     }
   });
 
-  Future<void> close() => _mutex.protect(_closeDatabase);
+  Future<void> close() => _mutex.protect(_closeConnection);
 
   Future<void> deleteDatabase() => _mutex.protect(() async {
-    await _closeDatabase();
-    await _deleteDatabaseFiles(_databaseFile);
-    await _deleteDatabaseFiles(_rekeyBackupFile);
+    await _closeConnection();
+    await _deleteSqliteFiles(_storageFile);
+    await _deleteSqliteFiles(_rekeyBackupFile);
   });
 
   Future<void> beginRekey({
     required List<int> oldEncryptionKey,
     required List<int> newEncryptionKey,
   }) => _mutex.protect(() async {
-    final HtlcSwapsDatabase database = _requireDatabase();
-    await database.customStatement('PRAGMA wal_checkpoint(TRUNCATE);');
-    await _closeDatabase();
-    await _deleteDatabaseFiles(_rekeyBackupFile);
-    await _databaseFile.copy(_rekeyBackupFile.path);
+    final HtlcSwapsDatabase connection = _requireConnection();
+    await connection.customStatement('PRAGMA wal_checkpoint(TRUNCATE);');
+    await _closeConnection();
+    await _deleteSqliteFiles(_rekeyBackupFile);
+    await _storageFile.copy(_rekeyBackupFile.path);
 
     try {
-      _database = await _openDatabase(_databaseFile, oldEncryptionKey);
-      await _database!.rekey(newEncryptionKey);
-      await _closeDatabase();
-      _database = await _openDatabase(_databaseFile, newEncryptionKey);
+      _connection = await _openConnection(_storageFile, oldEncryptionKey);
+      await _connection!.rekey(newEncryptionKey);
+      await _closeConnection();
+      _connection = await _openConnection(_storageFile, newEncryptionKey);
     } catch (_) {
       await _restoreRekeyBackup(oldEncryptionKey);
       rethrow;
@@ -83,7 +81,7 @@ class HtlcSwapLocalStorageApi {
 
   Future<void> commitRekey() => _mutex.protect(() async {
     try {
-      await _deleteDatabaseFiles(_rekeyBackupFile);
+      await _deleteSqliteFiles(_rekeyBackupFile);
     } on FileSystemException {
       // A stale encrypted backup is removed the next time the database opens.
     }
@@ -94,9 +92,9 @@ class HtlcSwapLocalStorageApi {
 
   Future<List<HtlcSwapEntry>> readAllSwapEntries(int chainId) =>
       _mutex.protect(() async {
-        final HtlcSwapsDatabase database = _requireDatabase();
-        return (database.select(
-              database.htlcSwapEntries,
+        final HtlcSwapsDatabase connection = _requireConnection();
+        return (connection.select(
+              connection.htlcSwapEntries,
             )..where(
               ($HtlcSwapEntriesTable table) => table.chainId.equals(chainId),
             ))
@@ -107,8 +105,8 @@ class HtlcSwapLocalStorageApi {
     int chainId,
     List<String> states,
   ) => _mutex.protect(() async {
-    final HtlcSwapsDatabase database = _requireDatabase();
-    return (database.select(database.htlcSwapEntries)..where(
+    final HtlcSwapsDatabase connection = _requireConnection();
+    return (connection.select(connection.htlcSwapEntries)..where(
           ($HtlcSwapEntriesTable table) =>
               table.chainId.equals(chainId) & table.state.isIn(states),
         ))
@@ -139,10 +137,10 @@ class HtlcSwapLocalStorageApi {
 
   Future<int> readLastCheckedHtlcBlockHeight(int chainId) =>
       _mutex.protect(() async {
-        final HtlcSwapsDatabase database = _requireDatabase();
+        final HtlcSwapsDatabase connection = _requireConnection();
         final HtlcScanCheckpoint? checkpoint =
-            await (database.select(
-                  database.htlcScanCheckpoints,
+            await (connection.select(
+                  connection.htlcScanCheckpoints,
                 )..where(
                   ($HtlcScanCheckpointsTable table) =>
                       table.chainId.equals(chainId),
@@ -157,13 +155,13 @@ class HtlcSwapLocalStorageApi {
     required int? pruneChainId,
     required List<String> prunableStates,
   }) => _mutex.protect(() async {
-    final HtlcSwapsDatabase database = _requireDatabase();
-    await database.transaction(() async {
-      await database
-          .into(database.htlcSwapEntries)
+    final HtlcSwapsDatabase connection = _requireConnection();
+    await connection.transaction(() async {
+      await connection
+          .into(connection.htlcSwapEntries)
           .insertOnConflictUpdate(entry);
       await _pruneSwapHistoryIfNeeded(
-        database,
+        connection,
         maximumStoredSwaps: maximumStoredSwaps,
         pruneChainId: pruneChainId,
         prunableStates: prunableStates,
@@ -175,9 +173,9 @@ class HtlcSwapLocalStorageApi {
     int chainId,
     int height,
   ) => _mutex.protect(() async {
-    final HtlcSwapsDatabase database = _requireDatabase();
-    await database
-        .into(database.htlcScanCheckpoints)
+    final HtlcSwapsDatabase connection = _requireConnection();
+    await connection
+        .into(connection.htlcScanCheckpoints)
         .insertOnConflictUpdate(
           HtlcScanCheckpointsCompanion.insert(
             chainId: Value<int>(chainId),
@@ -187,9 +185,9 @@ class HtlcSwapLocalStorageApi {
   });
 
   Future<void> deleteSwapEntry(String swapId) => _mutex.protect(() async {
-    final HtlcSwapsDatabase database = _requireDatabase();
-    await (database.delete(
-      database.htlcSwapEntries,
+    final HtlcSwapsDatabase connection = _requireConnection();
+    await (connection.delete(
+      connection.htlcSwapEntries,
     )..where(($HtlcSwapEntriesTable table) => table.id.equals(swapId))).go();
   });
 
@@ -197,8 +195,8 @@ class HtlcSwapLocalStorageApi {
     int chainId,
     List<String> states,
   ) => _mutex.protect(() async {
-    final HtlcSwapsDatabase database = _requireDatabase();
-    await (database.delete(database.htlcSwapEntries)..where(
+    final HtlcSwapsDatabase connection = _requireConnection();
+    await (connection.delete(connection.htlcSwapEntries)..where(
           ($HtlcSwapEntriesTable table) =>
               table.chainId.equals(chainId) & table.state.isIn(states),
         ))
@@ -208,22 +206,22 @@ class HtlcSwapLocalStorageApi {
   Future<HtlcSwapEntry?> _readSingleSwapEntry(
     Expression<bool> Function($HtlcSwapEntriesTable table) predicate,
   ) => _mutex.protect(() async {
-    final HtlcSwapsDatabase database = _requireDatabase();
-    return (database.select(database.htlcSwapEntries)
+    final HtlcSwapsDatabase connection = _requireConnection();
+    return (connection.select(connection.htlcSwapEntries)
           ..where(predicate)
           ..limit(1))
         .getSingleOrNull();
   });
 
   Future<void> _pruneSwapHistoryIfNeeded(
-    HtlcSwapsDatabase database, {
+    HtlcSwapsDatabase connection, {
     required int maximumStoredSwaps,
     required int? pruneChainId,
     required List<String> prunableStates,
   }) async {
-    final Expression<int> count = database.htlcSwapEntries.id.count();
-    final TypedResult countResult = await (database.selectOnly(
-      database.htlcSwapEntries,
+    final Expression<int> count = connection.htlcSwapEntries.id.count();
+    final TypedResult countResult = await (connection.selectOnly(
+      connection.htlcSwapEntries,
     )..addColumns(<Expression<Object>>[count])).getSingle();
     if ((countResult.read(count) ?? 0) <= maximumStoredSwaps ||
         pruneChainId == null) {
@@ -231,7 +229,7 @@ class HtlcSwapLocalStorageApi {
     }
 
     final HtlcSwapEntry? oldest =
-        await (database.select(database.htlcSwapEntries)
+        await (connection.select(connection.htlcSwapEntries)
               ..where(
                 ($HtlcSwapEntriesTable table) =>
                     table.chainId.equals(pruneChainId) &
@@ -244,55 +242,55 @@ class HtlcSwapLocalStorageApi {
               ..limit(1))
             .getSingleOrNull();
     if (oldest != null) {
-      await (database.delete(
-            database.htlcSwapEntries,
+      await (connection.delete(
+            connection.htlcSwapEntries,
           )..where(($HtlcSwapEntriesTable table) => table.id.equals(oldest.id)))
           .go();
     }
   }
 
-  HtlcSwapsDatabase _requireDatabase() {
-    return _database ??
+  HtlcSwapsDatabase _requireConnection() {
+    return _connection ??
         (throw StateError('The HTLC swaps database is not open'));
   }
 
-  Future<HtlcSwapsDatabase> _openDatabase(
+  Future<HtlcSwapsDatabase> _openConnection(
     File file,
     List<int> encryptionKey,
   ) async {
-    final HtlcSwapsDatabase database = HtlcSwapsDatabase.encrypted(
+    final HtlcSwapsDatabase connection = HtlcSwapsDatabase.encrypted(
       file,
       encryptionKey,
     );
     try {
-      await database.verifyOpen();
-      return database;
+      await connection.verifyOpen();
+      return connection;
     } catch (_) {
-      await database.close();
+      await connection.close();
       rethrow;
     }
   }
 
-  Future<void> _closeDatabase() async {
-    final HtlcSwapsDatabase? database = _database;
-    _database = null;
-    await database?.close();
+  Future<void> _closeConnection() async {
+    final HtlcSwapsDatabase? connection = _connection;
+    _connection = null;
+    await connection?.close();
   }
 
   Future<void> _restoreRekeyBackup(List<int> oldEncryptionKey) async {
-    await _closeDatabase();
+    await _closeConnection();
     if (!_rekeyBackupFile.existsSync()) {
       throw StateError('The HTLC swaps rekey backup does not exist');
     }
 
-    await _deleteDatabaseFiles(_databaseFile);
-    await _rekeyBackupFile.rename(_databaseFile.path);
-    _database = await _openDatabase(_databaseFile, oldEncryptionKey);
+    await _deleteSqliteFiles(_storageFile);
+    await _rekeyBackupFile.rename(_storageFile.path);
+    _connection = await _openConnection(_storageFile, oldEncryptionKey);
   }
 
-  Future<void> _deleteDatabaseFiles(File databaseFile) async {
+  Future<void> _deleteSqliteFiles(File storageFile) async {
     for (final String suffix in <String>['', '-wal', '-shm']) {
-      final File file = File('${databaseFile.path}$suffix');
+      final File file = File('${storageFile.path}$suffix');
       if (file.existsSync()) {
         await file.delete();
       }
