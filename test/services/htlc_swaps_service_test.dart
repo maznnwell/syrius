@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swap_local_storage_api.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
@@ -10,13 +11,22 @@ import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 void main() {
   late Directory temporaryDirectory;
   late File databaseFile;
-  late HtlcSwapRepository service;
+  late HtlcSwapLocalStorageApi dataProvider;
+  late HtlcSwapRepository repository;
   late int? originalChainId;
 
   final List<int> encryptionKey = Crypto.digest(utf8.encode('password'));
   final List<int> newEncryptionKey = Crypto.digest(
     utf8.encode('new-password'),
   );
+
+  void createDataLayer() {
+    dataProvider = HtlcSwapLocalStorageApi(databaseFile: databaseFile);
+    repository = HtlcSwapRepository(
+      chainIdProvider: () => kNodeChainId,
+      dataProvider: dataProvider,
+    );
+  }
 
   setUp(() async {
     originalChainId = kNodeChainId;
@@ -25,15 +35,12 @@ void main() {
       'syrius_htlc_drift_test_',
     );
     databaseFile = File('${temporaryDirectory.path}/htlc_swaps.sqlite');
-    service = HtlcSwapRepository(
-      chainIdProvider: () => kNodeChainId,
-      databaseFile: databaseFile,
-    );
-    await service.open(encryptionKey);
+    createDataLayer();
+    await dataProvider.open(encryptionKey);
   });
 
   tearDown(() async {
-    await service.close();
+    await dataProvider.close();
     kNodeChainId = originalChainId;
     if (await temporaryDirectory.exists()) {
       await temporaryDirectory.delete(recursive: true);
@@ -42,33 +49,33 @@ void main() {
 
   test('stores and queries swaps for the current chain', () async {
     final HtlcSwap swap = _buildSwap();
-    await service.storeSwap(swap);
+    await repository.storeSwap(swap);
 
-    expect(await service.getAllSwaps(), <HtlcSwap>[swap]);
-    expect(await service.getSwapById(swap.id), swap);
-    expect(await service.getSwapByHashLock(swap.hashLock), swap);
-    expect(await service.getSwapByHtlcId(swap.initialHtlcId), swap);
-    expect(await service.getSwapByHtlcId(swap.counterHtlcId!), swap);
+    expect(await repository.getAllSwaps(), <HtlcSwap>[swap]);
+    expect(await repository.getSwapById(swap.id), swap);
+    expect(await repository.getSwapByHashLock(swap.hashLock), swap);
+    expect(await repository.getSwapByHtlcId(swap.initialHtlcId), swap);
+    expect(await repository.getSwapByHtlcId(swap.counterHtlcId!), swap);
     expect(
-      await service.getSwapsByState(<P2pSwapState>[P2pSwapState.active]),
+      await repository.getSwapsByState(<P2pSwapState>[P2pSwapState.active]),
       <HtlcSwap>[swap],
     );
 
     kNodeChainId = 2;
-    expect(await service.getAllSwaps(), isEmpty);
+    expect(await repository.getAllSwaps(), isEmpty);
   });
 
   test('stores scan checkpoints independently for each chain', () async {
-    await service.storeLastCheckedHtlcBlockHeight(10);
-    expect(await service.getLastCheckedHtlcBlockHeight(), 10);
+    await repository.storeLastCheckedHtlcBlockHeight(10);
+    expect(await repository.getLastCheckedHtlcBlockHeight(), 10);
 
     kNodeChainId = 2;
-    expect(await service.getLastCheckedHtlcBlockHeight(), 0);
-    await service.storeLastCheckedHtlcBlockHeight(20);
-    expect(await service.getLastCheckedHtlcBlockHeight(), 20);
+    expect(await repository.getLastCheckedHtlcBlockHeight(), 0);
+    await repository.storeLastCheckedHtlcBlockHeight(20);
+    expect(await repository.getLastCheckedHtlcBlockHeight(), 20);
 
     kNodeChainId = 1;
-    expect(await service.getLastCheckedHtlcBlockHeight(), 10);
+    expect(await repository.getLastCheckedHtlcBlockHeight(), 10);
   });
 
   test('deletes inactive swaps only on the current chain', () async {
@@ -82,21 +89,21 @@ void main() {
       chainId: 2,
       state: P2pSwapState.completed,
     );
-    await service.storeSwap(active);
-    await service.storeSwap(completed);
-    await service.storeSwap(otherChain);
+    await repository.storeSwap(active);
+    await repository.storeSwap(completed);
+    await repository.storeSwap(otherChain);
 
-    await service.deleteInactiveSwaps();
+    await repository.deleteInactiveSwaps();
 
-    expect(await service.getAllSwaps(), <HtlcSwap>[active]);
+    expect(await repository.getAllSwaps(), <HtlcSwap>[active]);
     kNodeChainId = 2;
-    expect(await service.getAllSwaps(), <HtlcSwap>[otherChain]);
+    expect(await repository.getAllSwaps(), <HtlcSwap>[otherChain]);
   });
 
   test('encrypts the database and rejects an incorrect key', () async {
     const String secretPreimage = 'unencrypted-preimage-marker';
-    await service.storeSwap(_buildSwap(preimage: secretPreimage));
-    await service.close();
+    await repository.storeSwap(_buildSwap(preimage: secretPreimage));
+    await dataProvider.close();
 
     final String databaseContents = latin1.decode(
       await databaseFile.readAsBytes(),
@@ -105,87 +112,76 @@ void main() {
     expect(databaseContents, isNot(contains('SQLite format 3')));
     expect(databaseContents, isNot(contains(secretPreimage)));
 
-    final HtlcSwapRepository incorrectKeyService = HtlcSwapRepository(
-      chainIdProvider: () => kNodeChainId,
+    final HtlcSwapLocalStorageApi incorrectKeyDataProvider = HtlcSwapLocalStorageApi(
       databaseFile: databaseFile,
     );
     await expectLater(
-      incorrectKeyService.open(newEncryptionKey),
+      incorrectKeyDataProvider.open(newEncryptionKey),
       throwsA(anything),
     );
-    await incorrectKeyService.close();
+    await incorrectKeyDataProvider.close();
 
-    service = HtlcSwapRepository(
-      chainIdProvider: () => kNodeChainId,
-      databaseFile: databaseFile,
-    );
-    await service.open(encryptionKey);
-    expect(await service.getAllSwaps(), hasLength(1));
+    createDataLayer();
+    await dataProvider.open(encryptionKey);
+    expect(await repository.getAllSwaps(), hasLength(1));
   });
 
   test('rekeys the database when the password changes', () async {
     final HtlcSwap swap = _buildSwap();
-    await service.storeSwap(swap);
+    await repository.storeSwap(swap);
 
-    await service.beginRekey(
+    await dataProvider.beginRekey(
       oldEncryptionKey: encryptionKey,
       newEncryptionKey: newEncryptionKey,
     );
-    await service.commitRekey();
-    await service.close();
+    await dataProvider.commitRekey();
+    await dataProvider.close();
 
-    final HtlcSwapRepository oldKeyService = HtlcSwapRepository(
-      chainIdProvider: () => kNodeChainId,
+    final HtlcSwapLocalStorageApi oldKeyDataProvider = HtlcSwapLocalStorageApi(
       databaseFile: databaseFile,
     );
-    await expectLater(oldKeyService.open(encryptionKey), throwsA(anything));
-    await oldKeyService.close();
-
-    service = HtlcSwapRepository(
-      chainIdProvider: () => kNodeChainId,
-      databaseFile: databaseFile,
+    await expectLater(
+      oldKeyDataProvider.open(encryptionKey),
+      throwsA(anything),
     );
-    await service.open(newEncryptionKey);
-    expect(await service.getAllSwaps(), <HtlcSwap>[swap]);
+    await oldKeyDataProvider.close();
+
+    createDataLayer();
+    await dataProvider.open(newEncryptionKey);
+    expect(await repository.getAllSwaps(), <HtlcSwap>[swap]);
   });
 
   test('restores the old key after an interrupted password change', () async {
     final HtlcSwap swap = _buildSwap();
-    await service.storeSwap(swap);
-    await service.beginRekey(
+    await repository.storeSwap(swap);
+    await dataProvider.beginRekey(
       oldEncryptionKey: encryptionKey,
       newEncryptionKey: newEncryptionKey,
     );
-    await service.close();
+    await dataProvider.close();
 
-    service = HtlcSwapRepository(
-      chainIdProvider: () => kNodeChainId,
-      databaseFile: databaseFile,
-    );
-    await service.open(encryptionKey);
+    createDataLayer();
+    await dataProvider.open(encryptionKey);
 
-    expect(await service.getAllSwaps(), <HtlcSwap>[swap]);
+    expect(await repository.getAllSwaps(), <HtlcSwap>[swap]);
     expect(await File('${databaseFile.path}.rekey-backup').exists(), isFalse);
   });
 
   test('rolls back a prepared password change', () async {
     final HtlcSwap swap = _buildSwap();
-    await service.storeSwap(swap);
-    await service.beginRekey(
+    await repository.storeSwap(swap);
+    await dataProvider.beginRekey(
       oldEncryptionKey: encryptionKey,
       newEncryptionKey: newEncryptionKey,
     );
 
-    await service.rollbackRekey(encryptionKey);
+    await dataProvider.rollbackRekey(encryptionKey);
 
-    expect(await service.getAllSwaps(), <HtlcSwap>[swap]);
-    await service.close();
-    service = HtlcSwapRepository(
-      chainIdProvider: () => kNodeChainId,
-      databaseFile: databaseFile,
-    );
-    await service.open(encryptionKey);
-    expect(await service.getAllSwaps(), <HtlcSwap>[swap]);
+    expect(await repository.getAllSwaps(), <HtlcSwap>[swap]);
+    await dataProvider.close();
+    createDataLayer();
+    await dataProvider.open(encryptionKey);
+    expect(await repository.getAllSwaps(), <HtlcSwap>[swap]);
   });
 }
 

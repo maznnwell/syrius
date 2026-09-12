@@ -281,8 +281,14 @@ void setup() {
       (SharedPrefsService? value) => value!,
     ),
   );
+  sl.registerLazySingleton<HtlcSwapLocalStorageApi>(
+    () => HtlcSwapLocalStorageApi(),
+  );
   sl.registerLazySingleton<HtlcSwapRepository>(
-    () => HtlcSwapRepository(chainIdProvider: () => kNodeChainId),
+    () => HtlcSwapRepository(
+      chainIdProvider: () => kNodeChainId,
+      dataProvider: sl<HtlcSwapLocalStorageApi>(),
+    ),
   );
 
   // Initialize WalletConnect service
@@ -537,7 +543,7 @@ class _MyAppState extends State<MyApp> with WindowListener, TrayListener {
     sl<Zenon>().wsClient.stop();
     Future.delayed(const Duration(seconds: 60)).then((value) => exit(0));
     await sl<HtlcSwapsHandler>().stop();
-    await sl<HtlcSwapRepository>().close();
+    await sl<HtlcSwapLocalStorageApi>().close();
     await NodeUtils.closeEmbeddedNode();
     await sl.reset();
     super.onWindowClose();

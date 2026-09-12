@@ -5,7 +5,7 @@ import 'package:stacked/stacked.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/decrypt_wallet_file_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/handlers/htlc_swaps_handler.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swap_repository.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swap_local_storage_api.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/wallet_file.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/widgets.dart';
@@ -153,7 +153,7 @@ class _ChangeWalletPasswordScreenState
     String newPassword,
   ) async {
     final HtlcSwapsHandler handler = HtlcSwapsHandler.getInstance();
-    final HtlcSwapRepository repository = sl<HtlcSwapRepository>();
+    final HtlcSwapLocalStorageApi dataProvider = sl<HtlcSwapLocalStorageApi>();
     final List<int> oldEncryptionKey = Crypto.digest(
       utf8.encode(currentPassword),
     );
@@ -161,17 +161,17 @@ class _ChangeWalletPasswordScreenState
 
     await handler.stop();
     try {
-      await repository.beginRekey(
+      await dataProvider.beginRekey(
         oldEncryptionKey: oldEncryptionKey,
         newEncryptionKey: newEncryptionKey,
       );
       try {
         await kWalletFile!.changePassword(currentPassword, newPassword);
       } catch (_) {
-        await repository.rollbackRekey(oldEncryptionKey);
+        await dataProvider.rollbackRekey(oldEncryptionKey);
         rethrow;
       }
-      await repository.commitRekey();
+      await dataProvider.commitRekey();
     } finally {
       handler.start();
     }

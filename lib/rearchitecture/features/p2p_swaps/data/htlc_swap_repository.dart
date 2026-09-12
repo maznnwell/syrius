@@ -1,106 +1,19 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:drift/drift.dart';
-import 'package:mutex/mutex.dart';
-import 'package:path/path.dart' as path;
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap/model/p2p_swap.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swap_local_storage_api.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swaps_database.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/p2p_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
-import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
   HtlcSwapRepository({
     required this._chainIdProvider,
-    File? databaseFile,
-  }) : _databaseFileOverride = databaseFile;
+    required this._dataProvider,
+  });
 
   final int? Function() _chainIdProvider;
-  final File? _databaseFileOverride;
-  final Mutex _mutex = Mutex();
-
-  HtlcSwapsDatabase? _database;
-
-  File get _databaseFile =>
-      _databaseFileOverride ??
-      File(path.join(znnDefaultPaths.cache.path, kHtlcSwapsDatabase));
-
-  File get _rekeyBackupFile => File('${_databaseFile.path}.rekey-backup');
-
-  bool get isOpen => _database != null;
-
-  Future<void> open(List<int> encryptionKey) => _mutex.protect(() async {
-    if (_database != null) {
-      return;
-    }
-
-    await _databaseFile.parent.create(recursive: true);
-    try {
-      _database = await _openDatabase(_databaseFile, encryptionKey);
-    } catch (_) {
-      if (!await _rekeyBackupFile.exists()) {
-        rethrow;
-      }
-
-      final HtlcSwapsDatabase backup = await _openDatabase(
-        _rekeyBackupFile,
-        encryptionKey,
-      );
-      await backup.close();
-      await _deleteDatabaseFiles(_databaseFile);
-      await _rekeyBackupFile.rename(_databaseFile.path);
-      _database = await _openDatabase(_databaseFile, encryptionKey);
-    }
-
-    try {
-      await _deleteDatabaseFiles(_rekeyBackupFile);
-    } on FileSystemException {
-      // A valid primary database makes a stale encrypted backup disposable.
-    }
-  });
-
-  Future<void> close() => _mutex.protect(() async {
-    await _closeDatabase();
-  });
-
-  Future<void> deleteDatabase() => _mutex.protect(() async {
-    await _closeDatabase();
-    await _deleteDatabaseFiles(_databaseFile);
-    await _deleteDatabaseFiles(_rekeyBackupFile);
-  });
-
-  Future<void> beginRekey({
-    required List<int> oldEncryptionKey,
-    required List<int> newEncryptionKey,
-  }) => _mutex.protect(() async {
-    final HtlcSwapsDatabase database = _requireDatabase();
-    await database.customStatement('PRAGMA wal_checkpoint(TRUNCATE);');
-    await _closeDatabase();
-    await _deleteDatabaseFiles(_rekeyBackupFile);
-    await _databaseFile.copy(_rekeyBackupFile.path);
-
-    try {
-      _database = await _openDatabase(_databaseFile, oldEncryptionKey);
-      await _database!.rekey(newEncryptionKey);
-      await _closeDatabase();
-      _database = await _openDatabase(_databaseFile, newEncryptionKey);
-    } catch (_) {
-      await _restoreRekeyBackup(oldEncryptionKey);
-      rethrow;
-    }
-  });
-
-  Future<void> commitRekey() => _mutex.protect(() async {
-    try {
-      await _deleteDatabaseFiles(_rekeyBackupFile);
-    } on FileSystemException {
-      // A stale encrypted backup is removed the next time the database opens.
-    }
-  });
-
-  Future<void> rollbackRekey(List<int> oldEncryptionKey) =>
-      _mutex.protect(() => _restoreRekeyBackup(oldEncryptionKey));
+  final HtlcSwapLocalStorageApi _dataProvider;
 
   @override
   Future<List<HtlcSwap>> getAllSwaps() async {
@@ -109,13 +22,10 @@ class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
       return <HtlcSwap>[];
     }
 
-    return _mutex.protect(() async {
-      final HtlcSwapsDatabase database = _requireDatabase();
-      final List<HtlcSwapEntry> entries = await (database.select(
-        database.htlcSwapEntries,
-      )..where((table) => table.chainId.equals(chainId))).get();
-      return entries.map(_decodeSwap).toList();
-    });
+    final List<HtlcSwapEntry> entries = await _dataProvider.readAllSwapEntries(
+      chainId,
+    );
+    return entries.map(_decodeSwap).toList();
   }
 
   @override
@@ -127,41 +37,45 @@ class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
       return <HtlcSwap>[];
     }
 
-    return _mutex.protect(() async {
-      final HtlcSwapsDatabase database = _requireDatabase();
-      final List<HtlcSwapEntry> entries =
-          await (database.select(
-                database.htlcSwapEntries,
-              )..where(
-                (table) =>
-                    table.chainId.equals(chainId) &
-                    table.state.isIn(states.map((state) => state.name)),
-              ))
-              .get();
-      return entries.map(_decodeSwap).toList();
-    });
+    final List<HtlcSwapEntry> entries = await _dataProvider
+        .readSwapEntriesByState(
+          chainId,
+          states.map((state) => state.name).toList(),
+        );
+    return entries.map(_decodeSwap).toList();
   }
 
-  Future<HtlcSwap?> getSwapByHashLock(String hashLock) {
-    return _getSingleSwap(
-      (table, chainId) =>
-          table.chainId.equals(chainId) & table.hashLock.equals(hashLock),
+  Future<HtlcSwap?> getSwapByHashLock(String hashLock) async {
+    final int? chainId = _chainIdProvider();
+    if (chainId == null) {
+      return null;
+    }
+
+    return _decodeNullableSwap(
+      await _dataProvider.readSwapEntryByHashLock(chainId, hashLock),
     );
   }
 
-  Future<HtlcSwap?> getSwapByHtlcId(String htlcId) {
-    return _getSingleSwap(
-      (table, chainId) =>
-          table.chainId.equals(chainId) &
-          (table.initialHtlcId.equals(htlcId) |
-              table.counterHtlcId.equals(htlcId)),
+  Future<HtlcSwap?> getSwapByHtlcId(String htlcId) async {
+    final int? chainId = _chainIdProvider();
+    if (chainId == null) {
+      return null;
+    }
+
+    return _decodeNullableSwap(
+      await _dataProvider.readSwapEntryByHtlcId(chainId, htlcId),
     );
   }
 
   @override
-  Future<HtlcSwap?> getSwapById(String id) {
-    return _getSingleSwap(
-      (table, chainId) => table.chainId.equals(chainId) & table.id.equals(id),
+  Future<HtlcSwap?> getSwapById(String id) async {
+    final int? chainId = _chainIdProvider();
+    if (chainId == null) {
+      return null;
+    }
+
+    return _decodeNullableSwap(
+      await _dataProvider.readSwapEntryById(chainId, id),
     );
   }
 
@@ -171,37 +85,19 @@ class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
       return 0;
     }
 
-    return _mutex.protect(() async {
-      final HtlcSwapsDatabase database = _requireDatabase();
-      final HtlcScanCheckpoint? checkpoint = await (database.select(
-        database.htlcScanCheckpoints,
-      )..where((table) => table.chainId.equals(chainId))).getSingleOrNull();
-      return checkpoint?.lastCheckedHeight ?? 0;
-    });
+    return _dataProvider.readLastCheckedHtlcBlockHeight(chainId);
   }
 
   @override
-  Future<void> storeSwap(HtlcSwap swap) => _mutex.protect(() async {
-    final HtlcSwapsDatabase database = _requireDatabase();
-    await database.transaction(() async {
-      await database
-          .into(database.htlcSwapEntries)
-          .insertOnConflictUpdate(
-            HtlcSwapEntriesCompanion.insert(
-              id: swap.id,
-              chainId: swap.chainId,
-              state: swap.state.name,
-              direction: swap.direction.name,
-              hashLock: swap.hashLock,
-              initialHtlcId: swap.initialHtlcId,
-              counterHtlcId: Value<String?>(swap.counterHtlcId),
-              startTime: swap.startTime,
-              payloadJson: jsonEncode(swap.toJson()),
-            ),
-          );
-      await _pruneSwapsHistoryIfNeeded(database);
-    });
-  });
+  Future<void> storeSwap(HtlcSwap swap) => _dataProvider.writeSwapEntry(
+    _encodeSwap(swap),
+    maximumStoredSwaps: kMaxP2pSwapsToStore,
+    pruneChainId: _chainIdProvider(),
+    prunableStates: <String>[
+      P2pSwapState.completed.name,
+      P2pSwapState.unsuccessful.name,
+    ],
+  );
 
   Future<void> storeLastCheckedHtlcBlockHeight(int height) async {
     final int? chainId = _chainIdProvider();
@@ -209,26 +105,12 @@ class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
       throw StateError('Cannot store an HTLC checkpoint without a chain id');
     }
 
-    await _mutex.protect(() async {
-      final HtlcSwapsDatabase database = _requireDatabase();
-      await database
-          .into(database.htlcScanCheckpoints)
-          .insertOnConflictUpdate(
-            HtlcScanCheckpointsCompanion.insert(
-              chainId: Value<int>(chainId),
-              lastCheckedHeight: height,
-            ),
-          );
-    });
+    await _dataProvider.writeLastCheckedHtlcBlockHeight(chainId, height);
   }
 
   @override
-  Future<void> deleteSwap(String swapId) => _mutex.protect(() async {
-    final HtlcSwapsDatabase database = _requireDatabase();
-    await (database.delete(
-      database.htlcSwapEntries,
-    )..where((table) => table.id.equals(swapId))).go();
-  });
+  Future<void> deleteSwap(String swapId) =>
+      _dataProvider.deleteSwapEntry(swapId);
 
   @override
   Future<void> deleteInactiveSwaps() async {
@@ -237,131 +119,32 @@ class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
       return;
     }
 
-    await _mutex.protect(() async {
-      final HtlcSwapsDatabase database = _requireDatabase();
-      await (database.delete(database.htlcSwapEntries)..where(
-            (table) =>
-                table.chainId.equals(chainId) &
-                table.state.isIn(<String>[
-                  P2pSwapState.completed.name,
-                  P2pSwapState.unsuccessful.name,
-                  P2pSwapState.error.name,
-                ]),
-          ))
-          .go();
-    });
+    await _dataProvider.deleteSwapEntriesByState(chainId, <String>[
+      P2pSwapState.completed.name,
+      P2pSwapState.unsuccessful.name,
+      P2pSwapState.error.name,
+    ]);
   }
 
-  Future<HtlcSwap?> _getSingleSwap(
-    Expression<bool> Function($HtlcSwapEntriesTable table, int chainId)
-    predicate,
-  ) async {
-    final int? chainId = _chainIdProvider();
-    if (chainId == null) {
-      return null;
-    }
+  HtlcSwapEntry _encodeSwap(HtlcSwap swap) => HtlcSwapEntry(
+    id: swap.id,
+    chainId: swap.chainId,
+    state: swap.state.name,
+    direction: swap.direction.name,
+    hashLock: swap.hashLock,
+    initialHtlcId: swap.initialHtlcId,
+    counterHtlcId: swap.counterHtlcId,
+    startTime: swap.startTime,
+    payloadJson: jsonEncode(swap.toJson()),
+  );
 
-    return _mutex.protect(() async {
-      final HtlcSwapsDatabase database = _requireDatabase();
-      final HtlcSwapEntry? entry =
-          await (database.select(database.htlcSwapEntries)
-                ..where((table) => predicate(table, chainId))
-                ..limit(1))
-              .getSingleOrNull();
-      return entry == null ? null : _decodeSwap(entry);
-    });
-  }
-
-  Future<void> _pruneSwapsHistoryIfNeeded(
-    HtlcSwapsDatabase database,
-  ) async {
-    final Expression<int> count = database.htlcSwapEntries.id.count();
-    final TypedResult countResult = await (database.selectOnly(
-      database.htlcSwapEntries,
-    )..addColumns(<Expression<Object>>[count])).getSingle();
-    if ((countResult.read(count) ?? 0) <= kMaxP2pSwapsToStore) {
-      return;
-    }
-
-    final int? chainId = _chainIdProvider();
-    if (chainId == null) {
-      return;
-    }
-
-    final HtlcSwapEntry? oldest =
-        await (database.select(database.htlcSwapEntries)
-              ..where(
-                (table) =>
-                    table.chainId.equals(chainId) &
-                    table.state.isIn(<String>[
-                      P2pSwapState.completed.name,
-                      P2pSwapState.unsuccessful.name,
-                    ]),
-              )
-              ..orderBy(<OrderingTerm Function($HtlcSwapEntriesTable)>[
-                (table) => OrderingTerm.asc(table.startTime),
-              ])
-              ..limit(1))
-            .getSingleOrNull();
-    if (oldest != null) {
-      await (database.delete(
-        database.htlcSwapEntries,
-      )..where((table) => table.id.equals(oldest.id))).go();
-    }
-  }
+  HtlcSwap? _decodeNullableSwap(HtlcSwapEntry? entry) =>
+      entry == null ? null : _decodeSwap(entry);
 
   HtlcSwap _decodeSwap(HtlcSwapEntry entry) {
     return P2pSwap.fromJson(
           jsonDecode(entry.payloadJson) as Map<String, dynamic>,
         )
         as HtlcSwap;
-  }
-
-  HtlcSwapsDatabase _requireDatabase() {
-    return _database ??
-        (throw StateError('The HTLC swaps database is not open'));
-  }
-
-  Future<HtlcSwapsDatabase> _openDatabase(
-    File file,
-    List<int> encryptionKey,
-  ) async {
-    final HtlcSwapsDatabase database = HtlcSwapsDatabase.encrypted(
-      file,
-      encryptionKey,
-    );
-    try {
-      await database.verifyOpen();
-      return database;
-    } catch (_) {
-      await database.close();
-      rethrow;
-    }
-  }
-
-  Future<void> _closeDatabase() async {
-    final HtlcSwapsDatabase? database = _database;
-    _database = null;
-    await database?.close();
-  }
-
-  Future<void> _restoreRekeyBackup(List<int> oldEncryptionKey) async {
-    await _closeDatabase();
-    if (!await _rekeyBackupFile.exists()) {
-      throw StateError('The HTLC swaps rekey backup does not exist');
-    }
-
-    await _deleteDatabaseFiles(_databaseFile);
-    await _rekeyBackupFile.rename(_databaseFile.path);
-    _database = await _openDatabase(_databaseFile, oldEncryptionKey);
-  }
-
-  Future<void> _deleteDatabaseFiles(File databaseFile) async {
-    for (final String suffix in <String>['', '-wal', '-shm']) {
-      final File file = File('${databaseFile.path}$suffix');
-      if (await file.exists()) {
-        await file.delete();
-      }
-    }
   }
 }
