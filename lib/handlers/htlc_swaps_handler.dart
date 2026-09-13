@@ -145,16 +145,17 @@ class HtlcSwapsHandler {
 
   Future<void> _goThroughHtlcBlocks(List<AccountBlock> blocks) async {
     for (final AccountBlock block in blocks) {
-      await _extractSwapDataFromBlock(block);
-      await sl<HtlcSwapRepository>().storeLastCheckedHtlcBlockHeight(
-        block.height,
+      final HtlcSwap? updatedSwap = await _getSwapUpdateFromBlock(block);
+      await sl<HtlcSwapRepository>().storeProcessedHtlcBlock(
+        height: block.height,
+        updatedSwap: updatedSwap,
       );
     }
   }
 
-  Future<void> _extractSwapDataFromBlock(AccountBlock htlcBlock) async {
+  Future<HtlcSwap?> _getSwapUpdateFromBlock(AccountBlock htlcBlock) async {
     if (htlcBlock.blockType != BlockTypeEnum.contractReceive.index) {
-      return;
+      return null;
     }
 
     final AccountBlock pairedBlock = htlcBlock.pairedAccountBlock!;
@@ -164,60 +165,56 @@ class HtlcSwapsHandler {
     );
 
     if (blockData == null) {
-      return;
+      return null;
     }
 
     final HtlcSwap? swap = await _tryGetSwapFromBlockData(blockData);
     if (swap == null) {
-      return;
+      return null;
     }
 
     if (swap.chainId != pairedBlock.chainIdentifier) {
-      return;
+      return null;
     }
 
     switch (blockData.function) {
       case 'Create':
         if (swap.state == P2pSwapState.pending) {
-          await sl<HtlcSwapRepository>().storeSwap(
-            swap.copyWith(state: P2pSwapState.active),
-          );
+          return swap.copyWith(state: P2pSwapState.active);
         } else if (swap.state == P2pSwapState.active &&
             pairedBlock.hash.toString() != swap.initialHtlcId &&
             swap.counterHtlcId == null) {
           if (!_isValidCounterHtlc(pairedBlock, blockData, swap)) {
-            return;
+            return null;
           }
-          await sl<HtlcSwapRepository>().storeSwap(
-            swap.copyWith(
-              counterHtlcId: pairedBlock.hash.toString(),
-              toAmount: pairedBlock.amount,
-              toToken: pairedBlock.token!,
-              counterHtlcExpirationTime: blockData.params['expirationTime']
-                  .toInt(),
-            ),
+          return swap.copyWith(
+            counterHtlcId: pairedBlock.hash.toString(),
+            toAmount: pairedBlock.amount,
+            toToken: pairedBlock.token!,
+            counterHtlcExpirationTime: blockData.params['expirationTime']
+                .toInt(),
           );
         }
-        return;
+        return null;
       case 'Unlock':
         if (htlcBlock.descendantBlocks.isEmpty) {
-          return;
+          return null;
         }
         HtlcSwap updatedSwap = swap;
+        bool wasUpdated = false;
         if (updatedSwap.preimage == null) {
           if (!blockData.params.containsKey('preimage')) {
-            return;
+            return null;
           }
           updatedSwap = updatedSwap.copyWith(
             preimage: FormatUtils.encodeHexString(blockData.params['preimage']),
           );
-          await sl<HtlcSwapRepository>().storeSwap(updatedSwap);
+          wasUpdated = true;
         }
 
         if (updatedSwap.direction == P2pSwapDirection.incoming &&
             blockData.params['id'].toString() == updatedSwap.initialHtlcId) {
-          updatedSwap = updatedSwap.copyWith(state: P2pSwapState.completed);
-          await sl<HtlcSwapRepository>().storeSwap(updatedSwap);
+          return updatedSwap.copyWith(state: P2pSwapState.completed);
         }
 
         // Handle the situation where the counter HTLC of an outgoing swap
@@ -225,13 +222,12 @@ class HtlcSwapsHandler {
         if (updatedSwap.direction == P2pSwapDirection.outgoing &&
             updatedSwap.state == P2pSwapState.active &&
             blockData.params['id'].toString() == updatedSwap.counterHtlcId) {
-          updatedSwap = updatedSwap.copyWith(state: P2pSwapState.completed);
-          await sl<HtlcSwapRepository>().storeSwap(updatedSwap);
+          return updatedSwap.copyWith(state: P2pSwapState.completed);
         }
-        return;
+        return wasUpdated ? updatedSwap : null;
       case 'Reclaim':
         if (htlcBlock.descendantBlocks.isEmpty) {
-          return;
+          return null;
         }
         bool isSelfReclaim = false;
         if (swap.direction == P2pSwapDirection.outgoing &&
@@ -242,12 +238,11 @@ class HtlcSwapsHandler {
           isSelfReclaim = true;
         }
         if (isSelfReclaim) {
-          await sl<HtlcSwapRepository>().storeSwap(
-            swap.copyWith(state: P2pSwapState.unsuccessful),
-          );
+          return swap.copyWith(state: P2pSwapState.unsuccessful);
         }
-        return;
+        return null;
     }
+    return null;
   }
 
   Future<HtlcSwap?> _tryGetSwapFromBlockData(BlockData data) async {

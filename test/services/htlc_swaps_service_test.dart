@@ -78,6 +78,32 @@ void main() {
     expect(await repository.getLastCheckedHtlcBlockHeight(), 10);
   });
 
+  test('stores a processed block update with its checkpoint', () async {
+    final HtlcSwap pendingSwap = _buildSwap(state: P2pSwapState.pending);
+    await repository.storeSwap(pendingSwap);
+
+    final HtlcSwap activeSwap = pendingSwap.copyWith(
+      state: P2pSwapState.active,
+    );
+    await repository.storeProcessedHtlcBlock(
+      height: 10,
+      updatedSwap: activeSwap,
+    );
+
+    expect(await repository.getSwapById(activeSwap.id), activeSwap);
+    expect(await repository.getLastCheckedHtlcBlockHeight(), 10);
+  });
+
+  test('checkpoints a processed block without a swap update', () async {
+    await repository.storeProcessedHtlcBlock(
+      height: 10,
+      updatedSwap: null,
+    );
+
+    expect(await repository.getAllSwaps(), isEmpty);
+    expect(await repository.getLastCheckedHtlcBlockHeight(), 10);
+  });
+
   test('deletes inactive swaps only on the current chain', () async {
     final HtlcSwap active = _buildSwap(id: 'active');
     final HtlcSwap completed = _buildSwap(
@@ -112,9 +138,10 @@ void main() {
     expect(databaseContents, isNot(contains('SQLite format 3')));
     expect(databaseContents, isNot(contains(secretPreimage)));
 
-    final HtlcSwapLocalStorageApi incorrectKeyDataProvider = HtlcSwapLocalStorageApi(
-      databaseFile: databaseFile,
-    );
+    final HtlcSwapLocalStorageApi incorrectKeyDataProvider =
+        HtlcSwapLocalStorageApi(
+          databaseFile: databaseFile,
+        );
     await expectLater(
       incorrectKeyDataProvider.open(newEncryptionKey),
       throwsA(anything),

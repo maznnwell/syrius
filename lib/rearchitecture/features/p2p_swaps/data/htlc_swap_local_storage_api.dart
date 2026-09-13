@@ -156,16 +156,41 @@ class HtlcSwapLocalStorageApi {
     required List<String> prunableStates,
   }) => _mutex.protect(() async {
     final HtlcSwapsDatabase connection = _requireConnection();
-    await connection.transaction(() async {
-      await connection
-          .into(connection.htlcSwapEntries)
-          .insertOnConflictUpdate(entry);
-      await _pruneSwapHistoryIfNeeded(
+    await connection.transaction(
+      () => _writeSwapEntry(
         connection,
+        entry,
         maximumStoredSwaps: maximumStoredSwaps,
         pruneChainId: pruneChainId,
         prunableStates: prunableStates,
-      );
+      ),
+    );
+  });
+
+  Future<void> writeProcessedHtlcBlock({
+    required int chainId,
+    required int height,
+    required HtlcSwapEntry? updatedEntry,
+    required int maximumStoredSwaps,
+    required List<String> prunableStates,
+  }) => _mutex.protect(() async {
+    final HtlcSwapsDatabase connection = _requireConnection();
+    await connection.transaction(() async {
+      if (updatedEntry != null) {
+        if (updatedEntry.chainId != chainId) {
+          throw StateError(
+            'Cannot store an HTLC swap update for a different chain',
+          );
+        }
+        await _writeSwapEntry(
+          connection,
+          updatedEntry,
+          maximumStoredSwaps: maximumStoredSwaps,
+          pruneChainId: chainId,
+          prunableStates: prunableStates,
+        );
+      }
+      await _writeLastCheckedHtlcBlockHeight(connection, chainId, height);
     });
   });
 
@@ -174,14 +199,7 @@ class HtlcSwapLocalStorageApi {
     int height,
   ) => _mutex.protect(() async {
     final HtlcSwapsDatabase connection = _requireConnection();
-    await connection
-        .into(connection.htlcScanCheckpoints)
-        .insertOnConflictUpdate(
-          HtlcScanCheckpointsCompanion.insert(
-            chainId: Value<int>(chainId),
-            lastCheckedHeight: height,
-          ),
-        );
+    await _writeLastCheckedHtlcBlockHeight(connection, chainId, height);
   });
 
   Future<void> deleteSwapEntry(String swapId) => _mutex.protect(() async {
@@ -212,6 +230,37 @@ class HtlcSwapLocalStorageApi {
           ..limit(1))
         .getSingleOrNull();
   });
+
+  Future<void> _writeSwapEntry(
+    HtlcSwapsDatabase connection,
+    HtlcSwapEntry entry, {
+    required int maximumStoredSwaps,
+    required int? pruneChainId,
+    required List<String> prunableStates,
+  }) async {
+    await connection
+        .into(connection.htlcSwapEntries)
+        .insertOnConflictUpdate(entry);
+    await _pruneSwapHistoryIfNeeded(
+      connection,
+      maximumStoredSwaps: maximumStoredSwaps,
+      pruneChainId: pruneChainId,
+      prunableStates: prunableStates,
+    );
+  }
+
+  Future<void> _writeLastCheckedHtlcBlockHeight(
+    HtlcSwapsDatabase connection,
+    int chainId,
+    int height,
+  ) => connection
+      .into(connection.htlcScanCheckpoints)
+      .insertOnConflictUpdate(
+        HtlcScanCheckpointsCompanion.insert(
+          chainId: Value<int>(chainId),
+          lastCheckedHeight: height,
+        ),
+      );
 
   Future<void> _pruneSwapHistoryIfNeeded(
     HtlcSwapsDatabase connection, {

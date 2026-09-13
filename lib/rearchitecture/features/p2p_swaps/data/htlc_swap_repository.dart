@@ -108,6 +108,32 @@ class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
     await _dataProvider.writeLastCheckedHtlcBlockHeight(chainId, height);
   }
 
+  Future<void> storeProcessedHtlcBlock({
+    required int height,
+    required HtlcSwap? updatedSwap,
+  }) async {
+    final int? chainId = _chainIdProvider();
+    if (chainId == null) {
+      throw StateError('Cannot store an HTLC checkpoint without a chain id');
+    }
+    if (updatedSwap != null && updatedSwap.chainId != chainId) {
+      throw StateError(
+        'Cannot store an HTLC swap update for a different chain',
+      );
+    }
+
+    await _dataProvider.writeProcessedHtlcBlock(
+      chainId: chainId,
+      height: height,
+      updatedEntry: updatedSwap == null ? null : _encodeSwap(updatedSwap),
+      maximumStoredSwaps: kMaxP2pSwapsToStore,
+      prunableStates: <String>[
+        P2pSwapState.completed.name,
+        P2pSwapState.unsuccessful.name,
+      ],
+    );
+  }
+
   @override
   Future<void> deleteSwap(String swapId) =>
       _dataProvider.deleteSwapEntry(swapId);
