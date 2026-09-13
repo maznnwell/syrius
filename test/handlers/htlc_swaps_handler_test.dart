@@ -3,7 +3,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/auto_unlock_htlc_worker.dart';
 import 'package:zenon_syrius_wallet_flutter/handlers/htlc_swaps_handler.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swap_repository.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 class MockHtlcSwapRepository extends Mock implements HtlcSwapRepository {}
@@ -47,7 +46,7 @@ void main() {
         () => swapRepository.getSwapsByState(any()),
       ).thenAnswer((_) async => <HtlcSwap>[incomingSwap]);
 
-      expect(await handler.hasActiveIncomingSwaps, isTrue);
+      expect(await handler.hasActiveIncomingSwaps(), isTrue);
 
       verify(() => swapRepository.getSwapsByState(any())).called(1);
     });
@@ -61,13 +60,13 @@ void main() {
         () => swapRepository.getSwapsByState(any()),
       ).thenAnswer((_) async => <HtlcSwap>[outgoingSwap]);
 
-      expect(await handler.hasActiveIncomingSwaps, isFalse);
+      expect(await handler.hasActiveIncomingSwaps(), isFalse);
     });
 
     test('does not poll while the injected client is closed', () async {
       final MockWsClient wsClient = MockWsClient();
       when(() => zenon.wsClient).thenReturn(wsClient);
-      when(() => wsClient.isClosed()).thenReturn(true);
+      when(wsClient.isClosed).thenReturn(true);
       when(
         () => swapRepository.getSwapsByState(any()),
       ).thenAnswer((_) async => <HtlcSwap>[]);

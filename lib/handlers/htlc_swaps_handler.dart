@@ -62,7 +62,7 @@ class HtlcSwapsHandler {
     _currentRun = null;
   }
 
-  Future<bool> get hasActiveIncomingSwaps async {
+  Future<bool> hasActiveIncomingSwaps() async {
     final List<HtlcSwap> activeSwaps = await _swapRepository.getSwapsByState(
       _kActiveStates,
     );
@@ -110,7 +110,7 @@ class HtlcSwapsHandler {
   }
 
   Future<void> _enableWakelockIfNeeded() async {
-    if (await hasActiveIncomingSwaps) {
+    if (await hasActiveIncomingSwaps()) {
       try {
         await WakelockPlus.enable();
       } catch (e, stackTrace) {
