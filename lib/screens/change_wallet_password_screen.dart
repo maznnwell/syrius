@@ -152,7 +152,7 @@ class _ChangeWalletPasswordScreenState
     String currentPassword,
     String newPassword,
   ) async {
-    final HtlcSwapsHandler handler = HtlcSwapsHandler.getInstance();
+    final HtlcSwapsHandler handler = sl<HtlcSwapsHandler>();
     final HtlcSwapLocalStorageApi dataProvider = sl<HtlcSwapLocalStorageApi>();
     final List<int> oldEncryptionKey = Crypto.digest(
       utf8.encode(currentPassword),

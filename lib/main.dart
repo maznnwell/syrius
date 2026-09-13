@@ -314,7 +314,13 @@ void setup() {
     AutoUnlockHtlcWorker.getInstance(),
   );
 
-  sl.registerSingleton<HtlcSwapsHandler>(HtlcSwapsHandler.getInstance());
+  sl.registerSingleton<HtlcSwapsHandler>(
+    HtlcSwapsHandler(
+      swapRepository: sl<HtlcSwapRepository>(),
+      autoUnlockHtlcWorker: sl<AutoUnlockHtlcWorker>(),
+      zenon: sl<Zenon>(),
+    ),
+  );
 
   sl.registerSingleton<ReceivePort>(
     ReceivePort(),
