@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:hex/hex.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swaps_dao.dart';
 
 part 'htlc_swaps_database.g.dart';
 
@@ -55,7 +56,10 @@ class HtlcScanCheckpoints extends Table {
   Set<Column<Object>> get primaryKey => <Column<Object>>{chainId};
 }
 
-@DriftDatabase(tables: <Type>[HtlcSwapEntries, HtlcScanCheckpoints])
+@DriftDatabase(
+  tables: <Type>[HtlcSwapEntries, HtlcScanCheckpoints],
+  daos: <Type>[HtlcSwapsDao],
+)
 class HtlcSwapsDatabase extends _$HtlcSwapsDatabase {
   HtlcSwapsDatabase(QueryExecutor executor) : super(executor);
 

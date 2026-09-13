@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:drift/drift.dart';
 import 'package:mutex/mutex.dart';
 import 'package:path/path.dart' as path;
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swaps_dao.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swaps_database.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
@@ -91,81 +91,48 @@ class HtlcSwapLocalStorageApi {
       _mutex.protect(() => _restoreRekeyBackup(oldEncryptionKey));
 
   Future<List<HtlcSwapEntry>> readAllSwapEntries(int chainId) =>
-      _mutex.protect(() async {
-        final HtlcSwapsDatabase connection = _requireConnection();
-        return (connection.select(
-              connection.htlcSwapEntries,
-            )..where(
-              ($HtlcSwapEntriesTable table) => table.chainId.equals(chainId),
-            ))
-            .get();
-      });
+      _withDao((HtlcSwapsDao dao) => dao.readAllSwapEntries(chainId));
 
   Future<List<HtlcSwapEntry>> readSwapEntriesByState(
     int chainId,
     List<String> states,
-  ) => _mutex.protect(() async {
-    final HtlcSwapsDatabase connection = _requireConnection();
-    return (connection.select(connection.htlcSwapEntries)..where(
-          ($HtlcSwapEntriesTable table) =>
-              table.chainId.equals(chainId) & table.state.isIn(states),
-        ))
-        .get();
-  });
+  ) => _withDao(
+    (HtlcSwapsDao dao) => dao.readSwapEntriesByState(chainId, states),
+  );
 
   Future<HtlcSwapEntry?> readSwapEntryByHashLock(
     int chainId,
     String hashLock,
-  ) => _readSingleSwapEntry(
-    ($HtlcSwapEntriesTable table) =>
-        table.chainId.equals(chainId) & table.hashLock.equals(hashLock),
+  ) => _withDao(
+    (HtlcSwapsDao dao) => dao.readSwapEntryByHashLock(chainId, hashLock),
   );
 
   Future<HtlcSwapEntry?> readSwapEntryByHtlcId(int chainId, String htlcId) =>
-      _readSingleSwapEntry(
-        ($HtlcSwapEntriesTable table) =>
-            table.chainId.equals(chainId) &
-            (table.initialHtlcId.equals(htlcId) |
-                table.counterHtlcId.equals(htlcId)),
+      _withDao(
+        (HtlcSwapsDao dao) => dao.readSwapEntryByHtlcId(chainId, htlcId),
       );
 
-  Future<HtlcSwapEntry?> readSwapEntryById(int chainId, String id) =>
-      _readSingleSwapEntry(
-        ($HtlcSwapEntriesTable table) =>
-            table.chainId.equals(chainId) & table.id.equals(id),
-      );
+  Future<HtlcSwapEntry?> readSwapEntryById(int chainId, String id) => _withDao(
+    (HtlcSwapsDao dao) => dao.readSwapEntryById(chainId, id),
+  );
 
-  Future<int> readLastCheckedHtlcBlockHeight(int chainId) =>
-      _mutex.protect(() async {
-        final HtlcSwapsDatabase connection = _requireConnection();
-        final HtlcScanCheckpoint? checkpoint =
-            await (connection.select(
-                  connection.htlcScanCheckpoints,
-                )..where(
-                  ($HtlcScanCheckpointsTable table) =>
-                      table.chainId.equals(chainId),
-                ))
-                .getSingleOrNull();
-        return checkpoint?.lastCheckedHeight ?? 0;
-      });
+  Future<int> readLastCheckedHtlcBlockHeight(int chainId) => _withDao(
+    (HtlcSwapsDao dao) => dao.readLastCheckedHtlcBlockHeight(chainId),
+  );
 
   Future<void> writeSwapEntry(
     HtlcSwapEntry entry, {
     required int maximumStoredSwaps,
     required int? pruneChainId,
     required List<String> prunableStates,
-  }) => _mutex.protect(() async {
-    final HtlcSwapsDatabase connection = _requireConnection();
-    await connection.transaction(
-      () => _writeSwapEntry(
-        connection,
-        entry,
-        maximumStoredSwaps: maximumStoredSwaps,
-        pruneChainId: pruneChainId,
-        prunableStates: prunableStates,
-      ),
-    );
-  });
+  }) => _withDao(
+    (HtlcSwapsDao dao) => dao.writeSwapEntry(
+      entry,
+      maximumStoredSwaps: maximumStoredSwaps,
+      pruneChainId: pruneChainId,
+      prunableStates: prunableStates,
+    ),
+  );
 
   Future<void> writeProcessedHtlcBlock({
     required int chainId,
@@ -173,130 +140,37 @@ class HtlcSwapLocalStorageApi {
     required HtlcSwapEntry? updatedEntry,
     required int maximumStoredSwaps,
     required List<String> prunableStates,
-  }) => _mutex.protect(() async {
-    final HtlcSwapsDatabase connection = _requireConnection();
-    await connection.transaction(() async {
-      if (updatedEntry != null) {
-        if (updatedEntry.chainId != chainId) {
-          throw StateError(
-            'Cannot store an HTLC swap update for a different chain',
-          );
-        }
-        await _writeSwapEntry(
-          connection,
-          updatedEntry,
-          maximumStoredSwaps: maximumStoredSwaps,
-          pruneChainId: chainId,
-          prunableStates: prunableStates,
-        );
-      }
-      await _writeLastCheckedHtlcBlockHeight(connection, chainId, height);
-    });
-  });
+  }) => _withDao(
+    (HtlcSwapsDao dao) => dao.writeProcessedHtlcBlock(
+      chainId: chainId,
+      height: height,
+      updatedEntry: updatedEntry,
+      maximumStoredSwaps: maximumStoredSwaps,
+      prunableStates: prunableStates,
+    ),
+  );
 
-  Future<void> writeLastCheckedHtlcBlockHeight(
-    int chainId,
-    int height,
-  ) => _mutex.protect(() async {
-    final HtlcSwapsDatabase connection = _requireConnection();
-    await _writeLastCheckedHtlcBlockHeight(connection, chainId, height);
-  });
+  Future<void> writeLastCheckedHtlcBlockHeight(int chainId, int height) =>
+      _withDao(
+        (HtlcSwapsDao dao) =>
+            dao.writeLastCheckedHtlcBlockHeight(chainId, height),
+      );
 
-  Future<void> deleteSwapEntry(String swapId) => _mutex.protect(() async {
-    final HtlcSwapsDatabase connection = _requireConnection();
-    await (connection.delete(
-      connection.htlcSwapEntries,
-    )..where(($HtlcSwapEntriesTable table) => table.id.equals(swapId))).go();
-  });
+  Future<void> deleteSwapEntry(String swapId) =>
+      _withDao((HtlcSwapsDao dao) => dao.deleteSwapEntry(swapId));
 
   Future<void> deleteSwapEntriesByState(
     int chainId,
     List<String> states,
-  ) => _mutex.protect(() async {
-    final HtlcSwapsDatabase connection = _requireConnection();
-    await (connection.delete(connection.htlcSwapEntries)..where(
-          ($HtlcSwapEntriesTable table) =>
-              table.chainId.equals(chainId) & table.state.isIn(states),
-        ))
-        .go();
-  });
+  ) => _withDao(
+    (HtlcSwapsDao dao) => dao.deleteSwapEntriesByState(chainId, states),
+  );
 
-  Future<HtlcSwapEntry?> _readSingleSwapEntry(
-    Expression<bool> Function($HtlcSwapEntriesTable table) predicate,
-  ) => _mutex.protect(() async {
-    final HtlcSwapsDatabase connection = _requireConnection();
-    return (connection.select(connection.htlcSwapEntries)
-          ..where(predicate)
-          ..limit(1))
-        .getSingleOrNull();
-  });
-
-  Future<void> _writeSwapEntry(
-    HtlcSwapsDatabase connection,
-    HtlcSwapEntry entry, {
-    required int maximumStoredSwaps,
-    required int? pruneChainId,
-    required List<String> prunableStates,
-  }) async {
-    await connection
-        .into(connection.htlcSwapEntries)
-        .insertOnConflictUpdate(entry);
-    await _pruneSwapHistoryIfNeeded(
-      connection,
-      maximumStoredSwaps: maximumStoredSwaps,
-      pruneChainId: pruneChainId,
-      prunableStates: prunableStates,
-    );
-  }
-
-  Future<void> _writeLastCheckedHtlcBlockHeight(
-    HtlcSwapsDatabase connection,
-    int chainId,
-    int height,
-  ) => connection
-      .into(connection.htlcScanCheckpoints)
-      .insertOnConflictUpdate(
-        HtlcScanCheckpointsCompanion.insert(
-          chainId: Value<int>(chainId),
-          lastCheckedHeight: height,
-        ),
-      );
-
-  Future<void> _pruneSwapHistoryIfNeeded(
-    HtlcSwapsDatabase connection, {
-    required int maximumStoredSwaps,
-    required int? pruneChainId,
-    required List<String> prunableStates,
-  }) async {
-    final Expression<int> count = connection.htlcSwapEntries.id.count();
-    final TypedResult countResult = await (connection.selectOnly(
-      connection.htlcSwapEntries,
-    )..addColumns(<Expression<Object>>[count])).getSingle();
-    if ((countResult.read(count) ?? 0) <= maximumStoredSwaps ||
-        pruneChainId == null) {
-      return;
-    }
-
-    final HtlcSwapEntry? oldest =
-        await (connection.select(connection.htlcSwapEntries)
-              ..where(
-                ($HtlcSwapEntriesTable table) =>
-                    table.chainId.equals(pruneChainId) &
-                    table.state.isIn(prunableStates),
-              )
-              ..orderBy(<OrderingTerm Function($HtlcSwapEntriesTable)>[
-                ($HtlcSwapEntriesTable table) =>
-                    OrderingTerm.asc(table.startTime),
-              ])
-              ..limit(1))
-            .getSingleOrNull();
-    if (oldest != null) {
-      await (connection.delete(
-            connection.htlcSwapEntries,
-          )..where(($HtlcSwapEntriesTable table) => table.id.equals(oldest.id)))
-          .go();
-    }
-  }
+  Future<T> _withDao<T>(
+    Future<T> Function(HtlcSwapsDao dao) operation,
+  ) => _mutex.protect(
+    () => operation(_requireConnection().htlcSwapsDao),
+  );
 
   HtlcSwapsDatabase _requireConnection() {
     return _connection ??

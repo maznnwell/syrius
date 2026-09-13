@@ -820,6 +820,9 @@ abstract class _$HtlcSwapsDatabase extends GeneratedDatabase {
     'htlc_swaps_chain_start_time',
     'CREATE INDEX htlc_swaps_chain_start_time ON htlc_swaps (chain_id, start_time)',
   );
+  late final HtlcSwapsDao htlcSwapsDao = HtlcSwapsDao(
+    this as HtlcSwapsDatabase,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
