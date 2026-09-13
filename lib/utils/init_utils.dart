@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:hive_ce/hive_ce.dart';
-import 'package:zenon_syrius_wallet_flutter/handlers/htlc_swaps_handler.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/services/htlc_swap_sync_service.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swap_local_storage_api.dart';
 import 'package:zenon_syrius_wallet_flutter/services/shared_prefs_service.dart';
@@ -76,7 +76,7 @@ class InitUtils {
     await NodeUtils.initWebSocketClient();
     await sl<HtlcSwapLocalStorageApi>().open(cipherKey);
     await _setWalletVersion();
-    sl<HtlcSwapsHandler>().start();
+    sl<HtlcSwapSyncService>().start();
     kWalletInitCompleted = true;
   }
 

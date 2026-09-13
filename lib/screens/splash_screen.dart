@@ -7,7 +7,7 @@ import 'package:logging/logging.dart';
 import 'package:lottie/lottie.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/blocs.dart';
-import 'package:zenon_syrius_wallet_flutter/handlers/htlc_swaps_handler.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/services/htlc_swap_sync_service.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swap_local_storage_api.dart';
@@ -118,7 +118,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _deleteCache() async {
-    await sl<HtlcSwapsHandler>().stop();
+    await sl<HtlcSwapSyncService>().stop();
     await sl<HtlcSwapLocalStorageApi>().deleteDatabase();
     await Hive.close();
     await Future.forEach<String>(

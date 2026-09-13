@@ -29,8 +29,8 @@ const List<P2pSwapState> _kAutoUnlockableStates = <P2pSwapState>[
 
 const Duration _kPollInterval = Duration(seconds: 5);
 
-class HtlcSwapsHandler {
-  HtlcSwapsHandler({
+class HtlcSwapSyncService {
+  HtlcSwapSyncService({
     required this._swapRepository,
     required this._autoUnlockHtlcWorker,
     required this._zenon,

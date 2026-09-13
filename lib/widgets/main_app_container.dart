@@ -15,7 +15,7 @@ import 'package:nested/nested.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/blocs.dart';
-import 'package:zenon_syrius_wallet_flutter/handlers/htlc_swaps_handler.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/services/htlc_swap_sync_service.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
@@ -655,7 +655,7 @@ class _MainAppContainerState extends State<MainAppContainer>
     return Timer.periodic(Duration(minutes: kAutoLockWalletMinutes!), (
       Timer timer,
     ) async {
-      if (!await sl<HtlcSwapsHandler>().hasActiveIncomingSwaps()) {
+      if (!await sl<HtlcSwapSyncService>().hasActiveIncomingSwaps()) {
         _lockBloc.addEvent(LockEvent.navigateToLock);
       }
     });

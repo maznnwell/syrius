@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/decrypt_wallet_file_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/handlers/htlc_swaps_handler.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/services/htlc_swap_sync_service.dart';
 import 'package:zenon_syrius_wallet_flutter/main.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swap_local_storage_api.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
@@ -152,7 +152,7 @@ class _ChangeWalletPasswordScreenState
     String currentPassword,
     String newPassword,
   ) async {
-    final HtlcSwapsHandler handler = sl<HtlcSwapsHandler>();
+    final HtlcSwapSyncService handler = sl<HtlcSwapSyncService>();
     final HtlcSwapLocalStorageApi dataProvider = sl<HtlcSwapLocalStorageApi>();
     final List<int> oldEncryptionKey = Crypto.digest(
       utf8.encode(currentPassword),

@@ -26,7 +26,7 @@ import 'package:zenon_syrius_wallet_flutter/blocs/wallet_connect/chains/i_chain.
 import 'package:zenon_syrius_wallet_flutter/blocs/wallet_connect/chains/nom_service.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/wallet_connect/wallet_connect_pairings_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/wallet_connect/wallet_connect_sessions_bloc.dart';
-import 'package:zenon_syrius_wallet_flutter/handlers/htlc_swaps_handler.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/services/htlc_swap_sync_service.dart';
 import 'package:zenon_syrius_wallet_flutter/hive/hive_registrar.g.dart';
 import 'package:zenon_syrius_wallet_flutter/l10n/app_localizations.dart';
 import 'package:zenon_syrius_wallet_flutter/model/model.dart';
@@ -314,8 +314,8 @@ void setup() {
     AutoUnlockHtlcWorker.getInstance(),
   );
 
-  sl.registerSingleton<HtlcSwapsHandler>(
-    HtlcSwapsHandler(
+  sl.registerSingleton<HtlcSwapSyncService>(
+    HtlcSwapSyncService(
       swapRepository: sl<HtlcSwapRepository>(),
       autoUnlockHtlcWorker: sl<AutoUnlockHtlcWorker>(),
       zenon: sl<Zenon>(),
@@ -548,7 +548,7 @@ class _MyAppState extends State<MyApp> with WindowListener, TrayListener {
 
     sl<Zenon>().wsClient.stop();
     Future.delayed(const Duration(seconds: 60)).then((value) => exit(0));
-    await sl<HtlcSwapsHandler>().stop();
+    await sl<HtlcSwapSyncService>().stop();
     await sl<HtlcSwapLocalStorageApi>().close();
     await NodeUtils.closeEmbeddedNode();
     await sl.reset();
