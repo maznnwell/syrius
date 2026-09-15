@@ -201,29 +201,29 @@ class _HtlcCardState extends State<HtlcCard> {
 
     final List<Widget> children = <Widget>[
       _buildExpirationRow(widget.expirationTime!),
-      SwapDetailRow(
+      DetailsRow(
         label: context.l10n.depositId,
         value: htlcId.toString(),
         valueToShow: htlcId.toShortString(),
       ),
-      SwapDetailRow(
+      DetailsRow(
         label: context.l10n.tokenStandard,
         value: widget.token!.tokenStandard.toString(),
         prefixWidget: _buildTokenStandardTooltip(
           widget.token!.tokenStandard.toString(),
         ),
       ),
-      SwapDetailRow(
+      DetailsRow(
         label: context.l10n.sender,
         value: widget.sender,
         valueToShow: ZenonAddressUtils.getLabel(widget.sender),
       ),
-      SwapDetailRow(
+      DetailsRow(
         label: context.l10n.recipient,
         value: widget.recipient!,
         valueToShow: ZenonAddressUtils.getLabel(widget.recipient!),
       ),
-      SwapDetailRow(
+      DetailsRow(
         label: context.l10n.hashlock,
         value: hashLock.toString(),
         valueToShow: hashLock.toShortString(),
@@ -264,7 +264,7 @@ class _HtlcCardState extends State<HtlcCard> {
       seconds: expirationTime - DateTime.now().unixTimestamp,
     );
 
-    final Widget expired = SwapDetailRow(
+    final Widget expired = DetailsRow(
       label: context.l10n.expiresIn,
       value: context.l10n.expired,
       canBeCopied: false,
@@ -277,7 +277,7 @@ class _HtlcCardState extends State<HtlcCard> {
       duration: duration,
       tween: .new(begin: duration, end: Duration.zero),
       builder: (_, Duration d, _) {
-        final Widget status = SwapDetailRow(
+        final Widget status = DetailsRow(
           label: context.l10n.expiresIn,
           value: d.toString().split('.').first,
           canBeCopied: false,

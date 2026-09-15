@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/constants/app_sizes.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/swap_detail_row.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/details_row.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -78,22 +78,22 @@ class _HtlcSwapDetailsWidgetState extends State<HtlcSwapDetailsWidget> {
         : swap.counterHtlcId;
 
     final List<Widget> children = <Widget>[
-      SwapDetailRow(
+      DetailsRow(
         label: context.l10n.yourAddress,
         value: swap.selfAddress,
         valueToShow: ZenonAddressUtils.getLabel(swap.selfAddress),
       ),
-      SwapDetailRow(
+      DetailsRow(
         label: context.l10n.counterpartyAddress,
         value: swap.counterpartyAddress,
         valueToShow: ZenonAddressUtils.getLabel(swap.counterpartyAddress),
       ),
-      SwapDetailRow(
+      DetailsRow(
         label: context.l10n.yourDepositId,
         value: yourDepositId,
         valueToShow: Hash.parse(yourDepositId).toShortString(),
       ),
-      SwapDetailRow(
+      DetailsRow(
         label: context.l10n.hashlock,
         value: swap.hashLock,
         valueToShow: Hash.parse(swap.hashLock).toShortString(),
@@ -102,7 +102,7 @@ class _HtlcSwapDetailsWidgetState extends State<HtlcSwapDetailsWidget> {
 
     if (counterpartyDepositId != null) {
       children.add(
-        SwapDetailRow(
+        DetailsRow(
           label: context.l10n.counterpartyDepositId,
           value: counterpartyDepositId,
           valueToShow: Hash.parse(counterpartyDepositId).toShortString(),
@@ -111,7 +111,7 @@ class _HtlcSwapDetailsWidgetState extends State<HtlcSwapDetailsWidget> {
     }
     if (swap.preimage != null) {
       children.add(
-        SwapDetailRow(
+        DetailsRow(
           label: context.l10n.swapSecret,
           value: swap.preimage!,
           valueToShow: Hash.parse(swap.preimage!).toShortString(),

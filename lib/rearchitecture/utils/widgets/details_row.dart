@@ -3,8 +3,8 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/constants/app_s
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/copy_to_clipboard_button.dart';
 
-class SwapDetailRow extends StatelessWidget {
-  const SwapDetailRow({
+class DetailsRow extends StatelessWidget {
+  const DetailsRow({
     required this._label,
     required this._value,
     this._valueToShow,
@@ -31,24 +31,17 @@ class SwapDetailRow extends StatelessWidget {
           style: textStyle,
         ),
         Row(
+          spacing: kHorizontalGap4.width!,
           children: <Widget>[
-            if (_prefixWidget != null)
-              Row(
-                children: <Widget>[
-                  _prefixWidget,
-                  kHorizontalGap4,
-                ],
-              ),
+            if (_prefixWidget != null) _prefixWidget,
             Text(
               _valueToShow ?? _value,
               style: textStyle,
             ),
-            Visibility(
-              visible: _canBeCopied,
-              child: CopyToClipboardButton(
+            if (_canBeCopied)
+              CopyToClipboardButton(
                 _value,
               ),
-            ),
           ],
         ),
       ],
