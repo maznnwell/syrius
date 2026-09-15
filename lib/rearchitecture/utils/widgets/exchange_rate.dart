@@ -5,8 +5,8 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buil
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-class ExchangeRateWidget extends StatefulWidget {
-  const ExchangeRateWidget({
+class ExchangeRate extends StatefulWidget {
+  const ExchangeRate({
     required this._fromAmount,
     required this._toAmount,
     required this._toToken,
@@ -19,10 +19,10 @@ class ExchangeRateWidget extends StatefulWidget {
   final Token _fromToken;
 
   @override
-  State<ExchangeRateWidget> createState() => _ExchangeRateWidgetState();
+  State<ExchangeRate> createState() => _ExchangeRateState();
 }
 
-class _ExchangeRateWidgetState extends State<ExchangeRateWidget> {
+class _ExchangeRateState extends State<ExchangeRate> {
   bool _isToggled = false;
 
   @override
@@ -42,16 +42,13 @@ class _ExchangeRateWidgetState extends State<ExchangeRateWidget> {
                 _getFormattedRate(),
               ),
               kHorizontalGap4,
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: () => setState(() {
-                    _isToggled = !_isToggled;
-                  }),
-                  child: const Icon(
-                    Icons.swap_horiz,
-                  ),
+              IconButton(
+                icon: const Icon(
+                  Icons.swap_horiz,
                 ),
+                onPressed: () => setState(() {
+                  _isToggled = !_isToggled;
+                }),
               ),
             ],
           ),

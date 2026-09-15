@@ -3,8 +3,8 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/constants/app_s
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/buttons.dart';
 
-class SwapWarning extends StatelessWidget {
-  const SwapWarning({
+class Warning extends StatelessWidget {
+  const Warning({
     required this.text,
     super.key,
   });

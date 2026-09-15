@@ -4,9 +4,9 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/complete_swa
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap/model/p2p_swap.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/exchange_rate_widget.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/exchange_rate.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_info_text.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/swap_warning.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/warning.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 /// Active P2P swap content.
@@ -75,7 +75,7 @@ class _ActiveSwapViewState extends State<ActiveSwapView> {
             children: <Widget>[
               if (swap.toToken != null &&
                   !isTrustedToken(swap.toToken!.tokenStandard.toString()))
-                SwapWarning(
+                Warning(
                   text: context.l10n.verifyNonFavoriteToken(
                     swap.toToken?.tokenStandard.toString() ?? '',
                   ),
@@ -109,7 +109,7 @@ class _ActiveSwapViewState extends State<ActiveSwapView> {
       builder: (_, Duration duration, _) {
         return Visibility(
           visible: timeToCompleteSwap <= warningThreshold,
-          child: SwapWarning(
+          child: Warning(
             text: context.l10n.swapExpiresIn(
               duration.toString().split('.').first,
             ),
@@ -157,7 +157,7 @@ class _ActiveSwapViewState extends State<ActiveSwapView> {
       return const SizedBox.shrink();
     }
 
-    return ExchangeRateWidget(
+    return ExchangeRate(
       fromAmount: swap.fromAmount,
       fromToken: swap.fromToken,
       toAmount: toAmount,

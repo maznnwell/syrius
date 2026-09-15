@@ -10,10 +10,10 @@ import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/input_validators.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/notification_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/zts_utils.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/bullet_point_card.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/exchange_rate_widget.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/bullet_point_card.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/exchange_rate.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/input_fields.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/swap_warning.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/warning.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 /// Form for reviewing and joining a validated native P2P swap.
@@ -181,7 +181,7 @@ class _JoinP2pSwapFormState extends State<JoinP2pSwapForm> {
             if (!isTrustedToken(
               widget.token.tokenStandard.toString(),
             ))
-              SwapWarning(
+              Warning(
                 text: context.l10n.verifyNonFavoriteToken(
                   widget.token.tokenStandard.toString(),
                 ),
@@ -197,7 +197,7 @@ class _JoinP2pSwapFormState extends State<JoinP2pSwapForm> {
         ),
         JoinSwapUnavailable() => Column(
           children: <Widget>[
-            SwapWarning(
+            Warning(
               text: context.l10n.cannotJoinSwapExpiresTooSoon,
             ),
           ],
@@ -226,7 +226,7 @@ class _JoinP2pSwapFormState extends State<JoinP2pSwapForm> {
   }
 
   Widget _buildExchangeRateWidget() {
-    return ExchangeRateWidget(
+    return ExchangeRate(
       fromAmount: _amountController.text.extractDecimals(
         _token.decimals,
       ),

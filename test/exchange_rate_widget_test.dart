@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zenon_syrius_wallet_flutter/l10n/app_localizations.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/exchange_rate_widget.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/exchange_rate.dart';
 
 void main() {
   testWidgets('formats and toggles a fractional exchange rate', (
@@ -15,7 +15,7 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
-          body: ExchangeRateWidget(
+          body: ExchangeRate(
             fromAmount: BigInt.from(10) * oneCoin,
             toAmount: oneCoin,
             fromToken: kQsrCoin,
@@ -43,7 +43,7 @@ void main() {
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
-          body: ExchangeRateWidget(
+          body: ExchangeRate(
             fromAmount: BigInt.from(3) * oneCoin,
             toAmount: oneCoin,
             fromToken: kQsrCoin,
