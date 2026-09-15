@@ -20,12 +20,12 @@ import 'package:provider/provider.dart';
 import 'package:retry/retry.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:zenon_syrius_wallet_flutter/blocs/auto_unlock_htlc_worker.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/blocs.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/wallet_connect/chains/i_chain.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/wallet_connect/chains/nom_service.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/wallet_connect/wallet_connect_pairings_bloc.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/wallet_connect/wallet_connect_sessions_bloc.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/services/htlc_swap_auto_unlock_service.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/services/htlc_swap_sync_service.dart';
 import 'package:zenon_syrius_wallet_flutter/hive/hive_registrar.g.dart';
 import 'package:zenon_syrius_wallet_flutter/l10n/app_localizations.dart';
@@ -310,14 +310,21 @@ void setup() {
   );
   sl.registerSingleton<MultipleBalanceBloc>(MultipleBalanceBloc(zenon: zenon!));
   sl.registerSingleton<AutoReceiveTxWorker>(AutoReceiveTxWorker.getInstance());
-  sl.registerSingleton<AutoUnlockHtlcWorker>(
-    AutoUnlockHtlcWorker.getInstance(),
+  sl.registerSingleton<NotificationsBloc>(NotificationsBloc());
+  sl.registerSingleton<HtlcSwapAutoUnlockService>(
+    HtlcSwapAutoUnlockService(
+      accountBlockUtils: AccountBlockUtils(
+        publishSuccessNotification: false,
+      ),
+      notificationsBloc: sl<NotificationsBloc>(),
+      zenon: sl<Zenon>(),
+    ),
   );
 
   sl.registerSingleton<HtlcSwapSyncService>(
     HtlcSwapSyncService(
       swapRepository: sl<HtlcSwapRepository>(),
-      autoUnlockHtlcWorker: sl<AutoUnlockHtlcWorker>(),
+      autoUnlockService: sl<HtlcSwapAutoUnlockService>(),
       zenon: sl<Zenon>(),
     ),
   );
@@ -332,7 +339,6 @@ void setup() {
   );
 
   sl.registerSingleton<BalanceBloc>(BalanceBloc());
-  sl.registerSingleton<NotificationsBloc>(NotificationsBloc());
   sl.registerSingleton<AcceleratorBalanceBloc>(AcceleratorBalanceBloc());
   sl.registerSingleton<PowGeneratingStatusBloc>(PowGeneratingStatusBloc());
   sl.registerSingleton<WalletConnectPairingsBloc>(

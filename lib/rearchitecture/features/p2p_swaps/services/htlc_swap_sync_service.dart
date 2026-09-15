@@ -3,9 +3,9 @@ import 'dart:math';
 
 import 'package:logging/logging.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:zenon_syrius_wallet_flutter/blocs/auto_unlock_htlc_worker.dart';
 import 'package:zenon_syrius_wallet_flutter/model/block_data.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/services/htlc_swap_auto_unlock_service.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/date_time_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
@@ -32,14 +32,14 @@ const Duration _kPollInterval = Duration(seconds: 5);
 class HtlcSwapSyncService {
   HtlcSwapSyncService({
     required this._swapRepository,
-    required this._autoUnlockHtlcWorker,
+    required this._autoUnlockService,
     required this._zenon,
   });
 
   final Logger _logger = Logger('HtlcSwapsHandler');
 
   final HtlcSwapRepository _swapRepository;
-  final AutoUnlockHtlcWorker _autoUnlockHtlcWorker;
+  final HtlcSwapAutoUnlockService _autoUnlockService;
   final Zenon _zenon;
 
   bool _isRunning = false;
@@ -83,7 +83,6 @@ class HtlcSwapSyncService {
       if (unresolvedSwaps.isNotEmpty) {
         await _processUnresolvedSwaps(unresolvedSwaps);
       }
-      await _autoUnlockHtlcWorker.autoUnlock();
     } catch (e, stackTrace) {
       _logger.log(Level.WARNING, '_runPeriodically', e, stackTrace);
     } finally {
@@ -387,14 +386,13 @@ class HtlcSwapSyncService {
     final List<HtlcSwap> swaps = await _swapRepository.getSwapsByState(
       _kAutoUnlockableStates,
     );
-    for (final HtlcSwap swap in swaps) {
-      final bool isAutoUnlockable =
-          swap.direction == P2pSwapDirection.incoming && swap.preimage != null;
-      if (!isAutoUnlockable) {
-        continue;
-      }
-      _autoUnlockHtlcWorker.addHash(Hash.parse(swap.initialHtlcId));
-    }
+    await _autoUnlockService.unlockNext(
+      swaps.where(
+        (HtlcSwap swap) =>
+            swap.direction == P2pSwapDirection.incoming &&
+            swap.preimage != null,
+      ),
+    );
   }
 
   int? _getOldestSwapStartTime(List<HtlcSwap> swaps) {
