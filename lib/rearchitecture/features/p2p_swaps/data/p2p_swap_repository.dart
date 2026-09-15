@@ -1,6 +1,7 @@
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap/model/p2p_swap.dart';
 
 abstract class P2pSwapRepository<T extends P2pSwap> {
+  // TODO(maznnwell): transform into a stream
   Future<List<T>> getAllSwaps();
 
   Future<List<T>> getSwapsByState(List<P2pSwapState> states);
