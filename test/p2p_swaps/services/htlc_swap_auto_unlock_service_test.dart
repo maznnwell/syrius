@@ -5,21 +5,18 @@ import 'package:mocktail/mocktail.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/blocs.dart';
 import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/wallet_file.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
-
-class MockAccountBlockUtils extends Mock implements AccountBlockUtils {}
-
-class MockEmbeddedApi extends Mock implements EmbeddedApi {}
-
-class MockHtlcApi extends Mock implements HtlcApi {}
 
 class MockStatsApi extends Mock implements StatsApi {}
 
 class MockZenon extends Mock implements Zenon {}
 
 class MockNotificationsBloc extends Mock implements NotificationsBloc {}
+
+class MockHtlcSwapUnlockService extends Mock implements HtlcSwapUnlockService {}
 
 class MockWalletFile extends Mock implements WalletFile {}
 
@@ -35,9 +32,7 @@ void main() {
     final List<int> preimage = <int>[4, 5, 6];
     final Address selfAddress = emptyAddress;
 
-    late MockAccountBlockUtils accountBlockUtils;
-    late MockEmbeddedApi embeddedApi;
-    late MockHtlcApi htlcApi;
+    late MockHtlcSwapUnlockService unlockService;
     late MockNotificationsBloc notificationsBloc;
     late MockStatsApi statsApi;
     late MockZenon zenon;
@@ -47,14 +42,10 @@ void main() {
     late List<WalletNotification> notifications;
     late DateTime now;
     late WalletFile? previousWalletFile;
-    late List<String?> previousDefaultAddressList;
 
     setUp(() {
       previousWalletFile = kWalletFile;
-      previousDefaultAddressList = kDefaultAddressList;
-      accountBlockUtils = MockAccountBlockUtils();
-      embeddedApi = MockEmbeddedApi();
-      htlcApi = MockHtlcApi();
+      unlockService = MockHtlcSwapUnlockService();
       notificationsBloc = MockNotificationsBloc();
       statsApi = MockStatsApi();
       zenon = MockZenon();
@@ -62,7 +53,6 @@ void main() {
       notifications = <WalletNotification>[];
       now = DateTime(2026);
       kWalletFile = MockWalletFile();
-      kDefaultAddressList = <String?>[selfAddress.toString()];
 
       swap = HtlcSwap(
         hashLock: Hash.digest(preimage).toString(),
@@ -84,17 +74,6 @@ void main() {
         preimage: FormatUtils.encodeHexString(preimage),
       );
 
-      final HtlcInfo htlc = HtlcInfo(
-        id: htlcId,
-        timeLocked: htlcAddress,
-        hashLocked: selfAddress,
-        tokenStandard: kZnnCoin.tokenStandard,
-        amount: BigInt.one,
-        expirationTime: 2000,
-        hashType: htlcHashTypeSha3,
-        keyMaxSize: htlcPreimageMaxLength,
-        hashLock: Hash.digest(preimage).getBytes()!,
-      );
       final SyncInfo syncInfo = SyncInfo.fromJson(<String, dynamic>{
         'state': SyncState.syncDone.index,
         'currentHeight': 100,
@@ -103,19 +82,8 @@ void main() {
 
       when(() => zenon.stats).thenReturn(statsApi);
       when(() => statsApi.syncInfo()).thenAnswer((_) async => syncInfo);
-      when(() => zenon.embedded).thenReturn(embeddedApi);
-      when(() => embeddedApi.htlc).thenReturn(htlcApi);
-      when(() => htlcApi.getById(htlcId)).thenAnswer((_) async => htlc);
       when(
-        () => htlcApi.unlock(htlcId, preimage),
-      ).thenReturn(transactionParams);
-      when(
-        () => accountBlockUtils.createAccountBlock(
-          transactionParams,
-          'complete swap',
-          address: selfAddress,
-          waitForRequiredPlasma: true,
-        ),
+        () => unlockService.unlock(swap),
       ).thenAnswer((_) async => transactionParams);
       when(
         () => notificationsBloc.addNotification(any()),
@@ -126,8 +94,8 @@ void main() {
       });
 
       service = HtlcSwapAutoUnlockService(
-        accountBlockUtils: accountBlockUtils,
         notificationsBloc: notificationsBloc,
+        unlockService: unlockService,
         zenon: zenon,
         now: () => now,
       );
@@ -135,7 +103,6 @@ void main() {
 
     tearDown(() {
       kWalletFile = previousWalletFile;
-      kDefaultAddressList = previousDefaultAddressList;
     });
 
     test(
@@ -143,16 +110,7 @@ void main() {
       () async {
         await service.unlockNext(<HtlcSwap>[swap]);
 
-        verify(() => htlcApi.getById(htlcId)).called(1);
-        verify(() => htlcApi.unlock(htlcId, preimage)).called(1);
-        verify(
-          () => accountBlockUtils.createAccountBlock(
-            transactionParams,
-            'complete swap',
-            address: selfAddress,
-            waitForRequiredPlasma: true,
-          ),
-        ).called(1);
+        verify(() => unlockService.unlock(swap)).called(1);
         expect(notifications, hasLength(1));
         expect(notifications.single.type, NotificationType.paymentReceived);
       },
@@ -162,12 +120,7 @@ void main() {
       final Completer<AccountBlockTemplate> completer =
           Completer<AccountBlockTemplate>();
       when(
-        () => accountBlockUtils.createAccountBlock(
-          transactionParams,
-          'complete swap',
-          address: selfAddress,
-          waitForRequiredPlasma: true,
-        ),
+        () => unlockService.unlock(swap),
       ).thenAnswer((_) => completer.future);
 
       final Future<void> unlock = service.unlockNext(<HtlcSwap>[swap]);
@@ -184,12 +137,12 @@ void main() {
       await service.unlockNext(<HtlcSwap>[swap]);
       await service.unlockNext(<HtlcSwap>[swap]);
 
-      verify(() => htlcApi.getById(htlcId)).called(1);
+      verify(() => unlockService.unlock(swap)).called(1);
 
       now = now.add(const Duration(minutes: 2));
       await service.unlockNext(<HtlcSwap>[swap]);
 
-      verify(() => htlcApi.getById(htlcId)).called(1);
+      verify(() => unlockService.unlock(swap)).called(1);
     });
 
     test(
@@ -200,7 +153,7 @@ void main() {
         await service.unlockNext(<HtlcSwap>[swap]);
 
         verifyNever(() => statsApi.syncInfo());
-        verifyNever(() => htlcApi.getById(htlcId));
+        verifyNever(() => unlockService.unlock(swap));
         expect(notifications, isEmpty);
       },
     );
@@ -215,23 +168,17 @@ void main() {
 
       await service.unlockNext(<HtlcSwap>[swap]);
 
-      verifyNever(() => htlcApi.getById(htlcId));
+      verifyNever(() => unlockService.unlock(swap));
       expect(notifications, isEmpty);
     });
 
-    test('reports an HTLC that does not belong to the wallet', () async {
-      kDefaultAddressList = <String?>[];
+    test('reports an unlock failure', () async {
+      when(() => unlockService.unlock(swap)).thenThrow(
+        SyriusException('Swap address not in default addresses.'),
+      );
 
       await service.unlockNext(<HtlcSwap>[swap]);
 
-      verifyNever(
-        () => accountBlockUtils.createAccountBlock(
-          transactionParams,
-          'complete swap',
-          address: selfAddress,
-          waitForRequiredPlasma: true,
-        ),
-      );
       expect(notifications, hasLength(1));
       expect(notifications.single.type, NotificationType.error);
       expect(

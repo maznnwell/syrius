@@ -4,10 +4,8 @@ import 'package:zenon_syrius_wallet_flutter/blocs/blocs.dart';
 import 'package:zenon_syrius_wallet_flutter/model/database/notification_type.dart';
 import 'package:zenon_syrius_wallet_flutter/model/database/wallet_notification.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap/model/p2p_swap.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/exceptions/syrius_exception.dart';
-import 'package:zenon_syrius_wallet_flutter/utils/account_block_utils.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/services/htlc_swap_unlock_service.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
-import 'package:zenon_syrius_wallet_flutter/utils/format_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/global.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -15,18 +13,18 @@ const Duration _kRetryCooldown = Duration(minutes: 2);
 
 class HtlcSwapAutoUnlockService {
   HtlcSwapAutoUnlockService({
-    required this._accountBlockUtils,
     required this._notificationsBloc,
+    required this._unlockService,
     required this._zenon,
     DateTime Function()? now,
   }) : _now = now ?? DateTime.now;
 
   final Logger _logger = Logger('HtlcSwapAutoUnlockService');
-  final AccountBlockUtils _accountBlockUtils;
   final Zenon _zenon;
   final DateTime Function() _now;
   final Map<String, DateTime> _recentAttempts = <String, DateTime>{};
   final NotificationsBloc _notificationsBloc;
+  final HtlcSwapUnlockService _unlockService;
 
   bool _isUnlocking = false;
 
@@ -84,42 +82,8 @@ class HtlcSwapAutoUnlockService {
 
   Future<void> _unlock(HtlcSwap swap) async {
     try {
-      final Hash htlcId = Hash.parse(swap.initialHtlcId);
-      final HtlcInfo htlc = await _zenon.embedded.htlc.getById(htlcId);
-      final String? encodedPreimage = swap.preimage;
-      if (encodedPreimage == null ||
-          FormatUtils.encodeHexString(htlc.hashLock) != swap.hashLock ||
-          htlc.hashLocked.toString() != swap.selfAddress) {
-        throw SyriusException('Invalid swap');
-      }
-
-      final bool ownsAddress = kDefaultAddressList.contains(
-        htlc.hashLocked.toString(),
-      );
-
-      if (!ownsAddress) {
-        throw SyriusException(
-          'Swap address not in default addresses. Please add the address in the addresses list.',
-        );
-      }
-
-      final List<int> preimage = FormatUtils.decodeHexString(encodedPreimage);
-      if (htlc.keyMaxSize < preimage.length) {
-        throw SyriusException(
-          'The swap secret size exceeds the maximum allowed size.',
-        );
-      }
-
-      final AccountBlockTemplate transactionParams = _zenon.embedded.htlc
-          .unlock(htlc.id, preimage);
-      final AccountBlockTemplate response = await _accountBlockUtils
-          .createAccountBlock(
-            transactionParams,
-            'complete swap',
-            address: htlc.hashLocked,
-            waitForRequiredPlasma: true,
-          );
-      await _sendSuccessNotification(response, htlc.hashLocked.toString());
+      final AccountBlockTemplate response = await _unlockService.unlock(swap);
+      await _sendSuccessNotification(response, swap.selfAddress);
     } on RpcException catch (error, stackTrace) {
       _logger.log(Level.WARNING, 'unlockNext', error, stackTrace);
       if (!error.message.contains('data non existent')) {

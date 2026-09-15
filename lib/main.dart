@@ -311,12 +311,18 @@ void setup() {
   sl.registerSingleton<MultipleBalanceBloc>(MultipleBalanceBloc(zenon: zenon!));
   sl.registerSingleton<AutoReceiveTxWorker>(AutoReceiveTxWorker.getInstance());
   sl.registerSingleton<NotificationsBloc>(NotificationsBloc());
-  sl.registerSingleton<HtlcSwapAutoUnlockService>(
-    HtlcSwapAutoUnlockService(
+  sl.registerSingleton<HtlcSwapUnlockService>(
+    HtlcSwapUnlockService(
       accountBlockUtils: AccountBlockUtils(
         publishSuccessNotification: false,
       ),
+      zenon: sl<Zenon>(),
+    ),
+  );
+  sl.registerSingleton<HtlcSwapAutoUnlockService>(
+    HtlcSwapAutoUnlockService(
       notificationsBloc: sl<NotificationsBloc>(),
+      unlockService: sl<HtlcSwapUnlockService>(),
       zenon: sl<Zenon>(),
     ),
   );

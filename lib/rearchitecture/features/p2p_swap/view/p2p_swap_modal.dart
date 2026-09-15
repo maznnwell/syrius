@@ -32,11 +32,8 @@ class P2pSwapModal extends StatelessWidget {
         ),
         BlocProvider<CompleteSwapBloc>(
           create: (_) => CompleteSwapBloc(
-            accountBlockUtils: AccountBlockUtils(
-              publishSuccessNotification: false,
-            ),
+            htlcSwapUnlockService: sl<HtlcSwapUnlockService>(),
             swapRepository: sl<HtlcSwapRepository>(),
-            zenon: zenon!,
             zenonAddressUtils: ZenonAddressUtils(),
           ),
         ),

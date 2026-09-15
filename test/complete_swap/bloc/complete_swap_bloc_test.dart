@@ -3,17 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/p2p_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-class MockZenon extends Mock implements Zenon {}
-
-class MockEmbedded extends Mock implements EmbeddedApi {}
-
-class MockHtlcApi extends Mock implements HtlcApi {}
-
-class MockAccountBlockUtils extends Mock implements AccountBlockUtils {}
+class MockHtlcSwapUnlockService extends Mock implements HtlcSwapUnlockService {}
 
 class MockP2pSwapRepository extends Mock
     implements P2pSwapRepository<HtlcSwap> {}
@@ -24,58 +17,30 @@ class FakeHtlcSwap extends Fake implements HtlcSwap {}
 
 void main() {
   setUpAll(() {
-    registerFallbackValue(<int>[]);
     registerFallbackValue(FakeHtlcSwap());
   });
 
   group('CompleteSwapBloc', () {
-    const int now = 1000;
     final Hash initialHtlcId = Hash.digest(<int>[1, 2, 3]);
     final Hash counterHtlcId = Hash.digest(<int>[4, 5, 6]);
     final Address selfAddress = emptyAddress;
-    final List<int> preimage = <int>[7, 8, 9];
 
-    late MockZenon zenon;
-    late MockEmbedded embedded;
-    late MockHtlcApi htlcApi;
-    late MockAccountBlockUtils accountBlockUtils;
+    late MockHtlcSwapUnlockService unlockService;
     late MockP2pSwapRepository swapRepository;
     late MockZenonAddressUtils zenonAddressUtils;
-    late AccountBlockTemplate transactionParams;
-    late HtlcInfo htlc;
+    late AccountBlockTemplate block;
     late HtlcSwap swap;
     late CompleteSwapBloc bloc;
 
-    HtlcInfo buildHtlc({
-      required int expirationTime,
-      int keyMaxSize = htlcPreimageMaxLength,
-    }) => HtlcInfo(
-      id: counterHtlcId,
-      timeLocked: htlcAddress,
-      hashLocked: selfAddress,
-      tokenStandard: kQsrCoin.tokenStandard,
-      amount: BigInt.one,
-      expirationTime: expirationTime,
-      hashType: htlcHashTypeSha3,
-      keyMaxSize: keyMaxSize,
-      hashLock: Hash.digest(preimage).getBytes()!,
-    );
-
     setUp(() {
-      zenon = MockZenon();
-      embedded = MockEmbedded();
-      htlcApi = MockHtlcApi();
-      accountBlockUtils = MockAccountBlockUtils();
+      unlockService = MockHtlcSwapUnlockService();
       swapRepository = MockP2pSwapRepository();
       zenonAddressUtils = MockZenonAddressUtils();
-      transactionParams = AccountBlockTemplate(blockType: 1);
-      htlc = buildHtlc(
-        expirationTime: now + kMinSafeTimeToCompleteSwap.inSeconds + 1,
-      );
+      block = AccountBlockTemplate(blockType: 1);
       swap = HtlcSwap(
-        hashLock: Hash.digest(preimage).toString(),
+        hashLock: Hash.digest(<int>[7, 8, 9]).toString(),
         initialHtlcId: initialHtlcId.toString(),
-        initialHtlcExpirationTime: now + kInitialHtlcDuration.inSeconds,
+        initialHtlcExpirationTime: 2000,
         hashType: htlcHashTypeSha3,
         id: initialHtlcId.toString(),
         chainId: 1,
@@ -87,40 +52,22 @@ void main() {
         fromToken: kZnnCoin,
         fromChain: P2pSwapChain.nom,
         toChain: P2pSwapChain.nom,
-        startTime: now,
+        startTime: 1000,
         state: P2pSwapState.active,
-        toAmount: BigInt.two,
-        toToken: kQsrCoin,
         counterHtlcId: counterHtlcId.toString(),
-        counterHtlcExpirationTime: htlc.expirationTime,
-        preimage: FormatUtils.encodeHexString(preimage),
+        preimage: FormatUtils.encodeHexString(<int>[7, 8, 9]),
       );
 
-      when(() => zenon.embedded).thenReturn(embedded);
-      when(() => embedded.htlc).thenReturn(htlcApi);
-      when(() => htlcApi.getById(counterHtlcId)).thenAnswer((_) async => htlc);
-      when(
-        () => htlcApi.unlock(counterHtlcId, any()),
-      ).thenReturn(transactionParams);
-      when(
-        () => accountBlockUtils.createAccountBlock(
-          transactionParams,
-          'complete swap',
-          address: selfAddress,
-          waitForRequiredPlasma: true,
-        ),
-      ).thenAnswer((_) async => transactionParams);
+      when(() => unlockService.unlock(swap)).thenAnswer((_) async => block);
       when(
         () => swapRepository.storeSwap(any()),
       ).thenAnswer((_) async {});
       when(() => zenonAddressUtils.refreshBalance()).thenAnswer((_) {});
 
       bloc = CompleteSwapBloc(
-        accountBlockUtils: accountBlockUtils,
+        htlcSwapUnlockService: unlockService,
         swapRepository: swapRepository,
-        zenon: zenon,
         zenonAddressUtils: zenonAddressUtils,
-        unixTimeProvider: () => now,
       );
     });
 
@@ -129,7 +76,7 @@ void main() {
     });
 
     blocTest<CompleteSwapBloc, CompleteSwapState>(
-      'unlocks the counter HTLC, stores the completed swap, and refreshes',
+      'unlocks the swap, stores it as completed, and refreshes balances',
       build: () => bloc,
       act: (CompleteSwapBloc bloc) => bloc.add(
         CompleteSwapRequested(swap: swap),
@@ -140,7 +87,7 @@ void main() {
             .having(
               (CompleteSwapDone state) => state.block,
               'submitted block',
-              transactionParams,
+              block,
             )
             .having(
               (CompleteSwapDone state) => state.swap.state,
@@ -149,21 +96,7 @@ void main() {
             ),
       ],
       verify: (_) {
-        verify(() => htlcApi.getById(counterHtlcId)).called(1);
-        final List<int> unlockedPreimage =
-            verify(
-                  () => htlcApi.unlock(counterHtlcId, captureAny()),
-                ).captured.single
-                as List<int>;
-        expect(unlockedPreimage, preimage);
-        verify(
-          () => accountBlockUtils.createAccountBlock(
-            transactionParams,
-            'complete swap',
-            address: selfAddress,
-            waitForRequiredPlasma: true,
-          ),
-        ).called(1);
+        verify(() => unlockService.unlock(swap)).called(1);
         final HtlcSwap storedSwap =
             verify(
                   () => swapRepository.storeSwap(captureAny()),
@@ -175,68 +108,10 @@ void main() {
     );
 
     blocTest<CompleteSwapBloc, CompleteSwapState>(
-      'rejects a swap at the safe expiration cutoff',
-      setUp: () {
-        htlc = buildHtlc(
-          expirationTime: now + kMinSafeTimeToCompleteSwap.inSeconds,
-        );
-      },
-      build: () => bloc,
-      act: (CompleteSwapBloc bloc) => bloc.add(
-        CompleteSwapRequested(swap: swap),
-      ),
-      expect: () => <Matcher>[
-        isA<CompleteSwapLoading>(),
-        isA<CompleteSwapFailure>().having(
-          (CompleteSwapFailure state) => state.exception.message,
-          'message',
-          'The swap will expire too soon for a safe swap.',
-        ),
-      ],
-      verify: (_) {
-        verifyNever(() => htlcApi.unlock(counterHtlcId, any()));
-        verifyNever(() => swapRepository.storeSwap(any()));
-        verifyNever(() => zenonAddressUtils.refreshBalance());
-      },
-    );
-
-    blocTest<CompleteSwapBloc, CompleteSwapState>(
-      'rejects a secret that exceeds the HTLC key size',
-      setUp: () {
-        htlc = buildHtlc(
-          expirationTime: now + kMinSafeTimeToCompleteSwap.inSeconds + 1,
-          keyMaxSize: preimage.length - 1,
-        );
-      },
-      build: () => bloc,
-      act: (CompleteSwapBloc bloc) => bloc.add(
-        CompleteSwapRequested(swap: swap),
-      ),
-      expect: () => <Matcher>[
-        isA<CompleteSwapLoading>(),
-        isA<CompleteSwapFailure>().having(
-          (CompleteSwapFailure state) => state.exception.message,
-          'message',
-          'The swap secret size exceeds the maximum allowed size.',
-        ),
-      ],
-      verify: (_) {
-        verifyNever(() => htlcApi.unlock(counterHtlcId, any()));
-        verifyNever(() => swapRepository.storeSwap(any()));
-        verifyNever(() => zenonAddressUtils.refreshBalance());
-      },
-    );
-
-    blocTest<CompleteSwapBloc, CompleteSwapState>(
-      'preserves a SyriusException from transaction submission',
+      'preserves a SyriusException from the unlock service',
       setUp: () {
         when(
-          () => accountBlockUtils.createAccountBlock(
-            transactionParams,
-            'complete swap',
-            address: selfAddress,
-            waitForRequiredPlasma: true,
-          ),
+          () => unlockService.unlock(swap),
         ).thenThrow(SyriusException('Unable to complete swap.'));
       },
       build: () => bloc,
@@ -260,9 +135,7 @@ void main() {
     blocTest<CompleteSwapBloc, CompleteSwapState>(
       'converts an unexpected error to FailureException',
       setUp: () {
-        when(
-          () => htlcApi.getById(counterHtlcId),
-        ).thenThrow(StateError('boom'));
+        when(() => unlockService.unlock(swap)).thenThrow(StateError('boom'));
       },
       build: () => bloc,
       act: (CompleteSwapBloc bloc) => bloc.add(
@@ -277,7 +150,6 @@ void main() {
         ),
       ],
       verify: (_) {
-        verifyNever(() => htlcApi.unlock(counterHtlcId, any()));
         verifyNever(() => swapRepository.storeSwap(any()));
         verifyNever(() => zenonAddressUtils.refreshBalance());
       },
