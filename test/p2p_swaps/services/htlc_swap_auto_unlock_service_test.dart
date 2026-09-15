@@ -10,9 +10,7 @@ import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/wallet_file.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
-class MockStatsApi extends Mock implements StatsApi {}
-
-class MockZenon extends Mock implements Zenon {}
+class MockNodeSyncMonitor extends Mock implements NodeSyncMonitor {}
 
 class MockNotificationsBloc extends Mock implements NotificationsBloc {}
 
@@ -34,8 +32,7 @@ void main() {
 
     late MockHtlcSwapUnlockService unlockService;
     late MockNotificationsBloc notificationsBloc;
-    late MockStatsApi statsApi;
-    late MockZenon zenon;
+    late MockNodeSyncMonitor syncMonitor;
     late AccountBlockTemplate transactionParams;
     late HtlcSwap swap;
     late HtlcSwapAutoUnlockService service;
@@ -47,8 +44,7 @@ void main() {
       previousWalletFile = kWalletFile;
       unlockService = MockHtlcSwapUnlockService();
       notificationsBloc = MockNotificationsBloc();
-      statsApi = MockStatsApi();
-      zenon = MockZenon();
+      syncMonitor = MockNodeSyncMonitor();
       transactionParams = AccountBlockTemplate(blockType: 1);
       notifications = <WalletNotification>[];
       now = DateTime(2026);
@@ -74,14 +70,7 @@ void main() {
         preimage: FormatUtils.encodeHexString(preimage),
       );
 
-      final SyncInfo syncInfo = SyncInfo.fromJson(<String, dynamic>{
-        'state': SyncState.syncDone.index,
-        'currentHeight': 100,
-        'targetHeight': 100,
-      });
-
-      when(() => zenon.stats).thenReturn(statsApi);
-      when(() => statsApi.syncInfo()).thenAnswer((_) async => syncInfo);
+      when(() => syncMonitor.isNodeSynced()).thenAnswer((_) async => true);
       when(
         () => unlockService.unlock(swap),
       ).thenAnswer((_) async => transactionParams);
@@ -95,8 +84,8 @@ void main() {
 
       service = HtlcSwapAutoUnlockService(
         notificationsBloc: notificationsBloc,
+        syncMonitor: syncMonitor,
         unlockService: unlockService,
-        zenon: zenon,
         now: () => now,
       );
     });
@@ -152,19 +141,14 @@ void main() {
 
         await service.unlockNext(<HtlcSwap>[swap]);
 
-        verifyNever(() => statsApi.syncInfo());
+        verifyNever(() => syncMonitor.isNodeSynced());
         verifyNever(() => unlockService.unlock(swap));
         expect(notifications, isEmpty);
       },
     );
 
     test('does not attempt an unlock while the node is syncing', () async {
-      final SyncInfo syncing = SyncInfo.fromJson(<String, dynamic>{
-        'state': SyncState.syncing.index,
-        'currentHeight': 50,
-        'targetHeight': 100,
-      });
-      when(() => statsApi.syncInfo()).thenAnswer((_) async => syncing);
+      when(() => syncMonitor.isNodeSynced()).thenAnswer((_) async => false);
 
       await service.unlockNext(<HtlcSwap>[swap]);
 

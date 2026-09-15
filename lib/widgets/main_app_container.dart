@@ -87,6 +87,7 @@ class _MainAppContainerState extends State<MainAppContainer>
     canRequestFocus: false,
   );
   final NodeSyncStatusCubit _nodeSyncStatusCubit = NodeSyncStatusCubit(
+    syncMonitor: sl<NodeSyncMonitor>(),
     zenon: zenon!,
   );
 

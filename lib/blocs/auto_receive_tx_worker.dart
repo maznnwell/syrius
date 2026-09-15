@@ -9,6 +9,7 @@ import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/services/htlc_swap_auto_unlock_service.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/blocs/blocs.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/sync_info_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -112,11 +113,7 @@ class AutoReceiveTxWorker extends BaseBloc<WalletNotification> {
 
   Future<void> addHash(Hash hash) async {
     zenon!.stats.syncInfo().then((SyncInfo syncInfo) {
-      if (!pool.contains(hash) &&
-          (syncInfo.state == SyncState.syncDone ||
-              (syncInfo.targetHeight > 0 &&
-                  syncInfo.currentHeight > 0 &&
-                  (syncInfo.targetHeight - syncInfo.currentHeight) < 3))) {
+      if (!pool.contains(hash) && syncInfo.isSynced) {
         sl.get<PendingTransactionsBloc>().add(
           InfiniteListRefreshRequested(
             address: Address.parse(kSelectedAddress!),

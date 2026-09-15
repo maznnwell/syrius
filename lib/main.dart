@@ -276,6 +276,9 @@ Future<void> _loadDefaultCommunityNodes() async {
 void setup() {
   sl.registerSingleton<Zenon>(Zenon());
   zenon = sl<Zenon>();
+  sl.registerSingleton<NodeSyncMonitor>(
+    NodeSyncMonitor(zenon: sl<Zenon>()),
+  );
   sl.registerLazySingletonAsync<SharedPrefsService>(
     () => SharedPrefsService.getInstance().then(
       (SharedPrefsService? value) => value!,
@@ -322,8 +325,8 @@ void setup() {
   sl.registerSingleton<HtlcSwapAutoUnlockService>(
     HtlcSwapAutoUnlockService(
       notificationsBloc: sl<NotificationsBloc>(),
+      syncMonitor: sl<NodeSyncMonitor>(),
       unlockService: sl<HtlcSwapUnlockService>(),
-      zenon: sl<Zenon>(),
     ),
   );
 

@@ -3,6 +3,7 @@ import 'package:logging/logging.dart';
 import 'package:zenon_syrius_wallet_flutter/blocs/blocs.dart';
 import 'package:zenon_syrius_wallet_flutter/model/database/notification_type.dart';
 import 'package:zenon_syrius_wallet_flutter/model/database/wallet_notification.dart';
+import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/node_sync_status/services/node_sync_monitor.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap/model/p2p_swap.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/services/htlc_swap_unlock_service.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
@@ -14,13 +15,13 @@ const Duration _kRetryCooldown = Duration(minutes: 2);
 class HtlcSwapAutoUnlockService {
   HtlcSwapAutoUnlockService({
     required this._notificationsBloc,
+    required this._syncMonitor,
     required this._unlockService,
-    required this._zenon,
     DateTime Function()? now,
   }) : _now = now ?? DateTime.now;
 
   final Logger _logger = Logger('HtlcSwapAutoUnlockService');
-  final Zenon _zenon;
+  final NodeSyncMonitor _syncMonitor;
   final DateTime Function() _now;
   final Map<String, DateTime> _recentAttempts = <String, DateTime>{};
   final NotificationsBloc _notificationsBloc;
@@ -56,7 +57,7 @@ class HtlcSwapAutoUnlockService {
 
     _isUnlocking = true;
     try {
-      if (!await _isNodeSynced()) {
+      if (!await _syncMonitor.isNodeSynced()) {
         return;
       }
 
@@ -64,19 +65,6 @@ class HtlcSwapAutoUnlockService {
       await _unlock(swap);
     } finally {
       _isUnlocking = false;
-    }
-  }
-
-  Future<bool> _isNodeSynced() async {
-    try {
-      final SyncInfo syncInfo = await _zenon.stats.syncInfo();
-      return syncInfo.state == SyncState.syncDone ||
-          (syncInfo.targetHeight > 0 &&
-              syncInfo.currentHeight > 0 &&
-              syncInfo.targetHeight - syncInfo.currentHeight < 3);
-    } catch (error, stackTrace) {
-      _logger.log(Level.WARNING, 'unlockNext', error, stackTrace);
-      return false;
     }
   }
 
