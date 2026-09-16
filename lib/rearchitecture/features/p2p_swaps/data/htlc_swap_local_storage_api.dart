@@ -90,8 +90,11 @@ class HtlcSwapLocalStorageApi {
   Future<void> rollbackRekey(List<int> oldEncryptionKey) =>
       _mutex.protect(() => _restoreRekeyBackup(oldEncryptionKey));
 
-  Future<List<HtlcSwapEntry>> readAllSwapEntries(int chainId) =>
-      _withDao((HtlcSwapsDao dao) => dao.readAllSwapEntries(chainId));
+  Future<List<HtlcSwapEntry>> readAllSwapEntries() =>
+      _withDao((HtlcSwapsDao dao) => dao.readAllSwapEntries());
+
+  Stream<List<HtlcSwapEntry>> watchAllSwapEntries() =>
+      _requireConnection().htlcSwapsDao.watchAllSwapEntries();
 
   Future<List<HtlcSwapEntry>> readSwapEntriesByState(
     int chainId,
@@ -112,8 +115,8 @@ class HtlcSwapLocalStorageApi {
         (HtlcSwapsDao dao) => dao.readSwapEntryByHtlcId(chainId, htlcId),
       );
 
-  Future<HtlcSwapEntry?> readSwapEntryById(int chainId, String id) => _withDao(
-    (HtlcSwapsDao dao) => dao.readSwapEntryById(chainId, id),
+  Future<HtlcSwapEntry?> readSwapEntryById(String id) => _withDao(
+    (HtlcSwapsDao dao) => dao.readSwapEntryById(id),
   );
 
   Future<int> readLastCheckedHtlcBlockHeight(int chainId) => _withDao(

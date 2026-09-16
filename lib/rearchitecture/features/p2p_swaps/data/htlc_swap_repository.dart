@@ -17,16 +17,16 @@ class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
 
   @override
   Future<List<HtlcSwap>> getAllSwaps() async {
-    final int? chainId = _chainIdProvider();
-    if (chainId == null) {
-      return <HtlcSwap>[];
-    }
-
-    final List<HtlcSwapEntry> entries = await _dataProvider.readAllSwapEntries(
-      chainId,
-    );
+    final List<HtlcSwapEntry> entries = await _dataProvider
+        .readAllSwapEntries();
     return entries.map(_decodeSwap).toList();
   }
+
+  @override
+  Stream<List<HtlcSwap>> watchAllSwaps() =>
+      _dataProvider.watchAllSwapEntries().map(
+        (List<HtlcSwapEntry> entries) => entries.map(_decodeSwap).toList(),
+      );
 
   @override
   Future<List<HtlcSwap>> getSwapsByState(
@@ -40,7 +40,7 @@ class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
     final List<HtlcSwapEntry> entries = await _dataProvider
         .readSwapEntriesByState(
           chainId,
-          states.map((state) => state.name).toList(),
+          states.map((P2pSwapState state) => state.name).toList(),
         );
     return entries.map(_decodeSwap).toList();
   }
@@ -68,16 +68,8 @@ class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
   }
 
   @override
-  Future<HtlcSwap?> getSwapById(String id) async {
-    final int? chainId = _chainIdProvider();
-    if (chainId == null) {
-      return null;
-    }
-
-    return _decodeNullableSwap(
-      await _dataProvider.readSwapEntryById(chainId, id),
-    );
-  }
+  Future<HtlcSwap?> getSwapById(String id) async =>
+      _decodeNullableSwap(await _dataProvider.readSwapEntryById(id));
 
   Future<int> getLastCheckedHtlcBlockHeight() async {
     final int? chainId = _chainIdProvider();

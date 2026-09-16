@@ -1,4 +1,4 @@
-part of 'p2p_swaps_bloc.dart';
+part of 'p2p_swaps_cubit.dart';
 
 /// Base class for P2P-swaps-list states.
 sealed class P2pSwapsState extends Equatable {
@@ -9,13 +9,7 @@ sealed class P2pSwapsState extends Equatable {
   List<Object?> get props => <Object?>[];
 }
 
-/// Initial state before P2P swaps have been requested.
-final class P2pSwapsInitial extends P2pSwapsState {
-  /// Creates a [P2pSwapsInitial] state.
-  const P2pSwapsInitial();
-}
-
-/// Loading state while P2P swaps are being fetched.
+/// Loading state while P2P swaps are initially being observed.
 final class P2pSwapsLoading extends P2pSwapsState {
   /// Creates a [P2pSwapsLoading] state.
   const P2pSwapsLoading();
@@ -33,12 +27,12 @@ final class P2pSwapsPopulated extends P2pSwapsState {
   List<Object?> get props => <Object?>[swaps];
 }
 
-/// Failure state emitted when P2P swaps cannot be fetched.
+/// Failure state emitted when P2P swaps cannot be observed.
 final class P2pSwapsFailure extends P2pSwapsState {
   /// Creates a [P2pSwapsFailure] state.
   const P2pSwapsFailure({required this.exception});
 
-  /// Error that prevented the P2P swaps from being fetched.
+  /// Error that prevented the P2P swaps from being observed.
   final SyriusException exception;
 
   @override

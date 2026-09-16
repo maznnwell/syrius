@@ -8,11 +8,25 @@ class HtlcSwapsDao extends DatabaseAccessor<HtlcSwapsDatabase>
     with _$HtlcSwapsDaoMixin {
   HtlcSwapsDao(super.attachedDatabase);
 
-  Future<List<HtlcSwapEntry>> readAllSwapEntries(int chainId) =>
-      (select(htlcSwapEntries)..where(
-            ($HtlcSwapEntriesTable table) => table.chainId.equals(chainId),
-          ))
+  Future<List<HtlcSwapEntry>> readAllSwapEntries() =>
+      (select(htlcSwapEntries)..orderBy(<
+            OrderingTerm Function(
+              $HtlcSwapEntriesTable,
+            )
+          >[
+            ($HtlcSwapEntriesTable table) => OrderingTerm.desc(table.startTime),
+          ]))
           .get();
+
+  Stream<List<HtlcSwapEntry>> watchAllSwapEntries() =>
+      (select(htlcSwapEntries)..orderBy(<
+            OrderingTerm Function(
+              $HtlcSwapEntriesTable,
+            )
+          >[
+            ($HtlcSwapEntriesTable table) => OrderingTerm.desc(table.startTime),
+          ]))
+          .watch();
 
   Future<List<HtlcSwapEntry>> readSwapEntriesByState(
     int chainId,
@@ -40,11 +54,9 @@ class HtlcSwapsDao extends DatabaseAccessor<HtlcSwapsDatabase>
                 table.counterHtlcId.equals(htlcId)),
       );
 
-  Future<HtlcSwapEntry?> readSwapEntryById(int chainId, String id) =>
-      _readSingleSwapEntry(
-        ($HtlcSwapEntriesTable table) =>
-            table.chainId.equals(chainId) & table.id.equals(id),
-      );
+  Future<HtlcSwapEntry?> readSwapEntryById(String id) => _readSingleSwapEntry(
+    ($HtlcSwapEntriesTable table) => table.id.equals(id),
+  );
 
   Future<int> readLastCheckedHtlcBlockHeight(int chainId) async {
     final HtlcScanCheckpoint? checkpoint =

@@ -1,10 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swap_local_storage_api.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
@@ -47,22 +46,55 @@ void main() {
     }
   });
 
-  test('stores and queries swaps for the current chain', () async {
-    final HtlcSwap swap = _buildSwap();
-    await repository.storeSwap(swap);
+  test(
+    'reads swap history across chains and scopes operational queries',
+    () async {
+      final HtlcSwap swap = _buildSwap();
+      await repository.storeSwap(swap);
 
-    expect(await repository.getAllSwaps(), <HtlcSwap>[swap]);
-    expect(await repository.getSwapById(swap.id), swap);
-    expect(await repository.getSwapByHashLock(swap.hashLock), swap);
-    expect(await repository.getSwapByHtlcId(swap.initialHtlcId), swap);
-    expect(await repository.getSwapByHtlcId(swap.counterHtlcId!), swap);
-    expect(
-      await repository.getSwapsByState(<P2pSwapState>[P2pSwapState.active]),
-      <HtlcSwap>[swap],
+      expect(await repository.getAllSwaps(), <HtlcSwap>[swap]);
+      expect(await repository.getSwapById(swap.id), swap);
+      expect(await repository.getSwapByHashLock(swap.hashLock), swap);
+      expect(await repository.getSwapByHtlcId(swap.initialHtlcId), swap);
+      expect(await repository.getSwapByHtlcId(swap.counterHtlcId!), swap);
+      expect(
+        await repository.getSwapsByState(<P2pSwapState>[P2pSwapState.active]),
+        <HtlcSwap>[swap],
+      );
+
+      kNodeChainId = 2;
+      expect(await repository.getAllSwaps(), <HtlcSwap>[swap]);
+      expect(await repository.getSwapById(swap.id), swap);
+      expect(await repository.getSwapByHashLock(swap.hashLock), isNull);
+      expect(
+        await repository.getSwapsByState(<P2pSwapState>[P2pSwapState.active]),
+        isEmpty,
+      );
+    },
+  );
+
+  test('watches swap history across chains ordered newest first', () async {
+    final StreamIterator<List<HtlcSwap>> swaps = StreamIterator<List<HtlcSwap>>(
+      repository.watchAllSwaps(),
     );
+    addTearDown(swaps.cancel);
 
-    kNodeChainId = 2;
-    expect(await repository.getAllSwaps(), isEmpty);
+    expect(await swaps.moveNext(), isTrue);
+    expect(swaps.current, isEmpty);
+
+    final HtlcSwap older = _buildSwap(id: 'older');
+    await repository.storeSwap(older);
+    expect(await swaps.moveNext(), isTrue);
+    expect(swaps.current, <HtlcSwap>[older]);
+
+    final HtlcSwap newer = _buildSwap(
+      id: 'newer',
+      chainId: 2,
+      startTime: 2,
+    );
+    await repository.storeSwap(newer);
+    expect(await swaps.moveNext(), isTrue);
+    expect(swaps.current, <HtlcSwap>[newer, older]);
   });
 
   test('stores scan checkpoints independently for each chain', () async {
@@ -121,9 +153,15 @@ void main() {
 
     await repository.deleteInactiveSwaps();
 
-    expect(await repository.getAllSwaps(), <HtlcSwap>[active]);
+    expect(
+      await repository.getAllSwaps(),
+      unorderedEquals(<HtlcSwap>[active, otherChain]),
+    );
     kNodeChainId = 2;
-    expect(await repository.getAllSwaps(), <HtlcSwap>[otherChain]);
+    expect(
+      await repository.getAllSwaps(),
+      unorderedEquals(<HtlcSwap>[active, otherChain]),
+    );
   });
 
   test('encrypts the database and rejects an incorrect key', () async {
@@ -217,6 +255,7 @@ HtlcSwap _buildSwap({
   int chainId = 1,
   P2pSwapState state = P2pSwapState.active,
   String? preimage,
+  int startTime = 1,
 }) => HtlcSwap(
   hashLock: 'hash-lock-$id',
   initialHtlcId: 'initial-htlc-id-$id',
@@ -232,7 +271,7 @@ HtlcSwap _buildSwap({
   fromToken: kZnnCoin,
   fromChain: P2pSwapChain.nom,
   toChain: P2pSwapChain.nom,
-  startTime: 1,
+  startTime: startTime,
   state: state,
   toAmount: BigInt.from(200),
   toToken: kQsrCoin,

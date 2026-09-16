@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swaps_dao.dart';
@@ -14,11 +16,12 @@ void main() {
 
   tearDown(() => database.close());
 
-  test('reads swap entries by chain, state, and identifiers', () async {
-    final HtlcSwapEntry first = _buildEntry(id: 'first');
+  test('reads all swap entries and chain-scoped operational data', () async {
+    final HtlcSwapEntry first = _buildEntry(id: 'first', startTime: 3);
     final HtlcSwapEntry second = _buildEntry(
       id: 'second',
       state: 'completed',
+      startTime: 2,
     );
     final HtlcSwapEntry otherChain = _buildEntry(
       id: 'other-chain',
@@ -27,18 +30,42 @@ void main() {
     await _writeEntries(dao, <HtlcSwapEntry>[first, second, otherChain]);
 
     expect(
-      await dao.readAllSwapEntries(1),
-      unorderedEquals(<HtlcSwapEntry>[first, second]),
+      await dao.readAllSwapEntries(),
+      <HtlcSwapEntry>[first, second, otherChain],
     );
     expect(
       await dao.readSwapEntriesByState(1, <String>['completed']),
       <HtlcSwapEntry>[second],
     );
-    expect(await dao.readSwapEntryById(1, first.id), first);
-    expect(await dao.readSwapEntryById(2, first.id), isNull);
+    expect(await dao.readSwapEntryById(first.id), first);
     expect(await dao.readSwapEntryByHashLock(1, first.hashLock), first);
     expect(await dao.readSwapEntryByHtlcId(1, first.initialHtlcId), first);
     expect(await dao.readSwapEntryByHtlcId(1, first.counterHtlcId!), first);
+  });
+
+  test('watches all swap entries ordered newest first', () async {
+    final StreamIterator<List<HtlcSwapEntry>> entries =
+        StreamIterator<List<HtlcSwapEntry>>(
+          dao.watchAllSwapEntries(),
+        );
+    addTearDown(entries.cancel);
+
+    expect(await entries.moveNext(), isTrue);
+    expect(entries.current, isEmpty);
+
+    final HtlcSwapEntry older = _buildEntry(id: 'older');
+    await _writeEntries(dao, <HtlcSwapEntry>[older]);
+    expect(await entries.moveNext(), isTrue);
+    expect(entries.current, <HtlcSwapEntry>[older]);
+
+    final HtlcSwapEntry newer = _buildEntry(
+      id: 'newer',
+      chainId: 2,
+      startTime: 2,
+    );
+    await _writeEntries(dao, <HtlcSwapEntry>[newer]);
+    expect(await entries.moveNext(), isTrue);
+    expect(entries.current, <HtlcSwapEntry>[newer, older]);
   });
 
   test('stores checkpoints independently for each chain', () async {
@@ -67,20 +94,18 @@ void main() {
 
     await dao.deleteSwapEntriesByState(1, <String>['completed']);
     expect(
-      await dao.readAllSwapEntries(1),
-      <HtlcSwapEntry>[active],
+      await dao.readAllSwapEntries(),
+      unorderedEquals(<HtlcSwapEntry>[active, otherChain]),
     );
-    expect(await dao.readAllSwapEntries(2), <HtlcSwapEntry>[otherChain]);
 
     await dao.deleteSwapEntry(active.id);
-    expect(await dao.readAllSwapEntries(1), isEmpty);
+    expect(await dao.readAllSwapEntries(), <HtlcSwapEntry>[otherChain]);
   });
 
   test('prunes the oldest eligible entry when the limit is exceeded', () async {
     final HtlcSwapEntry oldest = _buildEntry(
       id: 'oldest',
       state: 'completed',
-      startTime: 1,
     );
     final HtlcSwapEntry active = _buildEntry(
       id: 'active',
@@ -99,7 +124,7 @@ void main() {
     );
 
     expect(
-      await dao.readAllSwapEntries(1),
+      await dao.readAllSwapEntries(),
       unorderedEquals(<HtlcSwapEntry>[active, newest]),
     );
   });
@@ -115,7 +140,7 @@ void main() {
       prunableStates: const <String>['completed', 'unsuccessful'],
     );
 
-    expect(await dao.readSwapEntryById(1, entry.id), entry);
+    expect(await dao.readSwapEntryById(entry.id), entry);
     expect(await dao.readLastCheckedHtlcBlockHeight(1), 10);
   });
 
@@ -139,7 +164,7 @@ void main() {
       throwsA(anything),
     );
 
-    expect(await dao.readAllSwapEntries(1), isEmpty);
+    expect(await dao.readAllSwapEntries(), isEmpty);
     expect(await dao.readLastCheckedHtlcBlockHeight(1), 0);
   });
 }

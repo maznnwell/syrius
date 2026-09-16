@@ -19,10 +19,10 @@ class P2pSwapsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final P2pSwapRepository<HtlcSwap> swapRepository = sl<HtlcSwapRepository>();
 
-    return BlocProvider<P2pSwapsBloc>(
-      create: (_) => P2pSwapsBloc(
+    return BlocProvider<P2pSwapsCubit>(
+      create: (_) => P2pSwapsCubit(
         swapRepository: swapRepository,
-      )..add(const P2pSwapsRequested()),
+      ),
       child: _View(swapRepository: swapRepository),
     );
   }
@@ -40,13 +40,9 @@ class _View extends StatelessWidget {
         title: context.l10n.p2pSwaps,
         description: context.l10n.p2pSwapsConductedWithWallet,
       ),
-      onRefreshPressed: () {
-        context.read<P2pSwapsBloc>().add(const P2pSwapsRequested());
-      },
-      body: BlocBuilder<P2pSwapsBloc, P2pSwapsState>(
+      body: BlocBuilder<P2pSwapsCubit, P2pSwapsState>(
         builder: (BuildContext context, P2pSwapsState state) {
           return switch (state) {
-            P2pSwapsInitial() => const SyriusLoadingWidget(),
             P2pSwapsLoading() => const SyriusLoadingWidget(),
             P2pSwapsFailure(:final SyriusException exception) =>
               SyriusErrorWidget(exception),
@@ -77,9 +73,6 @@ class _View extends StatelessWidget {
       if (swap.mode == P2pSwapMode.htlc) {
         await _swapRepository.deleteSwap(swap.id);
       }
-      if (context.mounted) {
-        context.read<P2pSwapsBloc>().add(const P2pSwapsRequested());
-      }
     }
   }
 
@@ -93,9 +86,6 @@ class _View extends StatelessWidget {
 
     if (deleteHistoryConfirmed ?? false) {
       await _swapRepository.deleteInactiveSwaps();
-      if (context.mounted) {
-        context.read<P2pSwapsBloc>().add(const P2pSwapsRequested());
-      }
     }
   }
 }
