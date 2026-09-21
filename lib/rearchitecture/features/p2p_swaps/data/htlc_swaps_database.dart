@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:hex/hex.dart';
-import 'package:sqlite3/src/ffi/api.dart';
+import 'package:sqlite3/sqlite3.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swaps_dao.dart';
 
 part 'htlc_swaps_database.g.dart';
@@ -77,7 +77,7 @@ class HtlcScanCheckpoints extends Table {
 /// Stores HTLC swaps in an encrypted Drift database.
 class HtlcSwapsDatabase extends _$HtlcSwapsDatabase {
   /// Creates a database using [executor].
-  HtlcSwapsDatabase(super.executor);
+  HtlcSwapsDatabase(super.e);
 
   /// Creates a database at [file] encrypted with [encryptionKey].
   factory HtlcSwapsDatabase.encrypted(File file, List<int> encryptionKey) {

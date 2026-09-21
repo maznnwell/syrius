@@ -41,6 +41,8 @@ sealed class P2pSwap with _$P2pSwap {
   const P2pSwap._();
 
   @FreezedUnionValue('htlc')
+  // Freezed reads JsonSerializable options from union factory constructors.
+  // ignore: invalid_annotation_target
   @JsonSerializable(explicitToJson: true)
   const factory P2pSwap.htlc({
     required String hashLock,

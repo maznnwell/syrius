@@ -247,7 +247,7 @@ class HtlcSwapSyncService {
       return null;
     }
 
-    final int expirationTime = blockData.params['expirationTime'].toInt();
+    final int expirationTime = blockData.params['expirationTime'];
     return swap.copyWith(
       counterHtlcId: htlcId,
       toAmount: pairedBlock.amount,
@@ -345,7 +345,7 @@ class HtlcSwapSyncService {
 
     // Verify that the hash types match.
     if (!data.params.containsKey('hashType') ||
-        data.params['hashType'].toInt() != swap.hashType) {
+        data.params['hashType'] != swap.hashType) {
       return false;
     }
 
