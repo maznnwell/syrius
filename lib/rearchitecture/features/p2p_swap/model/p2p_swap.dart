@@ -5,6 +5,8 @@ part 'p2p_swap.freezed.dart';
 
 part 'p2p_swap.g.dart';
 
+// The name of the variables are self-explanatory
+// ignore_for_file: public_member_api_docs
 enum P2pSwapType {
   native,
   crosschain,
