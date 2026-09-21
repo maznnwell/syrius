@@ -248,18 +248,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deleteHistoryKeepsActiveSwaps =>
-      'Are you sure you want to delete your swap history? Active swaps cannot be deleted.';
-
-  @override
   String get deleteSwap => 'Delete swap';
 
   @override
   String get deleteSwapCannotBeUndone =>
       'Are you sure you want to delete this swap? This action cannot be undone.';
-
-  @override
-  String get deleteSwapHistory => 'Delete swap history';
 
   @override
   String get disassemble => 'DISASSEMBLE';
@@ -307,6 +300,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorCompletingSwap => 'Error while completing swap';
+
+  @override
+  String get errorDeletingSwap => 'Error while deleting swap';
 
   @override
   String get errorCollectingPillarRewards =>

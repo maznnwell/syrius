@@ -23,15 +23,13 @@ class P2pSwapsCard extends StatelessWidget {
       create: (_) => P2pSwapsCubit(
         swapRepository: swapRepository,
       ),
-      child: _View(swapRepository: swapRepository),
+      child: const _View(),
     );
   }
 }
 
 class _View extends StatelessWidget {
-  const _View({required this._swapRepository});
-
-  final P2pSwapRepository<HtlcSwap> _swapRepository;
+  const _View();
 
   @override
   Widget build(BuildContext context) {
@@ -47,9 +45,6 @@ class _View extends StatelessWidget {
             P2pSwapsFailure(:final SyriusException exception) =>
               SyriusErrorWidget(exception),
             P2pSwapsPopulated(:final List<P2pSwap> swaps) => _Populated(
-              onDeleteHistory: () => _onDeleteSwapHistoryTapped(context),
-              onDeleteSwap: (P2pSwap swap) =>
-                  _onDeleteSwapTapped(context, swap),
               swaps: swaps,
             ),
           };
@@ -57,90 +52,36 @@ class _View extends StatelessWidget {
       ),
     );
   }
-
-  Future<void> _onDeleteSwapTapped(
-    BuildContext context,
-    P2pSwap swap,
-  ) async {
-    final bool? deleteConfirmed = await showDialogWithNoAndYesOptions(
-      context: context,
-      isBarrierDismissible: true,
-      title: context.l10n.deleteSwap,
-      description: context.l10n.deleteSwapCannotBeUndone,
-    );
-
-    if (deleteConfirmed ?? false) {
-      if (swap.mode == P2pSwapMode.htlc) {
-        await _swapRepository.deleteSwap(swap.id);
-      }
-    }
-  }
-
-  Future<void> _onDeleteSwapHistoryTapped(BuildContext context) async {
-    final bool? deleteHistoryConfirmed = await showDialogWithNoAndYesOptions(
-      context: context,
-      isBarrierDismissible: true,
-      title: context.l10n.deleteSwapHistory,
-      description: context.l10n.deleteHistoryKeepsActiveSwaps,
-    );
-
-    if (deleteHistoryConfirmed ?? false) {
-      await _swapRepository.deleteInactiveSwaps();
-    }
-  }
 }
 
-class _Populated extends StatefulWidget {
+class _Populated extends StatelessWidget {
   const _Populated({
-    required this._onDeleteHistory,
-    required this._onDeleteSwap,
     required this._swaps,
   });
 
-  final VoidCallback _onDeleteHistory;
-  final ValueChanged<P2pSwap> _onDeleteSwap;
   final List<P2pSwap> _swaps;
 
   @override
-  State<_Populated> createState() => _PopulatedState();
-}
-
-class _PopulatedState extends State<_Populated> {
-  @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton.icon(
-            onPressed: widget._onDeleteHistory,
-            icon: const Icon(Icons.delete),
-            label: Text(context.l10n.deleteSwapHistory),
+    return InfiniteScrollTable<P2pSwap>(
+      onItemTap: (int index) {
+        unawaited(
+          showCustomDialog(
+            context: context,
+            content: P2pSwapModal(swapId: _swaps[index].id),
           ),
-        ),
-        Expanded(
-          child: InfiniteScrollTable<P2pSwap>(
-            onItemTap: (int index) {
-              unawaited(
-                showCustomDialog(
-                  context: context,
-                  content: P2pSwapModal(swapId: widget._swaps[index].id),
-                ),
-              );
-            },
-            items: widget._swaps,
-            hasReachedMax: true,
-            generateRowCells: _buildRowCells,
-            onScrollReachedBottom: () {},
-            columns: const <InfiniteScrollTableColumnType>[
-              .status,
-              .from,
-              .to,
-              .started,
-              .blank,
-            ],
-          ),
-        ),
+        );
+      },
+      items: _swaps,
+      hasReachedMax: true,
+      generateRowCells: _buildRowCells,
+      onScrollReachedBottom: () {},
+      columns: const <InfiniteScrollTableColumnType>[
+        .status,
+        .from,
+        .to,
+        .started,
+        .blank,
       ],
     );
   }
@@ -170,12 +111,23 @@ class _PopulatedState extends State<_Populated> {
         InfiniteScrollTableCell.withText(content: '-'),
       DateCell(timestampMs: swap.startTime * 1000),
       InfiniteScrollTableCell(
-        child: _ActionButton(
-          swap: swap,
-          onDelete: widget._onDeleteSwap,
+        child: SizedBox.square(
+          dimension: 36,
+          child: Align(
+            child: _buildDeleteButton(swap),
+          ),
         ),
       ),
     ];
+  }
+
+  Widget _buildDeleteButton(P2pSwap swap) {
+    return switch (swap.state) {
+      P2pSwapState.completed ||
+      P2pSwapState.unsuccessful ||
+      P2pSwapState.error => DeleteP2pSwapButton(swapId: swap.id),
+      _ => const SizedBox.shrink(),
+    };
   }
 }
 
@@ -239,34 +191,6 @@ class _Amount extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this._onDelete,
-    required this._swap,
-  });
-
-  final ValueChanged<P2pSwap> _onDelete;
-  final P2pSwap _swap;
-
-  @override
-  Widget build(BuildContext context) {
-    final Widget deleteButton = OutlinedButton.icon(
-      onPressed: () => _onDelete(_swap),
-      icon: const Icon(Icons.delete),
-      label: Text(context.l10n.deleteSwap),
-    );
-
-    return SizedBox(
-      height: 36,
-      child: switch (_swap.state) {
-        P2pSwapState.completed => deleteButton,
-        P2pSwapState.unsuccessful => deleteButton,
-        _ => const SizedBox.shrink(),
-      },
     );
   }
 }

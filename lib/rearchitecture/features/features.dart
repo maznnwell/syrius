@@ -15,6 +15,7 @@ export 'create_token/create_token.dart';
 export 'create_token_stepper/create_token_stepper.dart';
 export 'delegation/delegation.dart';
 export 'delegation_stats/delegation_stats.dart';
+export 'delete_p2p_swap/delete_p2p_swap.dart';
 export 'deploy_pillar/deploy_pillar.dart';
 export 'deploy_sentinel/deploy_sentinel.dart';
 export 'dual_coin_stats/dual_coin_stats.dart';

@@ -496,12 +496,6 @@ abstract class AppLocalizations {
   /// **'All the deposited {kQsrCoinSymbol} will be burned in order to create the Pillar Slot'**
   String depositedCoinWillBurn(Object kQsrCoinSymbol);
 
-  /// No description provided for @deleteHistoryKeepsActiveSwaps.
-  ///
-  /// In en, this message translates to:
-  /// **'Are you sure you want to delete your swap history? Active swaps cannot be deleted.'**
-  String get deleteHistoryKeepsActiveSwaps;
-
   /// No description provided for @deleteSwap.
   ///
   /// In en, this message translates to:
@@ -513,12 +507,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to delete this swap? This action cannot be undone.'**
   String get deleteSwapCannotBeUndone;
-
-  /// No description provided for @deleteSwapHistory.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete swap history'**
-  String get deleteSwapHistory;
 
   /// No description provided for @disassemble.
   ///
@@ -591,6 +579,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error while completing swap'**
   String get errorCompletingSwap;
+
+  /// No description provided for @errorDeletingSwap.
+  ///
+  /// In en, this message translates to:
+  /// **'Error while deleting swap'**
+  String get errorDeletingSwap;
 
   /// No description provided for @errorCollectingPillarRewards.
   ///
