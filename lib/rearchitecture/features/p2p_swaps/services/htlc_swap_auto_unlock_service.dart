@@ -77,7 +77,7 @@ class HtlcSwapAutoUnlockService {
       if (!error.message.contains('data non existent')) {
         await _sendErrorNotification(error.toString());
       }
-    } catch (error, stackTrace) {
+    } on Object catch (error, stackTrace) {
       _logger.log(Level.WARNING, 'unlockNext', error, stackTrace);
       await _sendErrorNotification(error.toString());
     }
@@ -107,7 +107,7 @@ class HtlcSwapAutoUnlockService {
   Future<void> _notify(WalletNotification notification) async {
     try {
       await _notificationsBloc.addNotification(notification);
-    } catch (error, stackTrace) {
+    } on Object catch (error, stackTrace) {
       _logger.log(Level.WARNING, 'notify', error, stackTrace);
     }
   }

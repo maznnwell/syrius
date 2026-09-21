@@ -82,7 +82,7 @@ class HtlcSwapSyncService {
       if (unresolvedSwaps.isNotEmpty) {
         await _processUnresolvedSwaps(unresolvedSwaps);
       }
-    } catch (e, stackTrace) {
+    } on Object catch (e, stackTrace) {
       _logger.log(Level.WARNING, '_runPeriodically', e, stackTrace);
     } finally {
       _scheduleNextRun();
@@ -111,7 +111,7 @@ class HtlcSwapSyncService {
     if (await hasActiveIncomingSwaps()) {
       try {
         await WakelockPlus.enable();
-      } catch (e, stackTrace) {
+      } on Object catch (e, stackTrace) {
         _logger.log(Level.WARNING, '_enableWakelockIfNeeded', e, stackTrace);
       }
     }
@@ -122,7 +122,7 @@ class HtlcSwapSyncService {
       final AccountBlock? frontier = await _zenon.ledger
           .getFrontierAccountBlock(htlcAddress);
       return frontier?.height;
-    } catch (e, stackTrace) {
+    } on Object catch (e, stackTrace) {
       _logger.log(Level.WARNING, '_getHtlcFrontierHeight', e, stackTrace);
     }
     return null;
@@ -149,7 +149,7 @@ class HtlcSwapSyncService {
               lastCheckedHeight,
             );
         lastCheckedBlockTime = blockTime ?? 0;
-      } catch (e, stackTrace) {
+      } on Object catch (e, stackTrace) {
         _logger.log(Level.WARNING, '_getNewHtlcBlocks', e, stackTrace);
         return <AccountBlock>[];
       }
@@ -160,7 +160,7 @@ class HtlcSwapSyncService {
         htlcAddress,
         max(oldestSwapStartTime, lastCheckedBlockTime),
       );
-    } catch (e, stackTrace) {
+    } on Object catch (e, stackTrace) {
       _logger.log(Level.WARNING, '_getNewHtlcBlocks', e, stackTrace);
       return <AccountBlock>[];
     }

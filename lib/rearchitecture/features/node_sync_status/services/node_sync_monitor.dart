@@ -20,7 +20,7 @@ class NodeSyncMonitor {
     try {
       final SyncInfo syncInfo = await fetch();
       return syncInfo.isSynced;
-    } catch (error, stackTrace) {
+    } on Object catch (error, stackTrace) {
       _logger.log(Level.WARNING, 'isNodeSynced', error, stackTrace);
       return false;
     }
