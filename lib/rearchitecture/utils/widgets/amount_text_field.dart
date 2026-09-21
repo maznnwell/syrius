@@ -3,7 +3,9 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buil
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
+/// An amount input with token-aware formatting and a maximum-balance action.
 class AmountTextField extends StatelessWidget {
+  /// Creates an amount input for the selected token and account.
   const AmountTextField({
     required this._accountInfo,
     required this._token,

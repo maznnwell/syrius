@@ -5,7 +5,9 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buil
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
+/// Displays the exchange rate between two token amounts.
 class ExchangeRate extends StatefulWidget {
+  /// Creates an exchange-rate display for the supplied amounts and tokens.
   const ExchangeRate({
     required this._fromAmount,
     required this._toAmount,

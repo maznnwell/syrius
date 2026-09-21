@@ -6,7 +6,9 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/details
 import 'package:zenon_syrius_wallet_flutter/utils/address_utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
+/// Displays expandable technical details for an HTLC swap.
 class HtlcSwapDetailsWidget extends StatefulWidget {
+  /// Creates a details widget for the provided swap.
   const HtlcSwapDetailsWidget({
     required this._swap,
     super.key,

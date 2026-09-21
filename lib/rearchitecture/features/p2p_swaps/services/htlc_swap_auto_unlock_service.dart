@@ -12,7 +12,9 @@ import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 const Duration _kRetryCooldown = Duration(minutes: 2);
 
+/// Unlocks eligible HTLC swaps one at a time.
 class HtlcSwapAutoUnlockService {
+  /// Creates an automatic HTLC swap unlock service.
   HtlcSwapAutoUnlockService({
     required this._notificationsBloc,
     required this._syncMonitor,
@@ -29,8 +31,10 @@ class HtlcSwapAutoUnlockService {
 
   bool _isUnlocking = false;
 
+  /// Whether an unlock attempt is currently in progress.
   bool get isUnlocking => _isUnlocking;
 
+  /// Attempts to unlock the next eligible swap in [candidates].
   Future<void> unlockNext(Iterable<HtlcSwap> candidates) async {
     final bool walletIsAvailable = kWalletFile != null;
 

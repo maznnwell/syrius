@@ -3,7 +3,9 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/constants/app_s
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/buildcontext_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/copy_to_clipboard_button.dart';
 
+/// Displays a labeled value with an optional copy action and prefix.
 class DetailsRow extends StatelessWidget {
+  /// Creates a row for displaying a detail label and value.
   const DetailsRow({
     required this._label,
     required this._value,

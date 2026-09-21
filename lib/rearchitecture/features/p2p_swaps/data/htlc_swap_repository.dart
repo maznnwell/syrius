@@ -6,7 +6,9 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/da
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/p2p_swap_repository.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 
+/// Persists and queries HTLC swaps for the active chain.
 class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
+  /// Creates a repository backed by the provided local storage API.
   HtlcSwapRepository({
     required this._chainIdProvider,
     required this._dataProvider,
@@ -45,6 +47,7 @@ class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
     return entries.map(_decodeSwap).toList();
   }
 
+  /// Returns the active chain's swap with [hashLock], if one exists.
   Future<HtlcSwap?> getSwapByHashLock(String hashLock) async {
     final int? chainId = _chainIdProvider();
     if (chainId == null) {
@@ -56,6 +59,7 @@ class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
     );
   }
 
+  /// Returns the active chain's swap containing [htlcId], if one exists.
   Future<HtlcSwap?> getSwapByHtlcId(String htlcId) async {
     final int? chainId = _chainIdProvider();
     if (chainId == null) {
@@ -71,6 +75,7 @@ class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
   Future<HtlcSwap?> getSwapById(String id) async =>
       _decodeNullableSwap(await _dataProvider.readSwapEntryById(id));
 
+  /// Returns the last processed HTLC block height for the active chain.
   Future<int> getLastCheckedHtlcBlockHeight() async {
     final int? chainId = _chainIdProvider();
     if (chainId == null) {
@@ -91,6 +96,7 @@ class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
     ],
   );
 
+  /// Stores the last processed HTLC block [height] for the active chain.
   Future<void> storeLastCheckedHtlcBlockHeight(int height) async {
     final int? chainId = _chainIdProvider();
     if (chainId == null) {
@@ -100,6 +106,7 @@ class HtlcSwapRepository extends P2pSwapRepository<HtlcSwap> {
     await _dataProvider.writeLastCheckedHtlcBlockHeight(chainId, height);
   }
 
+  /// Stores a processed block checkpoint and its optional swap update.
   Future<void> storeProcessedHtlcBlock({
     required int height,
     required HtlcSwap? updatedSwap,

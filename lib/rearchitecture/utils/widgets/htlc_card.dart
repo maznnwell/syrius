@@ -11,19 +11,22 @@ import 'package:zenon_syrius_wallet_flutter/utils/format_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_info_text.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
+/// Displays an expandable summary of a hash time-locked contract.
 class HtlcCard extends StatefulWidget {
+  /// Creates a card from explicit HTLC details.
   const HtlcCard({
-    required this.title,
-    required this.sender,
-    required this.htlcId,
-    required this.hashLock,
+    required this._title,
+    required this._sender,
+    required this._htlcId,
+    required this._hashLock,
     required this.expirationTime,
-    required this.recipient,
-    required this.amount,
-    this.token,
+    required this._recipient,
+    required this._amount,
+    this._token,
     super.key,
   });
 
+  /// Creates a card for the HTLC that sends funds in [swap].
   factory HtlcCard.sending({
     required BuildContext context,
     required HtlcSwap swap,
@@ -42,6 +45,7 @@ class HtlcCard extends StatefulWidget {
     token: swap.fromToken,
   );
 
+  /// Creates a card for the HTLC that receives funds in [swap].
   factory HtlcCard.receiving({
     required BuildContext context,
     required HtlcSwap swap,
@@ -60,6 +64,7 @@ class HtlcCard extends StatefulWidget {
     token: swap.toToken,
   );
 
+  /// Creates a card from on-chain [htlc] information.
   factory HtlcCard.fromHtlcInfo({
     required String title,
     required HtlcInfo htlc,
@@ -74,14 +79,16 @@ class HtlcCard extends StatefulWidget {
     amount: htlc.amount,
     token: token,
   );
-  final String title;
-  final String sender;
-  final String? htlcId;
-  final String? hashLock;
+  final String _title;
+  final String _sender;
+  final String? _htlcId;
+  final String? _hashLock;
+
+  /// The Unix timestamp at which the contract expires.
   final int? expirationTime;
-  final String? recipient;
-  final BigInt? amount;
-  final Token? token;
+  final String? _recipient;
+  final BigInt? _amount;
+  final Token? _token;
 
   @override
   State<HtlcCard> createState() => _HtlcCardState();
@@ -97,7 +104,7 @@ class _HtlcCardState extends State<HtlcCard> {
       text: context.l10n.waitingForCounterpartyToJoin,
     );
 
-    final Widget cardChild = widget.htlcId == null
+    final Widget cardChild = widget._htlcId == null
         ? loading
         : _buildWidgetBody();
 
@@ -114,11 +121,11 @@ class _HtlcCardState extends State<HtlcCard> {
   }
 
   Widget _buildWidgetBody() {
-    final int decimals = widget.token!.decimals;
-    final String symbol = widget.token!.symbol;
+    final int decimals = widget._token!.decimals;
+    final String symbol = widget._token!.symbol;
 
     final String title =
-        '${widget.title} ${widget.amount!.addDecimals(decimals)} ';
+        '${widget._title} ${widget._amount!.addDecimals(decimals)} ';
 
     return InkWell(
       mouseCursor: SystemMouseCursors.click,
@@ -140,7 +147,7 @@ class _HtlcCardState extends State<HtlcCard> {
                           text: symbol,
                           style: TextStyle(
                             color: ColorUtils.getTokenColor(
-                              widget.token!.tokenStandard,
+                              widget._token!.tokenStandard,
                             ),
                           ),
                         ),
@@ -196,8 +203,8 @@ class _HtlcCardState extends State<HtlcCard> {
   }
 
   Widget _buildDetailsList() {
-    final Hash htlcId = Hash.parse(widget.htlcId!);
-    final Hash hashLock = Hash.parse(widget.hashLock!);
+    final Hash htlcId = Hash.parse(widget._htlcId!);
+    final Hash hashLock = Hash.parse(widget._hashLock!);
 
     final List<Widget> children = <Widget>[
       _buildExpirationRow(widget.expirationTime!),
@@ -208,20 +215,20 @@ class _HtlcCardState extends State<HtlcCard> {
       ),
       DetailsRow(
         label: context.l10n.tokenStandard,
-        value: widget.token!.tokenStandard.toString(),
+        value: widget._token!.tokenStandard.toString(),
         prefixWidget: _buildTokenStandardTooltip(
-          widget.token!.tokenStandard.toString(),
+          widget._token!.tokenStandard.toString(),
         ),
       ),
       DetailsRow(
         label: context.l10n.sender,
-        value: widget.sender,
-        valueToShow: ZenonAddressUtils.getLabel(widget.sender),
+        value: widget._sender,
+        valueToShow: ZenonAddressUtils.getLabel(widget._sender),
       ),
       DetailsRow(
         label: context.l10n.recipient,
-        value: widget.recipient!,
-        valueToShow: ZenonAddressUtils.getLabel(widget.recipient!),
+        value: widget._recipient!,
+        valueToShow: ZenonAddressUtils.getLabel(widget._recipient!),
       ),
       DetailsRow(
         label: context.l10n.hashlock,

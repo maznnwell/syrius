@@ -28,7 +28,9 @@ const List<P2pSwapState> _kAutoUnlockableStates = <P2pSwapState>[
 
 const Duration _kPollInterval = Duration(seconds: 5);
 
+/// Synchronizes stored HTLC swaps with on-chain activity.
 class HtlcSwapSyncService {
+  /// Creates an HTLC swap synchronization service.
   HtlcSwapSyncService({
     required this._swapRepository,
     required this._autoUnlockService,
@@ -45,6 +47,7 @@ class HtlcSwapSyncService {
   Timer? _timer;
   Future<void>? _currentRun;
 
+  /// Starts periodic synchronization.
   void start() {
     if (_isRunning) {
       return;
@@ -53,6 +56,7 @@ class HtlcSwapSyncService {
     _currentRun = _runPeriodically();
   }
 
+  /// Stops periodic synchronization and waits for the current run to finish.
   Future<void> stop() async {
     _isRunning = false;
     _timer?.cancel();
@@ -61,6 +65,7 @@ class HtlcSwapSyncService {
     _currentRun = null;
   }
 
+  /// Whether an active incoming swap is currently stored.
   Future<bool> hasActiveIncomingSwaps() async {
     final List<HtlcSwap> activeSwaps = await _swapRepository.getSwapsByState(
       _kActiveStates,

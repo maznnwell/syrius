@@ -3,13 +3,15 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/constants/app_s
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/buttons/buttons.dart';
 
+/// Displays a copyable warning message in an emphasized card.
 class Warning extends StatelessWidget {
+  /// Creates a warning card for the supplied text.
   const Warning({
-    required this.text,
+    required this._text,
     super.key,
   });
 
-  final String text;
+  final String _text;
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +27,10 @@ class Warning extends StatelessWidget {
               color: AppColors.errorColor,
             ),
             Expanded(
-              child: Text(text),
+              child: Text(_text),
             ),
             CopyToClipboardButton(
-              text,
+              _text,
               iconSize: 20,
             ),
           ],

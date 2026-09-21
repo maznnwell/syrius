@@ -4,10 +4,13 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/da
 part 'htlc_swaps_dao.g.dart';
 
 @DriftAccessor(tables: <Type>[HtlcSwapEntries, HtlcScanCheckpoints])
+/// Provides database access for HTLC swaps and scan checkpoints.
 class HtlcSwapsDao extends DatabaseAccessor<HtlcSwapsDatabase>
     with _$HtlcSwapsDaoMixin {
+  /// Creates a DAO attached to the given database.
   HtlcSwapsDao(super.attachedDatabase);
 
+  /// Returns all stored swaps ordered by descending start time.
   Future<List<HtlcSwapEntry>> readAllSwapEntries() =>
       (select(htlcSwapEntries)..orderBy(<
             OrderingTerm Function(
@@ -18,6 +21,7 @@ class HtlcSwapsDao extends DatabaseAccessor<HtlcSwapsDatabase>
           ]))
           .get();
 
+  /// Watches all stored swaps ordered by descending start time.
   Stream<List<HtlcSwapEntry>> watchAllSwapEntries() =>
       (select(htlcSwapEntries)..orderBy(<
             OrderingTerm Function(
@@ -28,6 +32,7 @@ class HtlcSwapsDao extends DatabaseAccessor<HtlcSwapsDatabase>
           ]))
           .watch();
 
+  /// Returns swaps on [chainId] whose state is included in [states].
   Future<List<HtlcSwapEntry>> readSwapEntriesByState(
     int chainId,
     List<String> states,
@@ -38,6 +43,7 @@ class HtlcSwapsDao extends DatabaseAccessor<HtlcSwapsDatabase>
           ))
           .get();
 
+  /// Returns the swap on [chainId] with [hashLock], if one exists.
   Future<HtlcSwapEntry?> readSwapEntryByHashLock(
     int chainId,
     String hashLock,
@@ -46,6 +52,7 @@ class HtlcSwapsDao extends DatabaseAccessor<HtlcSwapsDatabase>
         table.chainId.equals(chainId) & table.hashLock.equals(hashLock),
   );
 
+  /// Returns the swap on [chainId] containing [htlcId], if one exists.
   Future<HtlcSwapEntry?> readSwapEntryByHtlcId(int chainId, String htlcId) =>
       _readSingleSwapEntry(
         ($HtlcSwapEntriesTable table) =>
@@ -54,10 +61,12 @@ class HtlcSwapsDao extends DatabaseAccessor<HtlcSwapsDatabase>
                 table.counterHtlcId.equals(htlcId)),
       );
 
+  /// Returns the swap identified by [id], if one exists.
   Future<HtlcSwapEntry?> readSwapEntryById(String id) => _readSingleSwapEntry(
     ($HtlcSwapEntriesTable table) => table.id.equals(id),
   );
 
+  /// Returns the last scanned HTLC block height for [chainId], or zero.
   Future<int> readLastCheckedHtlcBlockHeight(int chainId) async {
     final HtlcScanCheckpoint? checkpoint =
         await (select(htlcScanCheckpoints)..where(
@@ -68,6 +77,7 @@ class HtlcSwapsDao extends DatabaseAccessor<HtlcSwapsDatabase>
     return checkpoint?.lastCheckedHeight ?? 0;
   }
 
+  /// Stores [entry] and prunes eligible history beyond [maximumStoredSwaps].
   Future<void> writeSwapEntry(
     HtlcSwapEntry entry, {
     required int maximumStoredSwaps,
@@ -82,6 +92,7 @@ class HtlcSwapsDao extends DatabaseAccessor<HtlcSwapsDatabase>
     ),
   );
 
+  /// Atomically stores a processed block checkpoint and optional swap update.
   Future<void> writeProcessedHtlcBlock({
     required int chainId,
     required int height,
@@ -105,15 +116,18 @@ class HtlcSwapsDao extends DatabaseAccessor<HtlcSwapsDatabase>
     await _writeLastCheckedHtlcBlockHeight(chainId, height);
   });
 
+  /// Stores [height] as the last scanned HTLC block for [chainId].
   Future<void> writeLastCheckedHtlcBlockHeight(int chainId, int height) =>
       _writeLastCheckedHtlcBlockHeight(chainId, height);
 
+  /// Deletes the swap identified by [swapId].
   Future<void> deleteSwapEntry(String swapId) =>
       (delete(htlcSwapEntries)..where(
             ($HtlcSwapEntriesTable table) => table.id.equals(swapId),
           ))
           .go();
 
+  /// Deletes swaps on [chainId] whose state is included in [states].
   Future<void> deleteSwapEntriesByState(
     int chainId,
     List<String> states,

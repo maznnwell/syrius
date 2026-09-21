@@ -7,7 +7,9 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/da
 import 'package:zenon_syrius_wallet_flutter/utils/constants.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
+/// Provides encrypted local storage for HTLC swap data.
 class HtlcSwapLocalStorageApi {
+  /// Creates storage backed by [databaseFile] or the default cache database.
   HtlcSwapLocalStorageApi({File? databaseFile})
     : _storageFile =
           databaseFile ??
@@ -20,6 +22,8 @@ class HtlcSwapLocalStorageApi {
 
   File get _rekeyBackupFile => File('${_storageFile.path}.rekey-backup');
 
+  /// Opens the database with [encryptionKey], recovering a rekey backup if
+  /// needed.
   Future<void> open(List<int> encryptionKey) => _mutex.protect(() async {
     if (_connection != null) {
       return;
@@ -50,14 +54,17 @@ class HtlcSwapLocalStorageApi {
     }
   });
 
+  /// Closes the database connection.
   Future<void> close() => _mutex.protect(_closeConnection);
 
+  /// Closes and deletes the database and any rekey backup.
   Future<void> deleteDatabase() => _mutex.protect(() async {
     await _closeConnection();
     await _deleteSqliteFiles(_storageFile);
     await _deleteSqliteFiles(_rekeyBackupFile);
   });
 
+  /// Re-encrypts the database while retaining a rollback backup.
   Future<void> beginRekey({
     required List<int> oldEncryptionKey,
     required List<int> newEncryptionKey,
@@ -79,6 +86,7 @@ class HtlcSwapLocalStorageApi {
     }
   });
 
+  /// Commits a completed rekey by deleting its backup.
   Future<void> commitRekey() => _mutex.protect(() async {
     try {
       await _deleteSqliteFiles(_rekeyBackupFile);
@@ -87,15 +95,19 @@ class HtlcSwapLocalStorageApi {
     }
   });
 
+  /// Restores the rekey backup using [oldEncryptionKey].
   Future<void> rollbackRekey(List<int> oldEncryptionKey) =>
       _mutex.protect(() => _restoreRekeyBackup(oldEncryptionKey));
 
+  /// Returns all stored swaps ordered by descending start time.
   Future<List<HtlcSwapEntry>> readAllSwapEntries() =>
       _withDao((HtlcSwapsDao dao) => dao.readAllSwapEntries());
 
+  /// Watches all stored swaps ordered by descending start time.
   Stream<List<HtlcSwapEntry>> watchAllSwapEntries() =>
       _requireConnection().htlcSwapsDao.watchAllSwapEntries();
 
+  /// Returns swaps on [chainId] whose state is included in [states].
   Future<List<HtlcSwapEntry>> readSwapEntriesByState(
     int chainId,
     List<String> states,
@@ -103,6 +115,7 @@ class HtlcSwapLocalStorageApi {
     (HtlcSwapsDao dao) => dao.readSwapEntriesByState(chainId, states),
   );
 
+  /// Returns the swap on [chainId] with [hashLock], if one exists.
   Future<HtlcSwapEntry?> readSwapEntryByHashLock(
     int chainId,
     String hashLock,
@@ -110,19 +123,23 @@ class HtlcSwapLocalStorageApi {
     (HtlcSwapsDao dao) => dao.readSwapEntryByHashLock(chainId, hashLock),
   );
 
+  /// Returns the swap on [chainId] containing [htlcId], if one exists.
   Future<HtlcSwapEntry?> readSwapEntryByHtlcId(int chainId, String htlcId) =>
       _withDao(
         (HtlcSwapsDao dao) => dao.readSwapEntryByHtlcId(chainId, htlcId),
       );
 
+  /// Returns the swap identified by [id], if one exists.
   Future<HtlcSwapEntry?> readSwapEntryById(String id) => _withDao(
     (HtlcSwapsDao dao) => dao.readSwapEntryById(id),
   );
 
+  /// Returns the last scanned HTLC block height for [chainId].
   Future<int> readLastCheckedHtlcBlockHeight(int chainId) => _withDao(
     (HtlcSwapsDao dao) => dao.readLastCheckedHtlcBlockHeight(chainId),
   );
 
+  /// Stores [entry] and prunes eligible history beyond [maximumStoredSwaps].
   Future<void> writeSwapEntry(
     HtlcSwapEntry entry, {
     required int maximumStoredSwaps,
@@ -137,6 +154,7 @@ class HtlcSwapLocalStorageApi {
     ),
   );
 
+  /// Atomically stores a processed block checkpoint and optional swap update.
   Future<void> writeProcessedHtlcBlock({
     required int chainId,
     required int height,
@@ -153,15 +171,18 @@ class HtlcSwapLocalStorageApi {
     ),
   );
 
+  /// Stores [height] as the last scanned HTLC block for [chainId].
   Future<void> writeLastCheckedHtlcBlockHeight(int chainId, int height) =>
       _withDao(
         (HtlcSwapsDao dao) =>
             dao.writeLastCheckedHtlcBlockHeight(chainId, height),
       );
 
+  /// Deletes the swap identified by [swapId].
   Future<void> deleteSwapEntry(String swapId) =>
       _withDao((HtlcSwapsDao dao) => dao.deleteSwapEntry(swapId));
 
+  /// Deletes swaps on [chainId] whose state is included in [states].
   Future<void> deleteSwapEntriesByState(
     int chainId,
     List<String> states,

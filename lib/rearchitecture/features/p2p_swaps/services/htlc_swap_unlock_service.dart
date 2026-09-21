@@ -7,7 +7,9 @@ import 'package:zenon_syrius_wallet_flutter/utils/format_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/global.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
+/// Validates and unlocks HTLC swaps on-chain.
 class HtlcSwapUnlockService {
+  /// Creates an HTLC swap unlock service.
   HtlcSwapUnlockService({
     required this._accountBlockUtils,
     required this._zenon,
@@ -20,6 +22,7 @@ class HtlcSwapUnlockService {
 
   static int _currentUnixTime() => DateTime.now().unixTimestamp;
 
+  /// Validates [swap] and submits its HTLC unlock transaction.
   Future<AccountBlockTemplate> unlock(HtlcSwap swap) async {
     final String? htlcIdString = switch (swap.direction) {
       P2pSwapDirection.outgoing => swap.counterHtlcId,

@@ -21,6 +21,7 @@ List<Token> sortAssets(List<Token> assets) {
   return assets;
 }
 
+/// Returns the account's tokens that have a positive balance.
 List<Token> getTokensWithBalance({
   required AccountInfo accountInfo,
 }) {
@@ -39,6 +40,7 @@ List<Token> getTokensWithBalance({
   return tokens;
 }
 
+/// Replaces [list] with the sorted union of initial and funded tokens.
 void fillAvailableTokens({
   required List<Token> initialTokens,
   required List<Token> list,

@@ -12,13 +12,15 @@ import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/error_widge
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_widget.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
+/// Displays the current status and details of a peer-to-peer swap.
 class P2pSwapModal extends StatelessWidget {
+  /// Creates a modal for the swap identified by [_swapId].
   const P2pSwapModal({
-    required this.swapId,
+    required this._swapId,
     super.key,
   });
 
-  final String swapId;
+  final String _swapId;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,7 @@ class P2pSwapModal extends StatelessWidget {
         BlocProvider<P2pSwapBloc>(
           create: (_) => P2pSwapBloc(
             swapRepository: sl<HtlcSwapRepository>(),
-            swapId: swapId,
+            swapId: _swapId,
           )..add(const P2pSwapRequested()),
         ),
         BlocProvider<CompleteSwapBloc>(
