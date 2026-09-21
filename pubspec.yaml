@@ -68,6 +68,7 @@ dependencies:
   rxdart: ^0.28.0
   screen_capturer: ^0.2.3
   share_plus: ^12.0.1
+  sqlite3: any
   stacked: ^3.4.1
   stream_transform: ^2.1.0
   styled_text: ^10.0.0

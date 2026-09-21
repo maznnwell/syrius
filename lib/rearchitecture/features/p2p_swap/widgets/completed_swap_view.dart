@@ -3,7 +3,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/app_colors.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/exchange_rate.dart';
 
 /// Completed native P2P swap content.
 class CompletedSwapView extends StatelessWidget {

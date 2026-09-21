@@ -4,9 +4,7 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/complete_swa
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swap/model/p2p_swap.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/exchange_rate.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/loading_info_text.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/warning.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 /// Active P2P swap content.

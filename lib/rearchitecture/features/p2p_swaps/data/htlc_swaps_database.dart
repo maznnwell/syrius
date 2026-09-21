@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:hex/hex.dart';
+import 'package:sqlite3/src/ffi/api.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/data/htlc_swaps_dao.dart';
 
 part 'htlc_swaps_database.g.dart';
@@ -61,7 +62,7 @@ class HtlcScanCheckpoints extends Table {
   daos: <Type>[HtlcSwapsDao],
 )
 class HtlcSwapsDatabase extends _$HtlcSwapsDatabase {
-  HtlcSwapsDatabase(QueryExecutor executor) : super(executor);
+  HtlcSwapsDatabase(super.executor);
 
   factory HtlcSwapsDatabase.encrypted(File file, List<int> encryptionKey) {
     if (encryptionKey.length != 32 ||
@@ -77,7 +78,7 @@ class HtlcSwapsDatabase extends _$HtlcSwapsDatabase {
     return HtlcSwapsDatabase(
       NativeDatabase.createInBackground(
         file,
-        setup: (database) {
+        setup: (Database database) {
           if (database.select('PRAGMA cipher;').isEmpty) {
             throw UnsupportedError(
               'SQLite3MultipleCiphers is required for HTLC swap storage',
@@ -112,7 +113,7 @@ class HtlcSwapsDatabase extends _$HtlcSwapsDatabase {
     }
 
     await customStatement(
-      'PRAGMA hexrekey = \'${HEX.encode(encryptionKey)}\';',
+      "PRAGMA hexrekey = '${HEX.encode(encryptionKey)}';",
     );
   }
 }

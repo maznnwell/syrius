@@ -10,10 +10,7 @@ import 'package:zenon_syrius_wallet_flutter/utils/extensions.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/input_validators.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/notification_utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/zts_utils.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/bullet_point_card.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/exchange_rate.dart';
 import 'package:zenon_syrius_wallet_flutter/widgets/reusable_widgets/input_fields/input_fields.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/warning.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 
 /// Form for reviewing and joining a validated native P2P swap.

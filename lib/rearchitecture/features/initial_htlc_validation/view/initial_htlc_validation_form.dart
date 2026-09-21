@@ -4,7 +4,6 @@ import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/initial_htlc
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/initial_htlc_validation/view/initial_htlc_validation_button.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/utils.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/input_validators.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/widgets/warning.dart';
 
 /// Form for finding and validating an initial HTLC deposit.
 class InitialHtlcValidationForm extends StatefulWidget {

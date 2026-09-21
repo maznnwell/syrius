@@ -5,7 +5,6 @@ import 'package:logging/logging.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:zenon_syrius_wallet_flutter/model/block_data.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
-import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/p2p_swaps/services/htlc_swap_auto_unlock_service.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/utils/extensions/date_time_extension.dart';
 import 'package:zenon_syrius_wallet_flutter/utils/utils.dart';
 import 'package:znn_sdk_dart/znn_sdk_dart.dart';
@@ -247,7 +246,7 @@ class HtlcSwapSyncService {
     return swap.copyWith(
       counterHtlcId: htlcId,
       toAmount: pairedBlock.amount,
-      toToken: pairedBlock.token!,
+      toToken: pairedBlock.token,
       counterHtlcExpirationTime: expirationTime,
     );
   }

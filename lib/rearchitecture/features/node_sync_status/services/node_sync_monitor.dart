@@ -5,7 +5,7 @@ import 'package:znn_sdk_dart/znn_sdk_dart.dart';
 /// Provides current node sync information while coalescing concurrent requests.
 class NodeSyncMonitor {
   /// Creates a monitor backed by the provided Zenon client.
-  NodeSyncMonitor({required Zenon zenon}) : _zenon = zenon;
+  NodeSyncMonitor({required this._zenon});
 
   final Zenon _zenon;
   final Logger _logger = Logger('NodeSyncMonitor');
