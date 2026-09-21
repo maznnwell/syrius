@@ -1,6 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hive_ce/hive_ce.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:zenon_syrius_wallet_flutter/model/model.dart';
 import 'package:zenon_syrius_wallet_flutter/rearchitecture/features/features.dart';
@@ -22,8 +21,6 @@ class MockZenonAddressUtils extends Mock implements ZenonAddressUtils {}
 
 class MockAccountBlockTemplate extends Mock implements AccountBlockTemplate {}
 
-class MockBox extends Mock implements Box<dynamic> {}
-
 void main() {
   initHydratedStorage();
 
@@ -41,7 +38,8 @@ void main() {
     late MockZenonAddressUtils zenonAddressUtils;
     late MockAccountBlockTemplate template;
     late MockAccountBlockTemplate response;
-    late MockBox favoriteTokensBox;
+    late Hash sendBlockHash;
+    late TokenStandard newTokenStandard;
     late NewTokenData tokenData;
     late IssueTokenBloc bloc;
 
@@ -53,7 +51,13 @@ void main() {
       zenonAddressUtils = MockZenonAddressUtils();
       template = MockAccountBlockTemplate();
       response = MockAccountBlockTemplate();
-      favoriteTokensBox = MockBox();
+      sendBlockHash = Hash.parse(
+        '33f409250960e0c1c9f57b8a278f0937'
+        '49bf8844ea0ca4f4b7b5526d05cdd3ce',
+      );
+      newTokenStandard = TokenStandard.parse(
+        'zts1zdl4pmr425t0j97v4eu0du',
+      );
       tokenData = NewTokenData(
         address: emptyAddress.toString(),
         tokenName: 'Token',
@@ -82,6 +86,7 @@ void main() {
           any(),
         ),
       ).thenReturn(template);
+      when(() => response.hash).thenReturn(sendBlockHash);
       when(() => response.tokenStandard).thenReturn(znnZts);
       when(
         () => accountBlockUtils.createAccountBlock(
@@ -91,12 +96,10 @@ void main() {
           waitForRequiredPlasma: any(named: 'waitForRequiredPlasma'),
         ),
       ).thenAnswer((_) async => response);
-      when(() => favoriteTokensBox.add(any())).thenAnswer((_) async => 0);
       when(() => zenonAddressUtils.refreshBalance()).thenAnswer((_) {});
 
       bloc = IssueTokenBloc(
         accountBlockUtils: accountBlockUtils,
-        favoriteTokensBox: favoriteTokensBox,
         zenon: zenon,
         zenonAddressUtils: zenonAddressUtils,
       );
@@ -126,12 +129,14 @@ void main() {
             tokenData.isUtility,
           ),
         ).called(1);
-        verify(() => favoriteTokensBox.add(znnZts.toString())).called(1);
         verify(() => zenonAddressUtils.refreshBalance()).called(1);
       },
       expect: () => <IssueTokenState>[
         const IssueTokenLoading(),
-        IssueTokenDone(accountBlock: response),
+        IssueTokenDone(
+          accountBlock: response,
+          newTokenStandard: newTokenStandard,
+        ),
       ],
     );
 
