@@ -56,6 +56,8 @@ final FlutterLocalNotificationsPlugin desktopNotificationsPlugin =
 final GlobalKey<NavigatorState> globalNavigatorKey =
     GlobalKey<NavigatorState>();
 
+TrayIcon? _trayIcon;
+
 Future<void> initializeDesktopNotifications() async {
   if (!isDesktopPlatform()) {
     return;
@@ -153,7 +155,7 @@ main() async {
   await initializeDesktopNotifications();
 
   // Setup tray manager
-  await _setupTrayManager();
+  _setupTrayManager();
 
   // Load default community nodes from assets
   await _loadDefaultCommunityNodes();
@@ -230,31 +232,71 @@ void _configureZnnDataDirectories() {
   znnDefaultCacheDirectory = znnDefaultPaths.cache;
 }
 
-Future<void> _setupTrayManager() async {
-  await trayManager.setIcon(
-    Platform.isWindows
-        ? 'assets/images/tray_app_icon.ico'
-        : 'assets/images/tray_app_icon.png',
-  );
+void _setupTrayManager() {
+  final TrayIcon trayIcon =
+      TrayIcon.create() ?? (throw StateError('Unable to create the tray icon'));
+  _trayIcon = trayIcon;
+
+  final String iconPath = Platform.isWindows
+      ? 'assets/images/tray_app_icon.ico'
+      : 'assets/images/tray_app_icon.png';
+  trayIcon.icon =
+      ImageAsset.fromAsset(iconPath) ??
+      (throw StateError('Unable to load the tray icon'));
   if (Platform.isMacOS) {
-    await trayManager.setToolTip('s y r i u s');
+    trayIcon.setTooltip('s y r i u s');
   }
-  final List<MenuItem> items = <MenuItem>[
-    MenuItem(
-      key: 'show_wallet',
-      label: 'Show wallet',
-    ),
-    MenuItem(
-      key: 'hide_wallet',
-      label: 'Hide wallet',
-    ),
-    MenuItem.separator(),
-    MenuItem(
-      key: 'exit',
-      label: 'Exit wallet',
-    ),
-  ];
-  await trayManager.setContextMenu(Menu(items: items));
+
+  final Menu menu = Menu.create()!;
+  final MenuItem showWalletItem = MenuItem.createWithLabelAndType(
+    'Show wallet',
+    MenuItemType.normal,
+  )!;
+  final MenuItem hideWalletItem = MenuItem.createWithLabelAndType(
+    'Hide wallet',
+    MenuItemType.normal,
+  )!;
+  final MenuItem exitWalletItem = MenuItem.createWithLabelAndType(
+    'Exit wallet',
+    MenuItemType.normal,
+  )!;
+
+  showWalletItem.addListener((MenuEvent event) {
+    if (event is MenuItemClickedEvent) {
+      unawaited(windowManager.show());
+    }
+  });
+  hideWalletItem.addListener((MenuEvent event) {
+    if (event is MenuItemClickedEvent) {
+      unawaited(_minimizeWindow());
+    }
+  });
+  exitWalletItem.addListener((MenuEvent event) {
+    if (event is MenuItemClickedEvent) {
+      unawaited(windowManager.destroy());
+    }
+  });
+
+  menu
+    ..addItem(showWalletItem)
+    ..addItem(hideWalletItem)
+    ..addSeparator()
+    ..addItem(exitWalletItem);
+
+  trayIcon
+    ..addListener((TrayIconEvent event) {
+      if (event is TrayIconClickedEvent) {
+        trayIcon.openContextMenu();
+      }
+    })
+    ..setContextMenu(menu)
+    ..setVisible(true);
+}
+
+Future<void> _minimizeWindow() async {
+  if (!await windowManager.isMinimized()) {
+    await windowManager.minimize();
+  }
 }
 
 Future<void> _loadDefaultCommunityNodes() async {
@@ -367,11 +409,10 @@ class MyApp extends StatefulWidget {
   }
 }
 
-class _MyAppState extends State<MyApp> with WindowListener, TrayListener {
+class _MyAppState extends State<MyApp> with WindowListener {
   @override
   void initState() {
     windowManager.addListener(this);
-    trayManager.addListener(this);
     initPlatformState();
     super.initState();
   }
@@ -577,36 +618,10 @@ class _MyAppState extends State<MyApp> with WindowListener, TrayListener {
   }
 
   @override
-  void onTrayIconMouseDown() {
-    trayManager.popUpContextMenu();
-  }
-
-  @override
-  void onTrayIconRightMouseDown() {}
-
-  @override
-  void onTrayIconRightMouseUp() {}
-
-  @override
-  Future<void> onTrayMenuItemClick(MenuItem menuItem) async {
-    switch (menuItem.key) {
-      case 'show_wallet':
-        windowManager.show();
-      case 'hide_wallet':
-        if (!await windowManager.isMinimized()) {
-          windowManager.minimize();
-        }
-      case 'exit':
-        windowManager.destroy();
-      default:
-        break;
-    }
-  }
-
-  @override
   void dispose() {
     windowManager.removeListener(this);
-    trayManager.removeListener(this);
+    _trayIcon?.dispose();
+    _trayIcon = null;
     super.dispose();
   }
 }
